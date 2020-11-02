@@ -1,0 +1,20 @@
+Package: rgeco
+Type: Package
+Title: R Client for Geco Data API
+Version: 0.0.1.9000
+Author: Generable Inc
+Maintainer: Jacqueline Buros <jacqueline.buros@generable.com>
+Description: R client for accessing Generable Compute (Geco) API
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Requires:
+    httr,
+    jsonlite,
+    magrittr,
+    purrr,
+    dplyr,
+    tibble,
+    glue
+Suggests: 
+    testthat

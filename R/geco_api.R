@@ -1,0 +1,105 @@
+
+TRIALS <- 'geco/projectversion/{project_version_id}/trials'
+TRIALARMS <- 'geco/projectversion/{trial_id}/trialarms'
+SUBJECTS <- 'geco/projectversion/{project_version_id}/subjects'
+LABS <- 'geco/projectversion/{project_version_id}/labs'
+EVENTS <- 'geco/projectversion/{project_version_id}/events'
+PROJECTVERSIONS <- 'geco/project/{project}/projectversions'
+LOGIN <- 'users/login'
+
+ENV <- new.env(parent = emptyenv())
+
+#' @importFrom glue glue_safe
+geco_api_url <- function(..., project = NULL, project_version_id = NULL) {
+  root <- Sys.getenv('GECO_API_URL', unset = "https://dev.generable.com/gecoapi/v1")
+  url <- file.path(root, ..., fsep = '/')
+  glue::glue_safe(url)
+}
+
+login <- function(user, password) {
+  body <- list(email = user, password = password)
+  resp <- geco_api(LOGIN, body = body, encode = 'json', method = 'POST')
+  ENV$.GECO_AUTH <- resp$content
+  invisible(resp)
+}
+
+get_latest_version_id <- function(project) {
+  resp <- geco_api(PROJECTVERSIONS, project = project)
+  resp$content[[length(resp$content)]]$id
+}
+
+get_latest_version <- function(project) {
+  resp <- geco_api(PROJECTVERSIONS, project = project)
+  resp$content[[length(resp$content)]]
+}
+
+get_auth <- function() {
+  if (!exists(envir = ENV, '.GECO_AUTH')) {
+    futile.logger::flog.error('Not logged in. Use `login(username, password)` to login.')
+  }
+  futile.logger::flog.debug('Authorization headers found.')
+  httr::add_headers(.headers = unlist(ENV$.GECO_AUTH))
+}
+
+#' @import httr
+#' @importFrom jsonlite fromJSON
+geco_api <- function(path, ..., method = c('GET', 'POST'), project = NULL, project_version_id = NULL) {
+  url <- geco_api_url(path, project = project, project_version_id = project_version_id)
+
+  ua <- httr::user_agent("https://github.com/generable/geco-api")
+
+  method <- match.arg(method, several.ok = FALSE)
+  if (method == 'GET')
+    resp <- httr::GET(url, ..., get_auth(), ua)
+  else if (method == 'POST')
+    resp <- httr::POST(url, ..., ua)
+  #if (httr::http_type(resp) != "application/json") {
+  #  stop("API did not return json", call. = FALSE)
+  #}
+
+  parsed <- try(jsonlite::fromJSON(httr::content(resp, "text", encoding = 'UTF-8'), simplifyVector = FALSE), silent = T)
+
+  if (httr::http_error(resp)) {
+    stop(
+      sprintf(
+        "Geco API request failed [%s]\n%s\n<%s>",
+        httr::status_code(resp),
+        parsed$message,
+        parsed$documentation_url
+      ),
+      call. = FALSE
+    )
+  }
+
+  structure(
+    list(
+      content = parsed,
+      path = path,
+      response = resp
+    ),
+    class = "geco_api_data"
+  )
+}
+
+print.geco_api_data <- function(x, ...) {
+  cat("<Geco ", x$path, ">\n", sep = "")
+  if (inherits(x$content, 'try-error')) {
+    str(x$resp)
+  } else {
+    str(x$content)
+  }
+  invisible(x)
+}
+
+as_dataframe.geco_api_data <- function(x, flatten_names = 'params') {
+  content <- return_value$content
+  to_flatten <- flatten_names %>%
+    purrr::keep(~ .x %in% names(content[[1]]))
+  if (length(to_flatten) > 0)
+    content <- content %>%
+      purrr::map(purrr::map_at, to_flatten, tibble::as_tibble)
+  content %>%
+    purrr::map_dfr(~ purrr::compact(.x) %>% tibble::as_tibble())
+}
+
+
