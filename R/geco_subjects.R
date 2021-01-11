@@ -1,3 +1,9 @@
+
+#' Get subjects data for a Generable project
+#' @param project (chr) Name of project to return data for
+#' @param project_version_id (chr) Optionally, a specific version of project data to return, if not the most recent
+#' @return data.frame of subject-level data, including information about the trial & trial_arms
+#' @export
 get_geco_subjects <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   subjects <- .get_geco_subjects_data(project_version_id = pv_id)

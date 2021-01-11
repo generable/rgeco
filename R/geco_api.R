@@ -18,6 +18,10 @@ geco_api_url <- function(..., project = NULL, project_version_id = NULL) {
   glue::glue_safe(url)
 }
 
+#' Login to the Generable API
+#' @param user (chr) user email
+#' @param password (chr) user password
+#' @export
 login <- function(user, password) {
   body <- list(email = user, password = password)
   resp <- geco_api(LOGIN, body = body, encode = 'json', method = 'POST')

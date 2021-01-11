@@ -18,3 +18,4 @@ Requires:
     glue
 Suggests: 
     testthat
+RoxygenNote: 7.1.1
