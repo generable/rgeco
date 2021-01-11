@@ -4,7 +4,7 @@ TRIALARMS <- 'geco/projectversion/{project_version_id}/trialarms'
 SUBJECTS <- 'geco/projectversion/{project_version_id}/subjects'
 LABS <- 'geco/projectversion/{project_version_id}/labs'
 EVENTS <- 'geco/projectversion/{project_version_id}/events'
-DOSES <- 'geco/projectversion/{project_version_id}/doses'
+DOSE <- 'geco/projectversion/{project_version_id}/dose'
 TIMEVARYING <- 'geco/projectversion/{project_version_id}/tvs'
 PROJECTVERSIONS <- 'geco/project/{project}/projectversions'
 LOGIN <- 'users/login'
@@ -103,7 +103,7 @@ as_dataframe.geco_api_data <- function(x, flatten_names = 'params') {
     purrr::keep(~ .x %in% names(content[[1]]))
   if (length(to_flatten) > 0)
     content <- content %>%
-      purrr::map(purrr::map_at, to_flatten, tibble::as_tibble)
+      purrr::map(purrr::map_at, to_flatten, ~ purrr::compact(.x) %>% tibble::as_tibble())
   content %>%
     purrr::map_dfr(~ purrr::compact(.x) %>% tibble::as_tibble())
 }

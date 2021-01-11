@@ -20,6 +20,5 @@ get_geco_biomarkers <- function(project = NULL, project_version_id = NULL, measu
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   biomarkers <- geco_api(TIMEVARYING, project_version_id = pv_id)
   b <- as_dataframe.geco_api_data(biomarkers, flatten_names = 'params') %>%
-    dplyr::rename(measurement_id = id,
-                  id = subject_id)
+    dplyr::rename_at(.vars = dplyr::vars(created_at, dplyr::matches('params'), id), .funs = ~ stringr::str_c('measurement_', .x))
 }

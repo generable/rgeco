@@ -19,5 +19,6 @@ get_geco_subjects <- function(project = NULL, project_version_id = NULL) {
 .get_geco_subjects_data <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   subjects <- geco_api(SUBJECTS, project_version_id = pv_id)
-  s <- as_dataframe.geco_api_data(subjects, flatten_names = 'params')
+  s <- as_dataframe.geco_api_data(subjects, flatten_names = 'params') %>%
+    dplyr::rename_at(.vars = dplyr::vars(created_at, params, id), .funs = ~ stringr::str_c('subject_', .x))
 }
