@@ -1,8 +1,5 @@
 get_geco_subjects <- function(project = NULL, project_version_id = NULL) {
-  if (is.null(project_version_id))
-    pv_id <- get_latest_version(project)$id
-  else
-    pv_id <- project_version_id
+  pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   subjects <- .get_geco_subjects_data(project_version_id = pv_id)
   trial_arms <- .get_geco_trial_arms_data(project_version_id = pv_id)
   trials <- .get_geco_trials_data(project_version_id = pv_id)
@@ -14,10 +11,7 @@ get_geco_subjects <- function(project = NULL, project_version_id = NULL) {
 }
 
 .get_geco_subjects_data <- function(project = NULL, project_version_id = NULL) {
-  if (is.null(project_version_id))
-    pv_id <- get_latest_version(project)$id
-  else
-    pv_id <- project_version_id
+  pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   subjects <- geco_api(SUBJECTS, project_version_id = pv_id)
   s <- as_dataframe.geco_api_data(subjects, flatten_names = 'params')
 }

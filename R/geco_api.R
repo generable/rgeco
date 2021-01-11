@@ -5,6 +5,7 @@ SUBJECTS <- 'geco/projectversion/{project_version_id}/subjects'
 LABS <- 'geco/projectversion/{project_version_id}/labs'
 EVENTS <- 'geco/projectversion/{project_version_id}/events'
 DOSES <- 'geco/projectversion/{project_version_id}/doses'
+TIMEVARYING <- 'geco/projectversion/{project_version_id}/tvs'
 PROJECTVERSIONS <- 'geco/project/{project}/projectversions'
 LOGIN <- 'users/login'
 
@@ -103,4 +104,22 @@ as_dataframe.geco_api_data <- function(x, flatten_names = 'params') {
     purrr::map_dfr(~ purrr::compact(.x) %>% tibble::as_tibble())
 }
 
-
+.process_project_inputs <- function(project = NULL, project_version_id = NULL) {
+  # check inputs
+  if (!is.null(project) && is.null(project_version_id)) {
+    checkmate::check_character(project, len = 1, any.missing = FALSE)
+  } else if (is.null(project) && !is.null(project_version_id)) {
+    checkmate::check_character(project_version_id, len = 1, any.missing = FALSE)
+  } else if (is.null(project) && is.null(project_version_id)) {
+    stop("Either project or project_version_id are required.")
+  } else if (!is.null(project) && !is.null(project_version_id)) {
+    warning("Both project and project_version_id were provided. Project input will be ignored.")
+  }
+  # get project_version_id
+  if (is.null(project_version_id))
+    pv_id <- get_latest_version(project)$id
+  else
+    pv_id <- project_version_id
+  # return pv_id
+  pv_id
+}
