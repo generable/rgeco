@@ -4,9 +4,15 @@
 #' @param project_version_id (chr) Optionally, a specific version of project data to return, if not the most recent
 #' @return data.frame of subject-level data, including information about the trial & trial_arms
 #' @export
-get_geco_subjects <- function(project = NULL, project_version_id = NULL) {
+get_geco_subjects <- function(project = NULL, project_version_id = NULL, event_type = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   subjects <- .get_geco_subjects_data(project_version_id = pv_id)
+  if (!is.null(event_type)) {
+    events <- get_geco_events(project_version_id = pv_id, event_type = event_type) %>%
+      pivot_events_wider()
+    subjects <- subjects %>%
+      dplyr::left_join(events, by = 'subject_id')
+  }
   trial_arms <- .get_geco_trial_arms_data(project_version_id = pv_id)
   trials <- .get_geco_trials_data(project_version_id = pv_id)
   s <- subjects %>%
