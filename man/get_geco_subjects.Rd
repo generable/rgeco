@@ -4,7 +4,7 @@
 \alias{get_geco_subjects}
 \title{Get subjects data for a Generable project}
 \usage{
-get_geco_subjects(project = NULL, project_version_id = NULL)
+get_geco_subjects(project = NULL, project_version_id = NULL, event_type = NULL)
 }
 \arguments{
 \item{project}{(chr) Name of project to return data for}
