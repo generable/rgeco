@@ -1,9 +1,10 @@
 
 TRIALS <- 'geco/projectversion/{project_version_id}/trials'
-TRIALARMS <- 'geco/projectversion/{trial_id}/trialarms'
+TRIALARMS <- 'geco/projectversion/{project_version_id}/trialarms'
 SUBJECTS <- 'geco/projectversion/{project_version_id}/subjects'
 LABS <- 'geco/projectversion/{project_version_id}/labs'
 EVENTS <- 'geco/projectversion/{project_version_id}/events'
+DOSES <- 'geco/projectversion/{project_version_id}/doses'
 PROJECTVERSIONS <- 'geco/project/{project}/projectversions'
 LOGIN <- 'users/login'
 
@@ -35,7 +36,7 @@ get_latest_version <- function(project) {
 
 get_auth <- function() {
   if (!exists(envir = ENV, '.GECO_AUTH')) {
-    futile.logger::flog.error('Not logged in. Use `login(username, password)` to login.')
+    futile.logger::flog.error('Not logged in. Use `login(user, password)` to login.')
   }
   futile.logger::flog.debug('Authorization headers found.')
   httr::add_headers(.headers = unlist(ENV$.GECO_AUTH))
@@ -84,7 +85,7 @@ geco_api <- function(path, ..., method = c('GET', 'POST'), project = NULL, proje
 print.geco_api_data <- function(x, ...) {
   cat("<Geco ", x$path, ">\n", sep = "")
   if (inherits(x$content, 'try-error')) {
-    str(x$resp)
+    str(x$response)
   } else {
     str(x$content)
   }
@@ -92,7 +93,7 @@ print.geco_api_data <- function(x, ...) {
 }
 
 as_dataframe.geco_api_data <- function(x, flatten_names = 'params') {
-  content <- return_value$content
+  content <- x$content
   to_flatten <- flatten_names %>%
     purrr::keep(~ .x %in% names(content[[1]]))
   if (length(to_flatten) > 0)
