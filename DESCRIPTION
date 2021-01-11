@@ -8,7 +8,7 @@ Description: R client for accessing Generable Compute (Geco) API
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Requires:
+Imports:
     httr,
     jsonlite,
     magrittr,
