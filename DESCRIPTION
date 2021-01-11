@@ -5,7 +5,7 @@ Version: 0.0.1.9000
 Author: Generable Inc
 Maintainer: Jacqueline Buros <jacqueline.buros@generable.com>
 Description: R client for accessing Generable Compute (Geco) API
-License: What license is it under?
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Requires:
