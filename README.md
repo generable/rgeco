@@ -1,9 +1,9 @@
 # rgeco
-R client package for access to Generable compute (Geco) API. The API gives you access to Data, Inferences, and Summaries available via the generable compute cloud.
+R client package for access to Generable compute (Geco) API. The API gives you access to any datasets, inferences, and analytical summaries run on the generable compute infrastructure, or summarized in the application.
 
 You must have a licensed user account with Generable to use this package. See http://generable.com for more info or to request a demo.
 
-## Quick start
+## Quick start for data
 
 Install the package via [remotes](https://remotes.r-lib.org/):
 
@@ -19,7 +19,7 @@ library(rgeco)
 rgeco::login(user = 'user@email.com', password = 'yourpassword')
 ```
 
-List projects available
+List projects available:
 
 ```r
 projects <- get_geco_projects()
@@ -36,5 +36,11 @@ Read dosing data
 
 ```r
 doses <- get_geco_doses(project = 'demo')
+```
+
+List versions available for a project:
+
+```r
+versions <- get_geco_projectversions(project = 'demo')
 ```
 
