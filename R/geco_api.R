@@ -7,6 +7,7 @@ EVENTS <- 'geco/projectversion/{project_version_id}/events'
 DOSE <- 'geco/projectversion/{project_version_id}/dose'
 TIMEVARYING <- 'geco/projectversion/{project_version_id}/tvs'
 PROJECTVERSIONS <- 'geco/project/{project}/projectversions'
+PROJECTS <- 'geco/projects'
 LOGIN <- 'users/login'
 
 ENV <- new.env(parent = emptyenv())
