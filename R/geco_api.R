@@ -100,6 +100,10 @@ print.geco_api_data <- function(x, ...) {
 
 as_dataframe.geco_api_data <- function(x, flatten_names = 'params') {
   content <- x$content
+  if (length(content) == 0) {
+    warning('No results returned.')
+    return(tibble::tibble(id = character(0), created_at = character(0)))
+  }
   to_flatten <- flatten_names %>%
     purrr::keep(~ .x %in% names(content[[1]]))
   if (length(to_flatten) > 0)
