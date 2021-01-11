@@ -1,0 +1,87 @@
+---
+title: "Getting-started-survival-data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting-started-survival-data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ggplot2)
+library(tidyverse)
+library(survminer)
+library(rgeco)
+```
+
+First we will login to the Generable API with our username and password (here, stored in environment variables).
+
+```{r login}
+login(user = Sys.getenv('GECO_API_USER'), password = Sys.getenv('GECO_API_PASSWORD'))
+demo_project <- Sys.getenv('GECO_API_TEST_PROJECT')
+```
+
+## Loading data into memory 
+
+For this analysis we will work with survival data. The information we need is stored in the `subjects` table.
+
+```{r}
+subjects <- get_geco_subjects(project = demo_project, event_type = 'overall_survival')
+```
+
+This command returns a data.frame of records, one per subject
+
+```{r}
+glimpse(subjects)
+```
+
+Notice here that we have loaded subjects + events data in one step. For endpoints that are non-terminal or that have more than one event per subject, we would want to load those data separately by calling `get_geco_subjects(..., event_type = NULL)` and `get_geco_events(...)`. For this project, it is reasonable to load data in one step.
+
+This project contains synthetic data for 5 trials.
+
+```{r}
+subjects %>%
+  dplyr::filter(is.na(parent_trial_id)) %>%
+  distinct(trial_name)
+```
+
+Note that, in this project, we have a number of so-called "validation" trials used for testing in the context of cross-validation. For now we are going to ignore these. 
+
+```{r}
+subjects <- subjects %>%
+  dplyr::filter(is.na(parent_trial_id))
+```
+
+## Compute Kaplan-Meier survival estimates
+
+Next we will compute the Kaplan-Meier survival estimates for our 5 studies.
+
+```{r}
+km_data <- prep_km_data(data = subjects,
+                        formula = survival::Surv(time = overall_survival_event_trial_day,
+                                                 event = overall_survival_event_flag == 'occurred') ~
+                          trial_name + trial_arm_name)
+```
+
+This function returns data in a structure that is designed to make it easy to prepare survival plots using standard ggplot2 or other libraries, and eventually to overlay those with posterior inferences from our Inference API.
+
+For example, using ggplot2:
+
+```{r plot-survival}
+ggplot(km_data, aes(x = time, y = estimate, colour = trial_arm_name)) + 
+  facet_wrap(~ trial_name, ncol = 2) + 
+  geom_step() +
+  theme_minimal() + 
+  ggtitle('Kaplan-Meier estimates for overall survival') +
+  scale_y_continuous(labels = scales::percent) +
+  guides(colour = guide_legend('Trial arm'))
+```
+
+
