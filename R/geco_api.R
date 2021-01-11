@@ -88,6 +88,7 @@ geco_api <- function(path, ..., method = c('GET', 'POST'), project = NULL, proje
   )
 }
 
+#' @importFrom utils str
 print.geco_api_data <- function(x, ...) {
   cat("<Geco ", x$path, ">\n", sep = "")
   if (inherits(x$content, 'try-error')) {
@@ -98,6 +99,7 @@ print.geco_api_data <- function(x, ...) {
   invisible(x)
 }
 
+#' @importFrom magrittr %>%
 as_dataframe.geco_api_data <- function(x, flatten_names = 'params') {
   content <- x$content
   if (length(content) == 0) {

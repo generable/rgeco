@@ -4,7 +4,7 @@ Title: R Client for Geco Data API
 Version: 0.0.1.9000
 Author: Generable Inc
 Maintainer: Jacqueline Buros <jacqueline.buros@generable.com>
-Description: R client for accessing Generable Compute (Geco) API
+Description: R client for accessing Generable Compute (Geco) API.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -12,6 +12,10 @@ Imports:
     httr,
     jsonlite,
     magrittr,
+    futile.logger,
+    checkmate,
+    stringr,
+    rlang,
     purrr,
     dplyr,
     tibble,
