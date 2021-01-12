@@ -9,16 +9,18 @@ get_geco_events <- function(project = NULL, project_version_id = NULL, event_typ
   events <- .get_geco_events_data(project_version_id = pv_id)
   if (!is.null(event_type)) {
     events <- events %>%
-      dplyr::filter(event_type %in% !!event_type)
+      dplyr::filter(.data$event_type %in% !!event_type)
   }
   events
 }
 
+
+#' @importFrom rlang .data
 pivot_events_wider <- function(.d) {
   tidyr::pivot_wider(.d,
-                     id_cols = c(subject_id),
-                     names_from = c(event_type),
-                     values_from = c(event_flag, event_trial_day, event_id, event_created_at),
+                     id_cols = c(.data$subject_id),
+                     names_from = c(.data$event_type),
+                     values_from = c(.data$event_flag, .data$event_trial_day, .data$event_id, .data$event_created_at),
                      names_glue = "{event_type}_{.value}")
 }
 
