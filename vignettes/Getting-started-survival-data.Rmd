@@ -8,7 +8,7 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
-NOT_CRAN <- identical(tolower(Sys.getenv("NOT_CRAN")), "true") 
+NOT_CRAN <- !is.null(Sys.getenv("GECO_API_PASSWORD")) && Sys.getenv("GECO_API_PASSWORD") != ''
 knitr::opts_chunk$set(
   purl = NOT_CRAN,
   collapse = TRUE,
