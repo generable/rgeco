@@ -10,6 +10,8 @@ get_geco_events(project = NULL, project_version_id = NULL, event_type = NULL)
 \item{project}{(chr) Name of project to return data for}
 
 \item{project_version_id}{(chr) Optionally, a specific version of project data to return, if not the most recent}
+
+\item{event_type}{(chr) Optionally limit event_types to the names provided (example: "overall_survival"). NULL is unfiltered.}
 }
 \value{
 data.frame with one record per subject and event type

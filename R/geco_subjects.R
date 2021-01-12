@@ -2,6 +2,7 @@
 #' Get subjects data for a Generable project
 #' @param project (chr) Name of project to return data for
 #' @param project_version_id (chr) Optionally, a specific version of project data to return, if not the most recent
+#' @param event_type (chr) Optionally limit event_types to the names provided (example: "overall_survival"). The default (NULL) is to include no event data.
 #' @return data.frame of subject-level data, including information about the trial & trial_arms
 #' @export
 get_geco_subjects <- function(project = NULL, project_version_id = NULL, event_type = NULL) {

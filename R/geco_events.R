@@ -2,6 +2,7 @@
 #' Get event data for a Generable project
 #' @param project (chr) Name of project to return data for
 #' @param project_version_id (chr) Optionally, a specific version of project data to return, if not the most recent
+#' @param event_type (chr) Optionally limit event_types to the names provided (example: "overall_survival"). NULL is unfiltered.
 #' @return data.frame with one record per subject and event type
 #' @export
 get_geco_events <- function(project = NULL, project_version_id = NULL, event_type = NULL) {
