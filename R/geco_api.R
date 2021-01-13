@@ -69,10 +69,9 @@ geco_api <- function(path, ..., method = c('GET', 'POST'), project = NULL, proje
   if (httr::http_error(resp)) {
     stop(
       sprintf(
-        "Geco API request failed [%s]\n%s\n<%s>",
+        "Geco API request failed [%s: %s]",
         httr::status_code(resp),
-        parsed$message,
-        parsed$documentation_url
+        parsed$message
       ),
       call. = FALSE
     )
