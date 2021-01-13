@@ -1,5 +1,5 @@
 ---
-title: "Getting-started-survival-data"
+title: "Getting Started with the Data API: \nSurvival Data"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Getting-started-survival-data}
