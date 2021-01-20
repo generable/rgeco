@@ -11,3 +11,15 @@ testthat::test_that('project_versions endpoint works', {
   testthat::expect_is(pv2$id, 'character')
 })
 
+
+testthat::test_that('info message prints when default API URL overridden', {
+  Sys.setenv(GECO_API_URL = 'https://dev.generable.com')
+  raw <- utils::capture.output({
+    test_login()
+    pv <- geco_api(PROJECTVERSIONS, project = TEST_PROJECT)
+    pv2 <- get_latest_version(project = TEST_PROJECT)
+  })
+  testthat::expect_true(any(stringr::str_detect(raw, 'GECO_API_URL')))
+  testthat::expect_is(pv2$id, 'character')
+  Sys.unsetenv('GECO_API_URL')
+})

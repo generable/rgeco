@@ -14,8 +14,11 @@ ENV <- new.env(parent = emptyenv())
 
 #' @importFrom glue glue_safe
 geco_api_url <- function(..., project = NULL, project_version_id = NULL) {
-  root <- Sys.getenv('GECO_API_URL', unset = "https://dev.generable.com/gecoapi/v1")
-  url <- file.path(root, ..., fsep = '/')
+  if (Sys.getenv('GECO_API_URL') != '') {
+    futile.logger::flog.info(glue::glue('Default Geco API URL overridden via GECO_API_URL environment variable ({Sys.getenv("GECO_API_URL")})'))
+  }
+  root <- Sys.getenv('GECO_API_URL', unset = "https://dev.generable.com")
+  url <- file.path(root, '/gecoapi/v1', ..., fsep = '/')
   glue::glue_safe(url)
 }
 
