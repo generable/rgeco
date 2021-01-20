@@ -7,9 +7,9 @@
 login(user, password)
 }
 \arguments{
-\item{user}{(chr) user email}
+\item{user}{(chr) user email. [If not provided, reads from GECO_API_USER environment variable]}
 
-\item{password}{(chr) user password}
+\item{password}{(chr) user password [If not provided, reads from GECO_API_USER environment variable]}
 }
 \description{
 Login to the Generable API

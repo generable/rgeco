@@ -23,10 +23,16 @@ geco_api_url <- function(..., project = NULL, project_version_id = NULL) {
 }
 
 #' Login to the Generable API
-#' @param user (chr) user email
-#' @param password (chr) user password
+#' @param user (chr) user email. [If not provided, reads from GECO_API_USER environment variable]
+#' @param password (chr) user password [If not provided, reads from GECO_API_USER environment variable]
 #' @export
 login <- function(user, password) {
+  if (missing(user)) {
+    user <- Sys.getenv('GECO_API_USER')
+  }
+  if (missing(password)) {
+    password <- Sys.getenv('GECO_API_PASSWORD')
+  }
   body <- list(email = user, password = password)
   resp <- geco_api(LOGIN, body = body, encode = 'json', method = 'POST')
   ENV$.GECO_AUTH <- resp$content
