@@ -6,6 +6,7 @@ LABS <- 'geco/projectversion/{project_version_id}/labs'
 EVENTS <- 'geco/projectversion/{project_version_id}/events'
 DOSE <- 'geco/projectversion/{project_version_id}/dose'
 TIMEVARYING <- 'geco/projectversion/{project_version_id}/tvs'
+REGIMENS <- 'geco/projectversion/{project_version_id}/regimens'
 PROJECTVERSIONS <- 'geco/project/{project}/projectversions'
 PROJECTS <- 'geco/projects'
 LOGIN <- 'users/login'
@@ -104,9 +105,12 @@ print.geco_api_data <- function(x, ...) {
   invisible(x)
 }
 
+.add_prefix <- function(x, prefix, sep = '_') {
+  stringr::str_c(prefix, x, sep = sep)
+}
+
 #' @importFrom magrittr %>%
-as_dataframe.geco_api_data <- function(x, flatten_names = 'params') {
-  content <- x$content
+as_dataframe.geco_api_data <- function(x, content = x$content, flatten_names = 'params') {
   if (length(content) == 0) {
     warning('No results returned.')
     return(tibble::tibble(id = character(0), created_at = character(0)))
