@@ -6,6 +6,7 @@ LABS <- 'geco/projectversion/{project_version_id}/labs'
 EVENTS <- 'geco/projectversion/{project_version_id}/events'
 DOSE <- 'geco/projectversion/{project_version_id}/dose'
 TIMEVARYING <- 'geco/projectversion/{project_version_id}/tvs'
+REGIMENS <- 'geco/projectversion/{project_version_id}/regimens'
 PROJECTVERSIONS <- 'geco/project/{project}/projectversions'
 PROJECTS <- 'geco/projects'
 LOGIN <- 'users/login'
@@ -23,10 +24,16 @@ geco_api_url <- function(..., project = NULL, project_version_id = NULL) {
 }
 
 #' Login to the Generable API
-#' @param user (chr) user email
-#' @param password (chr) user password
+#' @param user (chr) user email. [If not provided, reads from GECO_API_USER environment variable]
+#' @param password (chr) user password [If not provided, reads from GECO_API_USER environment variable]
 #' @export
 login <- function(user, password) {
+  if (missing(user)) {
+    user <- Sys.getenv('GECO_API_USER')
+  }
+  if (missing(password)) {
+    password <- Sys.getenv('GECO_API_PASSWORD')
+  }
   body <- list(email = user, password = password)
   resp <- geco_api(LOGIN, body = body, encode = 'json', method = 'POST')
   ENV$.GECO_AUTH <- resp$content
@@ -104,9 +111,12 @@ print.geco_api_data <- function(x, ...) {
   invisible(x)
 }
 
+.add_prefix <- function(x, prefix, sep = '_') {
+  stringr::str_c(prefix, x, sep = sep)
+}
+
 #' @importFrom magrittr %>%
-as_dataframe.geco_api_data <- function(x, flatten_names = 'params') {
-  content <- x$content
+as_dataframe.geco_api_data <- function(x, content = x$content, flatten_names = 'params') {
   if (length(content) == 0) {
     warning('No results returned.')
     return(tibble::tibble(id = character(0), created_at = character(0)))
