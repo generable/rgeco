@@ -60,12 +60,15 @@ geco_api <- function(path, ..., method = c('GET', 'POST'), project = NULL, proje
 
   method <- match.arg(method, several.ok = FALSE)
   if (method == 'GET')
-    resp <- httr::GET(url, ..., get_auth(), ua)
+    resp <- try(httr::GET(url, ..., get_auth(), ua))
   else if (method == 'POST')
-    resp <- httr::POST(url, ..., ua)
+    resp <- try(httr::POST(url, ..., ua))
   #if (httr::http_type(resp) != "application/json") {
   #  stop("API did not return json", call. = FALSE)
   #}
+  if (inherits(resp, 'try-error')) {
+    stop(glue::glue("Error connecting to API: {url} {print(resp)}"))
+  }
 
   parsed <- try(jsonlite::fromJSON(httr::content(resp, "text", encoding = 'UTF-8'), simplifyVector = FALSE), silent = T)
 
