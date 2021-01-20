@@ -14,8 +14,11 @@ ENV <- new.env(parent = emptyenv())
 
 #' @importFrom glue glue_safe
 geco_api_url <- function(..., project = NULL, project_version_id = NULL) {
-  root <- Sys.getenv('GECO_API_URL', unset = "https://dev.generable.com/gecoapi/v1")
-  url <- file.path(root, ..., fsep = '/')
+  if (Sys.getenv('GECO_API_URL') != '') {
+    futile.logger::flog.info(glue::glue('Default Geco API URL overridden via GECO_API_URL environment variable ({Sys.getenv("GECO_API_URL")})'))
+  }
+  root <- Sys.getenv('GECO_API_URL', unset = "https://dev.generable.com")
+  url <- file.path(root, '/gecoapi/v1', ..., fsep = '/')
   glue::glue_safe(url)
 }
 
@@ -57,12 +60,15 @@ geco_api <- function(path, ..., method = c('GET', 'POST'), project = NULL, proje
 
   method <- match.arg(method, several.ok = FALSE)
   if (method == 'GET')
-    resp <- httr::GET(url, ..., get_auth(), ua)
+    resp <- try(httr::GET(url, ..., get_auth(), ua))
   else if (method == 'POST')
-    resp <- httr::POST(url, ..., ua)
+    resp <- try(httr::POST(url, ..., ua))
   #if (httr::http_type(resp) != "application/json") {
   #  stop("API did not return json", call. = FALSE)
   #}
+  if (inherits(resp, 'try-error')) {
+    stop(glue::glue("Error connecting to API: {url} {print(resp)}"))
+  }
 
   parsed <- try(jsonlite::fromJSON(httr::content(resp, "text", encoding = 'UTF-8'), simplifyVector = FALSE), silent = T)
 
