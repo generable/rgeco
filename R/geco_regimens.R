@@ -17,6 +17,18 @@
   td
 }
 
+.format_treatment_type <- function(types) {
+  is_multiple <- length(types) > 1
+  types <- sort(unique(types)) %>%
+    str_c(collapse = "+")
+  stopifnot(length(types) == 1)
+  if (isTRUE(is_multiple)) {
+    stringr::str_c('combination ', types)
+  } else {
+    types
+  }
+}
+
 #' @importFrom magrittr %>%
 .get_geco_regimens_data <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
@@ -27,7 +39,11 @@
     dplyr::distinct() %>%
     dplyr::rename_all(.add_prefix, prefix = 'regimen')
   td <- .format_treatments_data(regimens) %>%
-    dplyr::distinct()
+    dplyr::distinct() %>%
+    dplyr::group_by(regimen_id) %>%
+    dplyr::mutate(regimen_type = .format_treatment_type(drug_treatment_type)) %>%
+    dplyr::ungroup() %>%
+    tidyr::nest(regimen_drugs = c(dplyr::starts_with('drug'), dplyr::starts_with('treatment')))
   rd <- rd %>% dplyr::left_join(td, by = 'regimen_id')
   rd
 }

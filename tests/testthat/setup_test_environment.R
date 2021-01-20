@@ -8,3 +8,11 @@ test_login <- function() {
 }
 
 TEST_PROJECT <- Sys.getenv('GECO_API_TEST_PROJECT')
+
+expect_no_duplicates <- function(.d, by) {
+  testthat::expect_equal(.d %>%
+                           dplyr::mutate(.dup_check = stringr::str_c(!!!by, sep = ':')) %>%
+                           dplyr::filter(duplicated(.dup_check)) %>%
+                           nrow(),
+                         0, label = glue::glue('N duplicates by {stringr::str_c(purrr::map_chr(by, rlang::as_label), collapse = "+")}'))
+}

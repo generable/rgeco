@@ -5,8 +5,7 @@
   ta <- as_dataframe.geco_api_data(trial_arms, flatten_names = c('params', 'regimen')) %>%
     dplyr::mutate(trial_arm_regimen_id = regimen$id) %>%
     dplyr::select(-regimen) %>%
-    tidyr::unnest(c('params'), keep_empty = TRUE) %>%
-    dplyr::rename(trial_arm_type = params)
+    dplyr::distinct()
   regimens <- .get_geco_regimens_data(project_version_id = pv_id) %>%
     dplyr::rename_all(.add_prefix, 'trial_arm')
   ta <- ta %>%
