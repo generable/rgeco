@@ -19,14 +19,17 @@ get_geco_doses <- function(project = NULL, project_version_id = NULL) {
       dplyr::rename_at(.vars = dplyr::vars(dplyr::one_of('created_at', 'id', 'params')),
                        .funs = ~ stringr::str_c('dose_', .x))
   })
-  d %>%
-    dplyr::mutate(start_hours = .format_hours(trial_day, start_time),
-                  end_hours = .format_hours(trial_day, end_time)) %>%
-    dplyr::group_by(subject_id) %>%
-    dplyr::mutate(cycle_num = dplyr::dense_rank(start_hours)) %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(administered = factor(stringr::str_c(amount, unit)),
-                  administered = forcats::fct_reorder(administered, amount))
+  if (nrow(d) > 0) {
+    d %>%
+      dplyr::mutate(start_hours = .format_hours(.data$trial_day, .data$start_time),
+                    end_hours = .format_hours(.data$trial_day, .data$end_time)) %>%
+      dplyr::group_by(.data$subject_id) %>%
+      dplyr::mutate(cycle_num = dplyr::dense_rank(.data$start_hours)) %>%
+      dplyr::ungroup() %>%
+      dplyr::mutate(administered = factor(stringr::str_c(.data$amount, .data$unit)),
+                    administered = forcats::fct_reorder(.data$administered, .data$amount))
+  }
+  d
 }
 
 .format_hours <- function(trial_day, time_str) {

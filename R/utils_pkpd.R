@@ -8,6 +8,16 @@
 #' @return data.frame containing merged biomarker & dose data for the PK & PD parameter selected, with columns annotating cycles, time since last SDA, and measurement type.
 #' @export
 prep_pkpd_data <- function(biomarkers_data, dose_data, pd_measure = NULL, pk_measure = 'concentration') {
+  if (nrow(dose_data) == 0) {
+    futile.logger::flog.warn('No records in dose_data.')
+    return(annotate_pkpd_data(biomarkers_data, pd_measure = pd_measure, pk_measure = pk_measure))
+  }
+  if (!is.null(pk_measure) & !(pk_measure %in% unique(biomarkers_data$measurement_name))) {
+    futile.logger::flog.warn(glue::glue('pk_measure ({pk_measure}) not among the measurements in biomarkers_data ({glue::glue_collapse(unique(biomarkers_data$measurement_name), sep = ", ", last = ", and ")}).'))
+  }
+  if (!is.null(pd_measure) & !(pk_measure %in% unique(biomarkers_data$measurement_name))) {
+    futile.logger::flog.warn(glue::glue('pd_measure ({pd_measure}) not among the measurements in biomarkers_data ({glue::glue_collapse(unique(biomarkers_data$measurement_name), sep = ", ", last = ", and ")}).'))
+  }
   dose_data_renamed <- dose_data %>%
     dplyr::rename_at(.vars = dplyr::vars(-subject_id), .funs = ~ stringr::str_c('dose_', .x)) %>%
     dplyr::mutate(hours = dose_start_hours)
@@ -83,28 +93,28 @@ rolling_join <- function(a, b, by, on, how = c('left', 'inner'),
   merged
 }
 
-annotate_pkpd_data <- function(.d, pd_measure = NULL, pk_measure = 'concentration') {
+annotate_pkpd_data <- function(.d, pd_measure = NULL, pk_measure = NULL) {
   # filter to provided biomarkers
   biomarker_names <- c(pd_measure, pk_measure) %>%
     purrr::compact() %>%
     stringr::str_to_lower()
   .d <- .d %>%
-    dplyr::filter(stringr::str_to_lower(measurement_name) %in% biomarker_names) %>%
+    dplyr::filter(stringr::str_to_lower(.data$measurement_name) %in% biomarker_names) %>%
     dplyr::mutate(measurement_type = NA_character_)
   # add .type of measurement (pk or pd)
   if (!is.null(pk_measure)) {
     .d <- .d %>%
-      dplyr::mutate(measurement_type = dplyr::if_else(measurement_name == pk_measure, 'pk', measurement_type))
+      dplyr::mutate(measurement_type = dplyr::if_else(.data$measurement_name == pk_measure, 'pk', .data$measurement_type))
   }
   if (!is.null(pd_measure)) {
     .d <- .d %>%
-      dplyr::mutate(measurement_type = dplyr::if_else(measurement_name == pd_measure, 'pd', measurement_type))
+      dplyr::mutate(measurement_type = dplyr::if_else(.data$measurement_name == pd_measure, 'pd', .data$measurement_type))
   }
   # add time to next SDA for observations that are pre-infusion for cycle 1
   if ('dose_start_hours' %in% names(d)) {
     .d <- .d %>%
-      dplyr::group_by(subject_id) %>%
-      dplyr::arrange(hours) %>%
+      dplyr::group_by(.data$subject_id) %>%
+      dplyr::arrange(.data$hours) %>%
       tidyr::fill(dplyr::starts_with('dose'), .direction = 'up') %>%
       dplyr::ungroup()
   }
