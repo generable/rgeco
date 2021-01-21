@@ -20,7 +20,7 @@ get_geco_doses <- function(project = NULL, project_version_id = NULL) {
                        .funs = ~ stringr::str_c('dose_', .x))
   })
   if (nrow(d) > 0) {
-    d %>%
+    d <- d %>%
       dplyr::mutate(start_hours = .format_hours(.data$trial_day, .data$start_time),
                     end_hours = .format_hours(.data$trial_day, .data$end_time)) %>%
       dplyr::group_by(.data$subject_id) %>%

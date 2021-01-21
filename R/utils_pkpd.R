@@ -18,8 +18,11 @@ prep_pkpd_data <- function(biomarkers_data, dose_data, pd_measure = NULL, pk_mea
   if (!is.null(pd_measure) & !(pk_measure %in% unique(biomarkers_data$measurement_name))) {
     futile.logger::flog.warn(glue::glue('pd_measure ({pd_measure}) not among the measurements in biomarkers_data ({glue::glue_collapse(unique(biomarkers_data$measurement_name), sep = ", ", last = ", and ")}).'))
   }
+  if (!'start_hours' %in% names(dose_data)) {
+    stop('dose_data does not have start_hours data. Cannot prepare pkpd data without a formatted start time.')
+  }
   dose_data_renamed <- dose_data %>%
-    dplyr::rename_at(.vars = dplyr::vars(-.data$subject_id), .funs = ~ stringr::str_c('dose_', .x)) %>%
+    dplyr::rename_at(.vars = dplyr::vars(-.data$subject_id, -.data$drug), .funs = ~ stringr::str_c('dose_', .x)) %>%
     dplyr::mutate(hours = .data$dose_start_hours)
   merged_data <- rolling_join(biomarkers_data,
                               dose_data_renamed,

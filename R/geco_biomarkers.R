@@ -34,6 +34,10 @@ get_geco_biomarkers <- function(project = NULL, project_version_id = NULL, measu
       b <- dplyr::bind_cols(b, b$measurement_params) %>%
         dplyr::select(-.data$measurement_params)
     }
+    if (!'time' %in% names(b)) {
+      b <- b %>%
+        dplyr::mutate(time = NA_character_)
+    }
     if (all(c('trial_day', 'time') %in% names(b))) {
       b <- b %>%
         dplyr::mutate(hours = .format_hours(.data$trial_day, .data$time))
