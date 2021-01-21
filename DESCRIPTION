@@ -22,7 +22,9 @@ Imports:
     glue,
     broom,
     tidyr,
-    survival
+    survival,
+    lubridate,
+    forcats
 Suggests: 
     testthat,
     knitr,

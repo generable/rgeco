@@ -19,8 +19,8 @@ prep_pkpd_data <- function(biomarkers_data, dose_data, pd_measure = NULL, pk_mea
     futile.logger::flog.warn(glue::glue('pd_measure ({pd_measure}) not among the measurements in biomarkers_data ({glue::glue_collapse(unique(biomarkers_data$measurement_name), sep = ", ", last = ", and ")}).'))
   }
   dose_data_renamed <- dose_data %>%
-    dplyr::rename_at(.vars = dplyr::vars(-subject_id), .funs = ~ stringr::str_c('dose_', .x)) %>%
-    dplyr::mutate(hours = dose_start_hours)
+    dplyr::rename_at(.vars = dplyr::vars(-.data$subject_id), .funs = ~ stringr::str_c('dose_', .x)) %>%
+    dplyr::mutate(hours = .data$dose_start_hours)
   merged_data <- rolling_join(biomarkers_data,
                               dose_data_renamed,
                               by = 'subject_id',
@@ -28,12 +28,13 @@ prep_pkpd_data <- function(biomarkers_data, dose_data, pd_measure = NULL, pk_mea
                               direction = 'reverse',
                               how = 'left',
                               suffix = c('', '.dose')) %>%
-    dplyr::select(-hours.dose)
+    dplyr::select(-.data$hours.dose)
   pkpd_data <- annotate_pkpd_data(merged_data, pd_measure = pd_measure, pk_measure = pk_measure)
   pkpd_data
 }
 
 #' @importFrom rlang !!
+#' @importFrom rlang :=
 rolling_join <- function(a, b, by, on, how = c('left', 'inner'),
                          direction = c('forward', 'reverse'),
                          suffix = c('.a', '.b')) {
@@ -72,9 +73,9 @@ rolling_join <- function(a, b, by, on, how = c('left', 'inner'),
     dplyr::mutate(`.on.diff` = dplyr::case_when(!!direction == 'forward' ~ !!on_sym_b - !!on_sym_a,
                                                 !!direction == 'reverse' ~ !!on_sym_a - !!on_sym_b,
                                                 TRUE ~ NA_real_)) %>%
-    dplyr::filter(`.on.diff` >= 0) %>%
-    dplyr::mutate(`.on.rank` = dplyr::dense_rank(`.on.diff`)) %>%
-    dplyr::filter(`.on.rank` == 1) %>%
+    dplyr::filter(.data$`.on.diff` >= 0) %>%
+    dplyr::mutate(`.on.rank` = dplyr::dense_rank(.data$`.on.diff`)) %>%
+    dplyr::filter(.data$`.on.rank` == 1) %>%
     dplyr::ungroup() %>%
     # rename `on.a` to `on`
     dplyr::rename(!!on := !!on_sym_a) %>%
@@ -111,7 +112,7 @@ annotate_pkpd_data <- function(.d, pd_measure = NULL, pk_measure = NULL) {
       dplyr::mutate(measurement_type = dplyr::if_else(.data$measurement_name == pd_measure, 'pd', .data$measurement_type))
   }
   # add time to next SDA for observations that are pre-infusion for cycle 1
-  if ('dose_start_hours' %in% names(d)) {
+  if ('dose_start_hours' %in% names(.d)) {
     .d <- .d %>%
       dplyr::group_by(.data$subject_id) %>%
       dplyr::arrange(.data$hours) %>%

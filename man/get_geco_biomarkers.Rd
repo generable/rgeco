@@ -7,7 +7,8 @@
 get_geco_biomarkers(
   project = NULL,
   project_version_id = NULL,
-  measurement_name = NULL
+  measurement_name = NULL,
+  annotate = T
 )
 }
 \arguments{
@@ -16,6 +17,8 @@ get_geco_biomarkers(
 \item{project_version_id}{(chr) Optionally, a specific version of project data to return, if not the most recent}
 
 \item{measurement_name}{(chr, vector) Optionally, a list of measurement names to return}
+
+\item{annotate}{(bool) if TRUE, annotate returned biomarker data}
 }
 \value{
 data.frame of biomarkers data
