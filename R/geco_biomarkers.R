@@ -28,5 +28,13 @@ get_geco_biomarkers <- function(project = NULL, project_version_id = NULL, measu
       dplyr::rename_at(.vars = dplyr::vars(dplyr::one_of(c('created_at', 'params', 'id'))),
                        .funs = ~ stringr::str_c('measurement_', .x))
   })
+  if (ncol(b$measurement_params) > 0) {
+    b <- dplyr::bind_cols(b, b$measurement_params) %>%
+      dplyr::select(-measurement_params)
+  }
+  if (nrow(b) > 0) {
+    b <- b %>%
+      dplyr::mutate(hours = .format_hours(.data$trial_day, .data$time))
+  }
   b
 }

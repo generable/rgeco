@@ -41,13 +41,12 @@ login <- function(user, password) {
 }
 
 get_latest_version_id <- function(project) {
-  resp <- geco_api(PROJECTVERSIONS, project = project)
-  resp$content[[length(resp$content)]]$id
+  get_latest_version(project)$id
 }
 
 get_latest_version <- function(project) {
   resp <- geco_api(PROJECTVERSIONS, project = project)
-  resp$content[[length(resp$content)]]
+  resp$content[[1]]
 }
 
 get_auth <- function() {
