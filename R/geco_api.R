@@ -45,8 +45,10 @@ get_latest_version_id <- function(project) {
 }
 
 get_latest_version <- function(project) {
-  resp <- geco_api(PROJECTVERSIONS, project = project)
-  resp$content[[1]]
+  v <- get_geco_projectversions(project = project)
+  v %>%
+    dplyr::filter(created_at == max(created_at)) %>%
+    as.list()
 }
 
 get_auth <- function() {
@@ -125,8 +127,13 @@ as_dataframe.geco_api_data <- function(x, content = x$content, flatten_names = '
   if (length(to_flatten) > 0)
     content <- content %>%
       purrr::map(purrr::map_at, to_flatten, ~ purrr::compact(.x) %>% tibble::as_tibble())
-  content %>%
+  d <- content %>%
     purrr::map_dfr(~ purrr::compact(.x) %>% tibble::as_tibble())
+  if ('created_at' %in% names(d)) {
+    d <- d %>%
+      dplyr::mutate(created_at = lubridate::ymd_hms(.data$created_at))
+  }
+  d
 }
 
 .process_project_inputs <- function(project = NULL, project_version_id = NULL) {
@@ -136,15 +143,19 @@ as_dataframe.geco_api_data <- function(x, content = x$content, flatten_names = '
   } else if (is.null(project) && !is.null(project_version_id)) {
     checkmate::check_character(project_version_id, len = 1, any.missing = FALSE)
   } else if (is.null(project) && is.null(project_version_id)) {
-    stop("Either project or project_version_id are required.")
+    stop("Either project or project_version_id is required.", call. = F)
   } else if (!is.null(project) && !is.null(project_version_id)) {
-    warning("Both project and project_version_id were provided. Project input will be ignored.")
+    warning("Both project and project_version_id were provided. Project input will be ignored.", call. = F)
   }
   # get project_version_id
-  if (is.null(project_version_id))
-    pv_id <- get_latest_version(project)$id
-  else
+  if (is.null(project_version_id)) {
+    pv <- get_latest_version(project)
+    futile.logger::flog.info(glue::glue('Project version id set to {pv$id}'))
+    futile.logger::flog.info(glue::glue('Data were last updated {pv$created_at}: {pv$description}'))
+    pv_id <- pv$id
+  } else {
     pv_id <- project_version_id
+  }
   # return pv_id
   pv_id
 }
