@@ -14,7 +14,7 @@ fetch_pkpd <- function(project = NULL, project_version_id = NULL, pd_measure = N
   b <- get_geco_biomarkers(project_version_id = pv_id, measurement_name = purrr::compact(c(pd_measure, pk_measure)))
   futile.logger::flog.info('Querying API for dosing data ...')
   d <- get_geco_doses(project_version_id = pv_id)
-  futile.logger::flog.info('Merging biomarkers and dosing data, adding annotated fields ...')
+  futile.logger::flog.info('Merging biomarkers and dosing data, adding annotated fields')
   pkpd <- prep_pkpd_data(biomarkers_data = b, dose_data = d, pd_measure = pd_measure, pk_measure = pk_measure)
 }
 
