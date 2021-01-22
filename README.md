@@ -28,19 +28,19 @@ projects <- get_geco_projects()
 Read subjects or biomarkers data for a project
 
 ```r
-subjects <- get_geco_subjects(project = 'demo')
-biomarkers <- get_geco_biomarkers(project = 'demo', measurement_name = 'sld')
+subjects <- fetch_subjects(project = 'demo')
+biomarkers <- fetch_biomarkers(project = 'demo', measurement_name = 'sld')
 ```
 
 Read dosing data
 
 ```r
-doses <- get_geco_doses(project = 'demo')
+doses <- fetch_doses(project = 'demo')
 ```
 
 List versions available for a project:
 
 ```r
-versions <- get_geco_projectversions(project = 'demo')
+versions <- fetch_projectversions(project = 'demo')
 ```
 
