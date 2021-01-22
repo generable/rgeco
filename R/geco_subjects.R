@@ -3,9 +3,10 @@
 #' @param project (chr) Name of project to return data for
 #' @param project_version_id (chr) Optionally, a specific version of project data to return, if not the most recent
 #' @param event_type (chr) Optionally limit event_types to the names provided (example: "overall_survival"). The default (NULL) is to include no event data.
+#' @param annotate (bool) if TRUE, return annotated (processed, formatted) subjects data
 #' @return data.frame of subject-level data, including information about the trial & trial_arms
 #' @export
-fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type = NULL) {
+fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type = NULL, annotate = T) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   subjects <- .fetch_subjects_data(project_version_id = pv_id)
   if (!is.null(event_type)) {
@@ -21,6 +22,14 @@ fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type
                      by = c('trial_arm_id'), suffix = c('', '_trial_arm')) %>%
     dplyr::left_join(trials,
                      by = c('trial_id'), suffix = c('', '_trial'))
+  if ('subject_params' %in% names(s)) {
+    s <- dplyr::bind_cols(s, s$subject_params) %>%
+      dplyr::select(-.data$subject_params)
+  }
+  if (isTRUE(annotate)) {
+    s <- .annotate_subjects_data(s)
+  }
+  s
 }
 
 .fetch_subjects_data <- function(project = NULL, project_version_id = NULL) {
@@ -33,4 +42,64 @@ fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type
                        .funs = ~ stringr::str_c('subject_', .x))
   })
   s
+}
+
+.annotate_subjects_data <- function(s) {
+  if (all(c('age_min', 'age_max') %in% names(s))) {
+    s <- s %>%
+      dplyr::mutate(age = .data$age_min + .data$age_max / 2)
+  }
+  if ('performance' %in% names(s)) {
+    s <- s %>%
+      dplyr::mutate(performance = factor(.data$performance, levels = c('fully_active', 'restricted_activity', 'self-care_only'), ordered = T))
+  }
+  if ('baseline_weight_min' %in% names(s)) {
+    s <- s %>%
+      dplyr::mutate(baseline_weight = .data$baseline_weight_min + .data$baseline_weight_max / 2)
+  }
+  if ('indication' %in% names(s)) {
+    s <- s %>%
+      dplyr::mutate(indication = dplyr::case_when(stringr::str_to_lower(.data$indication) == 'mcrpc' ~ 'mCRPC',
+                                                  TRUE ~ .data$indication),
+                    indication = factor(.data$indication),
+                    indication = forcats::fct_infreq(.data$indication) %>% forcats::fct_explicit_na())
+  }
+  if ("prior_line_number" %in% names(s)) {
+    s <- s %>%
+      dplyr::mutate(prior_lines = as.integer(.data$prior_line_number))
+  }
+  if ('study' %in% names(s)) {
+    s <- s %>%
+      dplyr::mutate(study = factor(study))
+  }
+  if ('sex' %in% names(s)) {
+    s <- s %>%
+      dplyr::mutate(sex = factor(sex, labels = c('male', 'female')))
+  }
+  # apply friendly labels to fields
+  s <- apply_labels(s, .subject_data_labels)
+  s
+}
+
+.subject_data_labels <- c(
+  sex = 'Sex',
+  indication = 'Tumor Type',
+  age = 'Age (years)',
+  dose = 'Dose',
+  prior_lines = '# Prior Lines of Therapy (any)',
+  performance = 'ECOG at baseline',
+  height = 'Height at baseline (cm)',
+  weight = 'Weight at baseline (kg)',
+  bmi = 'BMI at baseline'
+)
+
+apply_labels <- function(.d, labels) {
+  labelled_d <- labels %>%
+    purrr::reduce2(.init = .d, .x = names(.), .y = ., .apply_single_label)
+}
+
+.apply_single_label <- function(.d, varname, label_text) {
+  if (varname %in% names(.d))
+    table1::label(.d[[varname]]) <- label_text
+  .d
 }
