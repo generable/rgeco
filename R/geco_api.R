@@ -41,14 +41,13 @@ login <- function(user, password) {
 }
 
 get_latest_version_id <- function(project) {
-  resp <- geco_api(PROJECTVERSIONS, project = project)
-  resp$content[[length(resp$content)]]$id
+  get_latest_version(project)$id
 }
 
 get_latest_version <- function(project) {
   v <- get_geco_projectversions(project = project)
   v %>%
-    dplyr::filter(created_at == max(created_at)) %>%
+    dplyr::filter(.data$created_at == max(.data$created_at)) %>%
     as.list()
 }
 

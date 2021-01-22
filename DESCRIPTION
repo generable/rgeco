@@ -23,7 +23,8 @@ Imports:
     broom,
     tidyr,
     survival,
-    lubridate
+    lubridate,
+    forcats
 Suggests: 
     testthat,
     knitr,
