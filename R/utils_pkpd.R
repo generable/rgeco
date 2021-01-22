@@ -1,4 +1,20 @@
 
+
+#' Query Generable API for pkpd data in a standard format (biomarkers data and dosing data, merged)
+#' returns a data.frame suitable for plotting and analysis.
+#' @param project (chr) Name of project to return data for
+#' @param project_version_id (chr) Optionally, a specific version of project data to return, if not the most recent
+#' @param pk_measure measurement_name of PK measurement (defaults to 'conc', NULL indicates no PK marker)
+#' @param pd_measure measurement_name of PD measurement (defaults to NULL - no PD marker)
+#' @return data.frame containing merged biomarker & dose data for the PK & PD parameter selected, with columns annotating cycles, time since last SDA, and measurement type.
+#' @export
+fetch_pkpd <- function(project = NULL, project_version_id = NULL, pd_measure = NULL, pk_measure = 'concentration') {
+  pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
+  b <- get_geco_biomarkers(project_version_id = pv_id, measurement_name = purrr::compact(c(pd_measure, pk_measure)))
+  d <- get_geco_doses(project_version_id = pv_id)
+  pkpd <- prep_pkpd_data(biomarkers_data = b, dose_data = d, pd_measure = pd_measure, pk_measure = pk_measure)
+}
+
 #' Merge and annotate pkpd biomarkers data with dosing data
 #' returns a data.frame suitable for plotting and analysis.
 #' @param biomarkers_data data.frame containing biomarkers data
