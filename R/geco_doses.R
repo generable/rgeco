@@ -4,13 +4,13 @@
 #' @param project_version_id (chr) Optionally, a specific version of project data to return, if not the most recent
 #' @return data.frame of biomarkers data
 #' @export
-get_geco_doses <- function(project = NULL, project_version_id = NULL) {
+fetch_doses <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
-  doses <- .get_geco_dose_data(project_version_id = pv_id)
+  doses <- .fetch_dose_data(project_version_id = pv_id)
 }
 
 #' @importFrom magrittr %>%
-.get_geco_dose_data <- function(project = NULL, project_version_id = NULL) {
+.fetch_dose_data <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   doses <- geco_api(DOSE, project_version_id = pv_id)
   d <- as_dataframe.geco_api_data(doses, flatten_names = c('drug', 'params'))

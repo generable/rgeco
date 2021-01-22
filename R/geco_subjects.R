@@ -5,17 +5,17 @@
 #' @param event_type (chr) Optionally limit event_types to the names provided (example: "overall_survival"). The default (NULL) is to include no event data.
 #' @return data.frame of subject-level data, including information about the trial & trial_arms
 #' @export
-get_geco_subjects <- function(project = NULL, project_version_id = NULL, event_type = NULL) {
+fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
-  subjects <- .get_geco_subjects_data(project_version_id = pv_id)
+  subjects <- .fetch_subjects_data(project_version_id = pv_id)
   if (!is.null(event_type)) {
-    events <- get_geco_events(project_version_id = pv_id, event_type = event_type) %>%
+    events <- fetch_events(project_version_id = pv_id, event_type = event_type) %>%
       pivot_events_wider()
     subjects <- subjects %>%
       dplyr::left_join(events, by = 'subject_id')
   }
-  trial_arms <- .get_geco_trial_arms_data(project_version_id = pv_id)
-  trials <- .get_geco_trials_data(project_version_id = pv_id)
+  trial_arms <- .fetch_trial_arms_data(project_version_id = pv_id)
+  trials <- .fetch_trials_data(project_version_id = pv_id)
   s <- subjects %>%
     dplyr::left_join(trial_arms,
                      by = c('trial_arm_id'), suffix = c('', '_trial_arm')) %>%
@@ -23,7 +23,7 @@ get_geco_subjects <- function(project = NULL, project_version_id = NULL, event_t
                      by = c('trial_id'), suffix = c('', '_trial'))
 }
 
-.get_geco_subjects_data <- function(project = NULL, project_version_id = NULL) {
+.fetch_subjects_data <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   subjects <- geco_api(SUBJECTS, project_version_id = pv_id)
   s <- as_dataframe.geco_api_data(subjects, flatten_names = 'params')

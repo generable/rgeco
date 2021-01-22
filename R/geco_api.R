@@ -45,7 +45,7 @@ get_latest_version_id <- function(project) {
 }
 
 get_latest_version <- function(project) {
-  v <- get_geco_projectversions(project = project)
+  v <- fetch_projectversions(project = project)
   v %>%
     dplyr::filter(.data$created_at == max(.data$created_at)) %>%
     as.list()

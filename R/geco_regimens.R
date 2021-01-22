@@ -1,5 +1,5 @@
 
-.get_geco_treatments_data <- function(project = NULL, project_version_id = NULL) {
+.fetch_treatments_data <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   regimens <- geco_api(REGIMENS, project_version_id = pv_id)
   .format_treatments_data(regimens)
@@ -30,7 +30,7 @@
 }
 
 #' @importFrom magrittr %>%
-.get_geco_regimens_data <- function(project = NULL, project_version_id = NULL) {
+.fetch_regimens_data <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   regimens <- geco_api(REGIMENS, project_version_id = pv_id)
   rd <- regimens %>%

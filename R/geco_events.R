@@ -5,9 +5,9 @@
 #' @param event_type (chr) Optionally limit event_types to the names provided (example: "overall_survival"). NULL is unfiltered.
 #' @return data.frame with one record per subject and event type
 #' @export
-get_geco_events <- function(project = NULL, project_version_id = NULL, event_type = NULL) {
+fetch_events <- function(project = NULL, project_version_id = NULL, event_type = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
-  events <- .get_geco_events_data(project_version_id = pv_id)
+  events <- .fetch_events_data(project_version_id = pv_id)
   if (!is.null(event_type)) {
     events <- events %>%
       dplyr::filter(.data$event_type %in% !!event_type)
@@ -27,7 +27,7 @@ pivot_events_wider <- function(.d) {
 
 
 #' @importFrom magrittr %>%
-.get_geco_events_data <- function(project = NULL, project_version_id = NULL) {
+.fetch_events_data <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   events <- geco_api(EVENTS, project_version_id = pv_id)
   d <- as_dataframe.geco_api_data(events, flatten_names = c())

@@ -36,7 +36,7 @@ demo_project <- Sys.getenv('GECO_API_TEST_PROJECT')
 For this analysis we will work with survival data. The information we need is stored in the `subjects` table.
 
 ```{r, eval = NOT_CRAN}
-subjects <- get_geco_subjects(project = demo_project, event_type = 'overall_survival')
+subjects <- fetch_subjects(project = demo_project, event_type = 'overall_survival')
 ```
 
 This command returns a data.frame of records, one per subject
@@ -45,7 +45,7 @@ This command returns a data.frame of records, one per subject
 glimpse(subjects)
 ```
 
-Notice here that we have loaded subjects + events data in one step. For endpoints that are non-terminal or that have more than one event per subject, we would want to load those data separately by calling `get_geco_subjects(..., event_type = NULL)` and `get_geco_events(...)`. For this project, it is reasonable to load data in one step.
+Notice here that we have loaded subjects + events data in one step. For endpoints that are non-terminal or that have more than one event per subject, we would want to load those data separately by calling `fetch_subjects(..., event_type = NULL)` and `fetch_events(...)`. For this project, it is reasonable to load data in one step.
 
 This project contains synthetic data for 5 trials.
 
