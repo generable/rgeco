@@ -69,5 +69,5 @@ fetch_measurement_names <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   b <- geco_api(TIMEVARYING, project_version_id = pv_id, add_headers(`X-Fields` = 'measurement_name')) %>%
     as_dataframe.geco_api_data()
-  b %>% distinct(measurement_name) %>% unlist() %>% purrr::set_names(NULL)
+  b %>% dplyr::distinct(.data$measurement_name) %>% unlist() %>% purrr::set_names(NULL)
 }
