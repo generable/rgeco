@@ -5,6 +5,7 @@
 #' @export
 fetch_projectversions <- function(project) {
   projectversions <- .fetch_projectversion_data(project = project)
+  return(projectversions)
 }
 
 .fetch_projectversion_data <- function(project) {

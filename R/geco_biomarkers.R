@@ -4,19 +4,28 @@
 #' @param project_version_id (chr) Optionally, a specific version of project data to return, if not the most recent
 #' @param measurement_name (chr, vector) Optionally, a list of measurement names to return
 #' @param annotate (bool) if TRUE, annotate returned biomarker data
+#' @param annotate_doses (bool) if TRUE, annotated returned biomarker data with timing of dose administrations, if available
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!
 #' @return data.frame of biomarkers data
 #' @export
-fetch_biomarkers <- function(project = NULL, project_version_id = NULL, measurement_name = NULL, annotate = T) {
+fetch_biomarkers <- function(project = NULL, project_version_id = NULL, measurement_name = NULL, annotate = T, annotate_doses = T) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   biomarkers <- .fetch_timevarying_data(project_version_id = pv_id, annotate = annotate)
   if (!is.null(measurement_name)) {
-    biomarkers %>%
+    biomarkers <- biomarkers %>%
       dplyr::filter(measurement_name %in% !!measurement_name)
   } else {
     biomarkers
   }
+  if (isTRUE(annotate_doses)) {
+    # try to annotate with dose data, if available
+    dose_data <- try(fetch_doses(project_version_id = pv_id), silent = T)
+    if (!inherits(dose_data, 'try-error') && nrow(dose_data) > 0) {
+      biomarkers <- prep_pkpd_data(biomarkers_data = biomarkers, dose_data = dose_data)
+    }
+  }
+  biomarkers
 }
 
 #' @importFrom magrittr %>%

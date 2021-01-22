@@ -8,7 +8,8 @@ fetch_biomarkers(
   project = NULL,
   project_version_id = NULL,
   measurement_name = NULL,
-  annotate = T
+  annotate = T,
+  annotate_doses = T
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ fetch_biomarkers(
 \item{measurement_name}{(chr, vector) Optionally, a list of measurement names to return}
 
 \item{annotate}{(bool) if TRUE, annotate returned biomarker data}
+
+\item{annotate_doses}{(bool) if TRUE, annotated returned biomarker data with timing of dose administrations, if available}
 }
 \value{
 data.frame of biomarkers data

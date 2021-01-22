@@ -4,7 +4,12 @@
 \alias{fetch_subjects}
 \title{Get subjects data for a Generable project}
 \usage{
-fetch_subjects(project = NULL, project_version_id = NULL, event_type = NULL)
+fetch_subjects(
+  project = NULL,
+  project_version_id = NULL,
+  event_type = NULL,
+  annotate = T
+)
 }
 \arguments{
 \item{project}{(chr) Name of project to return data for}
@@ -12,6 +17,8 @@ fetch_subjects(project = NULL, project_version_id = NULL, event_type = NULL)
 \item{project_version_id}{(chr) Optionally, a specific version of project data to return, if not the most recent}
 
 \item{event_type}{(chr) Optionally limit event_types to the names provided (example: "overall_survival"). The default (NULL) is to include no event data.}
+
+\item{annotate}{(bool) if TRUE, return annotated (processed, formatted) subjects data}
 }
 \value{
 data.frame of subject-level data, including information about the trial & trial_arms
