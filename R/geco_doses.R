@@ -28,8 +28,8 @@ fetch_doses <- function(project = NULL, project_version_id = NULL) {
       dplyr::ungroup() %>%
       dplyr::mutate(administered = factor(stringr::str_c(.data$amount, .data$unit)),
                     administered = forcats::fct_reorder(.data$administered, .data$amount),
-                    cycle = factor(stringr::str_c('Cycle ', cycle_num)),
-                    cycle = forcats::fct_reorder(cycle, cycle_num))
+                    cycle = factor(stringr::str_c('Cycle ', .data$cycle_num)),
+                    cycle = forcats::fct_reorder(.data$cycle, .data$cycle_num))
   }
   d
 }

@@ -12,11 +12,19 @@ fetch_biomarkers <- function(project = NULL, project_version_id = NULL, measurem
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   biomarkers <- .fetch_timevarying_data(project_version_id = pv_id, annotate = annotate)
   if (!is.null(measurement_name)) {
-    biomarkers %>%
+    biomarkers <- biomarkers %>%
       dplyr::filter(measurement_name %in% !!measurement_name)
   } else {
     biomarkers
   }
+  if (isTRUE(annotate)) {
+    # try to annotate with dose data, if available
+    dose_data <- try(fetch_doses(project_version_id = pv_id), silent = T)
+    if (!inherits(dose_data, 'try-error') && nrow(dose_data) > 0) {
+      biomarkers <- prep_pkpd_data(biomarkers_data = biomarkers, dose_data = dose_data)
+    }
+  }
+  biomarkers
 }
 
 #' @importFrom magrittr %>%

@@ -119,7 +119,7 @@ print.geco_api_data <- function(x, ...) {
 #' @importFrom magrittr %>%
 as_dataframe.geco_api_data <- function(x, content = x$content, flatten_names = 'params') {
   if (length(content) == 0) {
-    warning('No results returned.')
+    futile.logger::flog.debug('No results returned.')
     return(tibble::tibble(id = character(0), created_at = character(0)))
   }
   to_flatten <- flatten_names %>%
