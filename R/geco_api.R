@@ -132,7 +132,7 @@ as_dataframe.geco_api_data <- function(x, content = x$content, flatten_names = '
     purrr::map_dfr(~ purrr::compact(.x) %>% tibble::as_tibble())
   if ('created_at' %in% names(d)) {
     d <- d %>%
-      dplyr::mutate(created_at = lubridate::ymd_hms(created_at))
+      dplyr::mutate(created_at = lubridate::ymd_hms(.data$created_at))
   }
   d
 }
