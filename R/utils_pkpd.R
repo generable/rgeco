@@ -32,7 +32,13 @@ prep_pkpd_data <- function(biomarkers_data, dose_data, pd_measure = NULL, pk_mea
                               how = 'left',
                               suffix = c('', '.dose')) %>%
     dplyr::select(-.data$hours.dose)
+  if (nrow(merged_data) != nrow(biomarkers_data)) {
+    futile.logger::flog.warn(glue::glue("Number of records in biomarkers data changed after join, from {nrow(biomarkers_data)} to {nrow(merged_data)}."))
+  }
   pkpd_data <- annotate_pkpd_data(merged_data, pd_measure = pd_measure, pk_measure = pk_measure)
+  if (nrow(pkpd_data) != nrow(biomarkers_data)) {
+    futile.logger::flog.warn(glue::glue("Number of records in biomarkers data changed after annotation, from {nrow(biomarkers_data)} to {nrow(pkpd_data)}."))
+  }
   pkpd_data
 }
 
@@ -103,7 +109,6 @@ annotate_pkpd_data <- function(.d, pd_measure = NULL, pk_measure = NULL) {
     purrr::compact() %>%
     stringr::str_to_lower()
   .d <- .d %>%
-    dplyr::filter(stringr::str_to_lower(.data$measurement_name) %in% biomarker_names) %>%
     dplyr::mutate(measurement_type = NA_character_)
   # add .type of measurement (pk or pd)
   if (!is.null(pk_measure)) {
