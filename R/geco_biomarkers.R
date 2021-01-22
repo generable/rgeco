@@ -8,7 +8,7 @@
 #' @importFrom rlang !!
 #' @return data.frame of biomarkers data
 #' @export
-fetch_biomarkers <- function(project = NULL, project_version_id = NULL, measurement_name = NULL, annotate = T) {
+fetch_biomarkers <- function(project = NULL, project_version_id = NULL, measurement_name = NULL, annotate = T, annotate_doses = T) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   biomarkers <- .fetch_timevarying_data(project_version_id = pv_id, annotate = annotate)
   if (!is.null(measurement_name)) {
@@ -17,7 +17,7 @@ fetch_biomarkers <- function(project = NULL, project_version_id = NULL, measurem
   } else {
     biomarkers
   }
-  if (isTRUE(annotate)) {
+  if (isTRUE(annotate_doses)) {
     # try to annotate with dose data, if available
     dose_data <- try(fetch_doses(project_version_id = pv_id), silent = T)
     if (!inherits(dose_data, 'try-error') && nrow(dose_data) > 0) {

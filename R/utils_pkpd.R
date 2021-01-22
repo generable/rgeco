@@ -11,7 +11,7 @@
 fetch_pkpd <- function(project = NULL, project_version_id = NULL, pd_measure = NULL, pk_measure = 'concentration') {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   futile.logger::flog.info('Querying API for biomarkers data ...')
-  b <- fetch_biomarkers(project_version_id = pv_id, measurement_name = purrr::compact(c(pd_measure, pk_measure)))
+  b <- fetch_biomarkers(project_version_id = pv_id, measurement_name = purrr::compact(c(pd_measure, pk_measure)), annotate = T, annotate_doses = F)
   futile.logger::flog.info('Querying API for dosing data ...')
   d <- fetch_doses(project_version_id = pv_id)
   futile.logger::flog.info('Merging biomarkers and dosing data, adding annotated fields')

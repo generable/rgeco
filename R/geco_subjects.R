@@ -66,9 +66,7 @@ fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type
   }
   if ("prior_line_number" %in% names(s)) {
     s <- s %>%
-      dplyr::mutate(prior_lines = dplyr::if_else(is.na(.data$prior_line_number) | .data$prior_line_number == 'NA',
-                                                 NA_character_, .data$prior_line_number),
-                    prior_lines = as.integer(.data$prior_line_number))
+      dplyr::mutate(prior_lines = suppressWarnings(as.integer(.data$prior_line_number)))
   }
   if ('study' %in% names(s)) {
     s <- s %>%
