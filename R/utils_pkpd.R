@@ -40,14 +40,27 @@ prep_pkpd_data <- function(biomarkers_data, dose_data, pd_measure = NULL, pk_mea
   dose_data_renamed <- dose_data %>%
     dplyr::rename_at(.vars = dplyr::vars(-.data$subject_id, -.data$drug), .funs = ~ stringr::str_c('dose_', .x)) %>%
     dplyr::mutate(hours = .data$dose_start_hours)
-  merged_data <- rolling_join(biomarkers_data,
-                              dose_data_renamed,
-                              by = 'subject_id',
-                              on = 'hours',
-                              direction = 'reverse',
-                              how = 'left',
-                              suffix = c('', '.dose')) %>%
-    dplyr::select(-.data$hours.dose)
+  if ('collection_timepoint' %in% names(biomarkers_data)) {
+    merged_data <- biomarkers_data %>%
+      dplyr::mutate(.dir = dplyr::if_else(.data$collection_timepoint == 'Pre-infusion', 'forward', 'reverse')) %>%
+      rolling_join(.,
+                   dose_data_renamed,
+                   by = 'subject_id',
+                   on = 'hours',
+                   direction_field = '.dir',
+                   how = 'left',
+                   suffix = c('', '.dose')) %>%
+      dplyr::select(-.data$hours.dose, -.data$.dir)
+  } else {
+    merged_data <- rolling_join(biomarkers_data,
+                                dose_data_renamed,
+                                by = 'subject_id',
+                                on = 'hours',
+                                direction = 'reverse',
+                                how = 'left',
+                                suffix = c('', '.dose')) %>%
+      dplyr::select(-.data$hours.dose)
+  }
   if (nrow(merged_data) != nrow(biomarkers_data)) {
     futile.logger::flog.warn(glue::glue("Number of records in biomarkers data changed after join, from {nrow(biomarkers_data)} to {nrow(merged_data)}."))
   }
@@ -62,8 +75,14 @@ prep_pkpd_data <- function(biomarkers_data, dose_data, pd_measure = NULL, pk_mea
 #' @importFrom rlang :=
 rolling_join <- function(a, b, by, on, how = c('left', 'inner'),
                          direction = c('forward', 'reverse'),
+                         direction_field = NULL,
                          suffix = c('.a', '.b')) {
-  direction <- match.arg(direction, several.ok = F)
+  if (!is.null(direction_field)) {
+    checkmate::assert_character(direction_field, len = 1)
+    direction <- rlang::ensym(direction_field)
+  } else {
+    direction <- match.arg(direction, several.ok = F)
+  }
   checkmate::assert_character(suffix, len = 2)
   checkmate::assert_character(by, min.len = 1)
   checkmate::assert_character(on, len = 1)
