@@ -93,6 +93,8 @@ fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type
   bmi = 'BMI at baseline'
 )
 
+utils::globalVariables('.')
+
 apply_labels <- function(.d, labels) {
   labelled_d <- labels %>%
     purrr::reduce2(.init = .d, .x = names(.), .y = ., .apply_single_label)

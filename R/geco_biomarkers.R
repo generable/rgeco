@@ -4,6 +4,7 @@
 #' @param project_version_id (chr) Optionally, a specific version of project data to return, if not the most recent
 #' @param measurement_name (chr, vector) Optionally, a list of measurement names to return
 #' @param annotate (bool) if TRUE, annotate returned biomarker data
+#' @param annotate_doses (bool) if TRUE, annotated returned biomarker data with timing of dose administrations, if available
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!
 #' @return data.frame of biomarkers data
