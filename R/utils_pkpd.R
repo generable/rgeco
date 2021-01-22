@@ -84,7 +84,7 @@ rolling_join <- function(a, b, by, on, how = c('left', 'inner'),
     dplyr::rename(!!on := !!on_sym_a) %>%
     dplyr::select(-dplyr::starts_with('.on.'))
   # add in records from `a` with no results in `merged` table
-  if ('how' == 'left') {
+  if (how == 'left') {
     merged <- dplyr::bind_rows(merged,
                                a %>% dplyr::anti_join(merged, by = rlang::as_label(id_sym_a)))
   }
