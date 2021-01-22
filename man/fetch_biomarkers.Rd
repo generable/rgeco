@@ -17,7 +17,7 @@ fetch_biomarkers(
 
 \item{project_version_id}{(chr) Optionally, a specific version of project data to return, if not the most recent}
 
-\item{measurement_name}{(chr, vector) Optionally, a list of measurement names to return}
+\item{measurement_name}{(chr, vector) Optionally, a list of measurement names to return. NULL returns all measurements}
 
 \item{annotate}{(bool) if TRUE, annotate returned biomarker data}
 
