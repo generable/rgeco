@@ -12,6 +12,11 @@ fetch_events <- function(project = NULL, project_version_id = NULL, event_type =
     events <- events %>%
       dplyr::filter(.data$event_type %in% !!event_type)
   }
+  if (nrow(events) == 0 && !is.null(project)) {
+    futile.logger::flog.info(glue::glue('No event information available for this version of project {project} data.'))
+  } else if (nrow(events) == 0) {
+    futile.logger::flog.debug(glue::glue('No event information available for this project_version_id: {project_version_id}.'))
+  }
   events
 }
 
