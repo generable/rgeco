@@ -64,7 +64,7 @@ get_auth <- function() {
 geco_api <- function(path, ..., method = c('GET', 'POST'), project = NULL, project_version_id = NULL) {
   url <- geco_api_url(path, project = project, project_version_id = project_version_id)
 
-  ua <- httr::user_agent("https://github.com/generable/geco-api")
+  ua <- httr::user_agent("https://github.com/generable/rgeco")
 
   method <- match.arg(method, several.ok = FALSE)
   if (method == 'GET')
