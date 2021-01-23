@@ -21,9 +21,14 @@ fetch_biomarkers <- function(project = NULL, project_version_id = NULL, measurem
   if (isTRUE(annotate_doses)) {
     # try to annotate with dose data, if available
     dose_data <- try(fetch_doses(project_version_id = pv_id), silent = T)
-    if (!inherits(dose_data, 'try-error') && nrow(dose_data) > 0) {
+    if (!inherits(dose_data, 'try-error') && !is.null(dose_data) && nrow(dose_data) > 0) {
       biomarkers <- prep_pkpd_data(biomarkers_data = biomarkers, dose_data = dose_data)
     }
+  }
+  if (nrow(biomarkers) == 0 && !is.null(project)) {
+    futile.logger::flog.info(glue::glue('No biomarkers information available for this version of project {project} data.'))
+  } else if (nrow(biomarkers) == 0) {
+    futile.logger::flog.debug(glue::glue('No biomarkers information available for this project_version_id: {project_version_id}.'))
   }
   biomarkers
 }
@@ -69,5 +74,11 @@ fetch_measurement_names <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   b <- geco_api(TIMEVARYING, project_version_id = pv_id, add_headers(`X-Fields` = 'measurement_name')) %>%
     as_dataframe.geco_api_data()
-  b %>% dplyr::distinct(.data$measurement_name) %>% unlist() %>% purrr::set_names(NULL)
+  b <- b %>% dplyr::distinct(.data$measurement_name) %>% unlist() %>% purrr::set_names(NULL)
+  if (length(b) == 0 && !is.null(project)) {
+    futile.logger::flog.info(glue::glue('No measurement names available for this version of project {project} data.'))
+  } else if (length(b) == 0) {
+    futile.logger::flog.debug(glue::glue('No measurement names available for this project_version_id: {project_version_id}.'))
+  }
+  b
 }

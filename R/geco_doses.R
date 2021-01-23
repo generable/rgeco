@@ -7,6 +7,12 @@
 fetch_doses <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   doses <- .fetch_dose_data(project_version_id = pv_id)
+  if (nrow(doses) == 0 && !is.null(project)) {
+    futile.logger::flog.info(glue::glue('No dosing information available for this version of project {project} data.'))
+  } else if (nrow(doses) == 0) {
+    futile.logger::flog.debug(glue::glue('No dosing information available for this project_version_id: {project_version_id}.'))
+  }
+  doses
 }
 
 #' @importFrom magrittr %>%

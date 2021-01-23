@@ -29,6 +29,11 @@ fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type
   if (isTRUE(annotate)) {
     s <- .annotate_subjects_data(s)
   }
+  if (nrow(s) == 0 && !is.null(project)) {
+    futile.logger::flog.info(glue::glue('No subject information available for this version of project {project} data.'))
+  } else if (nrow(s) == 0) {
+    futile.logger::flog.debug(glue::glue('No subject information available for this project_version_id: {project_version_id}.'))
+  }
   s
 }
 
