@@ -1,7 +1,7 @@
 # rgeco
 R client package for access to Generable compute (Geco) API. The API gives you access to the same data, inferences, and analytical summaries displayed in the application.
 
-You must have a licensed user account with Generable to use this package. See http://generable.com for more info or to request a demo.
+You must have a user account with Generable to use this package. See https://generable.com for more info or to request a demo.
 
 ## Quick start for data
 

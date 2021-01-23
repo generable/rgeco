@@ -2,7 +2,7 @@
 % Please edit documentation in R/geco_subjects.R
 \name{fetch_subjects}
 \alias{fetch_subjects}
-\title{Get subjects data for a Generable project}
+\title{Fetch subjects data for a Generable project}
 \usage{
 fetch_subjects(
   project = NULL,
@@ -24,5 +24,5 @@ fetch_subjects(
 data.frame of subject-level data, including information about the trial & trial_arms
 }
 \description{
-Get subjects data for a Generable project
+Fetch subjects data for a Generable project
 }

@@ -1,5 +1,5 @@
 
-#' Get information about versions available for a project
+#' Fetch information about versions available for a project
 #' @param project (chr) project id for which version information is requested
 #' @return data.frame with information about each project-version available for a project
 #' @export

@@ -2,7 +2,7 @@
 % Please edit documentation in R/geco_projects.R
 \name{fetch_projects}
 \alias{fetch_projects}
-\title{Get listing of available GECO projects}
+\title{Fetch listing of available GECO projects}
 \usage{
 fetch_projects()
 }
@@ -10,5 +10,5 @@ fetch_projects()
 data.frame of project-level data, including information about the project scope
 }
 \description{
-Get listing of available GECO projects
+Fetch listing of available GECO projects
 }
