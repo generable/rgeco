@@ -2,7 +2,7 @@
 % Please edit documentation in R/geco_doses.R
 \name{fetch_doses}
 \alias{fetch_doses}
-\title{Get dosing data for a Generable project}
+\title{Fetch dosing data for a Generable project}
 \usage{
 fetch_doses(project = NULL, project_version_id = NULL)
 }
@@ -15,5 +15,5 @@ fetch_doses(project = NULL, project_version_id = NULL)
 data.frame of biomarkers data
 }
 \description{
-Get dosing data for a Generable project
+Fetch dosing data for a Generable project
 }

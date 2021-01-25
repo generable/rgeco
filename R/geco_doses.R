@@ -1,5 +1,5 @@
 
-#' Get dosing data for a Generable project
+#' Fetch dosing data for a Generable project
 #' @param project (chr) Name of project to return data for
 #' @param project_version_id (chr) Optionally, a specific version of project data to return, if not the most recent
 #' @return data.frame of biomarkers data

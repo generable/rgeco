@@ -2,7 +2,7 @@
 % Please edit documentation in R/geco_projectversions.R
 \name{fetch_projectversions}
 \alias{fetch_projectversions}
-\title{Get information about versions available for a project}
+\title{Fetch information about versions available for a project}
 \usage{
 fetch_projectversions(project)
 }
@@ -13,5 +13,5 @@ fetch_projectversions(project)
 data.frame with information about each project-version available for a project
 }
 \description{
-Get information about versions available for a project
+Fetch information about versions available for a project
 }

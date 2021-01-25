@@ -1,5 +1,5 @@
 
-#' Get listing of available GECO projects
+#' Fetch listing of available GECO projects
 #' @return data.frame of project-level data, including information about the project scope
 #' @export
 fetch_projects <- function() {

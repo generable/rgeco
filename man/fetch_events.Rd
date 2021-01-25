@@ -2,7 +2,7 @@
 % Please edit documentation in R/geco_events.R
 \name{fetch_events}
 \alias{fetch_events}
-\title{Get event data for a Generable project}
+\title{Fetch event data for a Generable project}
 \usage{
 fetch_events(project = NULL, project_version_id = NULL, event_type = NULL)
 }
@@ -17,5 +17,5 @@ fetch_events(project = NULL, project_version_id = NULL, event_type = NULL)
 data.frame with one record per subject and event type
 }
 \description{
-Get event data for a Generable project
+Fetch event data for a Generable project
 }
