@@ -9,7 +9,7 @@ prep_pkpd_data(
   biomarkers_data,
   dose_data,
   pd_measure = NULL,
-  pk_measure = "concentration"
+  pk_measure = NULL
 )
 }
 \arguments{
