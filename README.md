@@ -22,10 +22,10 @@ rgeco::login(user = 'user@email.com', password = 'yourpassword')
 List projects available:
 
 ```r
-projects <- get_geco_projects()
+projects <- fetch_projects()
 ```
 
-Read subjects or biomarkers data for a project
+Read subjects or biomarkers data for a project (replace `demo` with the name of a project you have access to)
 
 ```r
 subjects <- fetch_subjects(project = 'demo')
@@ -36,6 +36,13 @@ Read dosing data
 
 ```r
 doses <- fetch_doses(project = 'demo')
+```
+
+Read formatted PKPD data
+
+```r
+measures <- fetch_measurement_names(project = 'demo')
+pkpd <- fetch_pkpd(project = 'demo', pd_measure = 'name_of_pd_measure', pk_measure = 'concentration')
 ```
 
 List versions available for a project:
