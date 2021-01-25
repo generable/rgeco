@@ -22,7 +22,7 @@ fetch_biomarkers <- function(project = NULL, project_version_id = NULL, measurem
     # try to annotate with dose data, if available
     dose_data <- try(fetch_doses(project_version_id = pv_id), silent = T)
     if (!inherits(dose_data, 'try-error') && !is.null(dose_data) && nrow(dose_data) > 0) {
-      biomarkers <- prep_pkpd_data(biomarkers_data = biomarkers, dose_data = dose_data)
+      biomarkers <- prep_pkpd_data(biomarkers_data = biomarkers, dose_data = dose_data, pd_measure = NULL, pk_measure = NULL)
     }
   }
   if (nrow(biomarkers) == 0 && !is.null(project)) {

@@ -26,15 +26,15 @@ fetch_pkpd <- function(project = NULL, project_version_id = NULL, pd_measure = N
 #' @param pd_measure measurement_name of PD measurement (defaults to NULL - no PD marker)
 #' @return data.frame containing merged biomarker & dose data for the PK & PD parameter selected, with columns annotating cycles, time since last SDA, and measurement type.
 #' @export
-prep_pkpd_data <- function(biomarkers_data, dose_data, pd_measure = NULL, pk_measure = 'concentration') {
+prep_pkpd_data <- function(biomarkers_data, dose_data, pd_measure = NULL, pk_measure = NULL) {
   if (nrow(dose_data) == 0) {
     futile.logger::flog.warn('No records in dose_data.')
     return(annotate_pkpd_data(biomarkers_data, pd_measure = pd_measure, pk_measure = pk_measure))
   }
-  if (!is.null(pk_measure) & !(pk_measure %in% unique(biomarkers_data$measurement_name))) {
+  if (!is.null(pk_measure) && !(pk_measure %in% unique(biomarkers_data$measurement_name))) {
     futile.logger::flog.warn(glue::glue('pk_measure ({pk_measure}) not among the measurements in biomarkers_data ({glue::glue_collapse(unique(biomarkers_data$measurement_name), sep = ", ", last = ", and ")}).'))
   }
-  if (!is.null(pd_measure) & !(pk_measure %in% unique(biomarkers_data$measurement_name))) {
+  if (!is.null(pd_measure) && !(pd_measure %in% unique(biomarkers_data$measurement_name))) {
     futile.logger::flog.warn(glue::glue('pd_measure ({pd_measure}) not among the measurements in biomarkers_data ({glue::glue_collapse(unique(biomarkers_data$measurement_name), sep = ", ", last = ", and ")}).'))
   }
   if (!'start_hours' %in% names(dose_data)) {
@@ -141,10 +141,6 @@ rolling_join <- function(a, b, by, on, how = c('left', 'inner'),
 }
 
 annotate_pkpd_data <- function(.d, pd_measure = NULL, pk_measure = NULL) {
-  # filter to provided biomarkers
-  biomarker_names <- c(pd_measure, pk_measure) %>%
-    purrr::compact() %>%
-    stringr::str_to_lower()
   .d <- .d %>%
     dplyr::mutate(measurement_type = NA_character_)
   # add .type of measurement (pk or pd)
@@ -176,11 +172,11 @@ annotate_pkpd_data <- function(.d, pd_measure = NULL, pk_measure = NULL) {
     if ('hours_since_SDA' %in% names(.d)) {
       .d <- .d %>%
         dplyr::mutate(collection_timepoint = factor(.data$collection_timepoint, exclude = c(NA, 'NA')),
-                      collection_timepoint = forcats::fct_reorder(.data$collection_timepoint, .data$hours_since_SDA, .fun = min, na.rm = T))
+                      collection_timepoint = forcats::fct_reorder(.data$collection_timepoint, .data$hours_since_SDA, .fun = min))
     } else if ('hours' %in% names(.d)) {
       .d <- .d %>%
         dplyr::mutate(collection_timepoint = factor(.data$collection_timepoint, exclude = c(NA, 'NA')),
-                      collection_timepoint = forcats::fct_reorder(.data$collection_timepoint, .data$hours, .fun = min, na.rm = T))
+                      collection_timepoint = forcats::fct_reorder(.data$collection_timepoint, .data$hours, .fun = min))
     }
   }
   # return .d
