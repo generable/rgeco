@@ -1,6 +1,6 @@
 
 test_login <- function() {
-  if (is.null(Sys.getenv('GECO_API_TEST_USER')) || Sys.getenv('GECO_API_TEST_USER') == '') {
+  if (is.null(Sys.getenv('GECO_API_TEST_USER')) || Sys.getenv('GECO_API_TEST_USER') == '' || Sys.getenv('GECO_API_TEST_URL') == '') {
     testthat::skip('test credentials not supplied.')
   }
   futile.logger::flog.info('Logging in as test user ...')
