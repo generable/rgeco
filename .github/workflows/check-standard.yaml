@@ -31,8 +31,9 @@ jobs:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
       RSPM: ${{ matrix.config.rspm }}
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      GECO_API_USER: ${{ secrets.TEST_USER }}
-      GECO_API_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+      GECO_API_TEST_USER: ${{ secrets.TEST_USER }}
+      GECO_API_TEST_URL: ${{ secrets.TEST_URL }}
+      GECO_API_TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
       GECO_API_TEST_PROJECT: ${{ secrets.TEST_PROJECT }}
 
 
