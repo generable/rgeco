@@ -52,7 +52,7 @@ fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type
 .annotate_subjects_data <- function(s) {
   if (all(c('age_min', 'age_max') %in% names(s))) {
     s <- s %>%
-      dplyr::mutate(age = .data$age_min + .data$age_max / 2)
+      dplyr::mutate(age = (.data$age_min + .data$age_max) / 2)
   }
   if ('performance' %in% names(s)) {
     s <- s %>%
