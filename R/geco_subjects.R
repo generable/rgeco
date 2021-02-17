@@ -79,7 +79,7 @@ fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type
   }
   if ('sex' %in% names(s)) {
     s <- s %>%
-      dplyr::mutate(sex = factor(.data$sex, labels = c('male', 'female')))
+      dplyr::mutate(sex = factor(.data$sex))
   }
   # apply friendly labels to fields
   s <- apply_labels(s, .subject_data_labels)
