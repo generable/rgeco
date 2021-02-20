@@ -8,26 +8,28 @@
 #' @export
 fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type = NULL, annotate = T) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
-  subjects <- .fetch_subjects_data(project_version_id = pv_id)
+  s <- .fetch_subjects_data(project_version_id = pv_id)
   if (!is.null(event_type)) {
     events <- fetch_events(project_version_id = pv_id, event_type = event_type) %>%
       pivot_events_wider()
-    subjects <- subjects %>%
+    s <- s %>%
       dplyr::left_join(events, by = 'subject_id')
   }
-  trial_arms <- .fetch_trial_arms_data(project_version_id = pv_id)
-  trials <- .fetch_trials_data(project_version_id = pv_id)
-  s <- subjects %>%
-    dplyr::left_join(trial_arms,
-                     by = c('trial_arm_id'), suffix = c('', '_trial_arm')) %>%
-    dplyr::left_join(trials,
-                     by = c('trial_id'), suffix = c('', '_trial'))
-  if ('subject_params' %in% names(s)) {
-    s <- dplyr::bind_cols(s, s$subject_params) %>%
-      dplyr::select(-.data$subject_params)
-  }
-  if (isTRUE(annotate)) {
-    s <- .annotate_subjects_data(s)
+  if (nrow(s) > 0) {
+    trial_arms <- .fetch_trial_arms_data(project_version_id = pv_id)
+    trials <- .fetch_trials_data(project_version_id = pv_id)
+    s <- s %>%
+      dplyr::left_join(trial_arms,
+                       by = c('trial_arm_id'), suffix = c('', '_trial_arm')) %>%
+      dplyr::left_join(trials,
+                       by = c('trial_id'), suffix = c('', '_trial'))
+    if ('subject_params' %in% names(s)) {
+      s <- dplyr::bind_cols(s, s$subject_params) %>%
+        dplyr::select(-.data$subject_params)
+    }
+    if (isTRUE(annotate)) {
+      s <- .annotate_subjects_data(s)
+    }
   }
   if (nrow(s) == 0 && !is.null(project)) {
     futile.logger::flog.info(glue::glue('No subject information available for this version of project {project} data.'))
