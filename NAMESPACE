@@ -3,6 +3,7 @@
 export(fetch_biomarkers)
 export(fetch_doses)
 export(fetch_events)
+export(fetch_labs)
 export(fetch_measurement_names)
 export(fetch_pkpd)
 export(fetch_projects)
