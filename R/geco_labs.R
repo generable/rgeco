@@ -35,7 +35,7 @@ fetch_labs <- function(project = NULL, project_version_id = NULL, annotate = T) 
     }
     if (!'time' %in% names(d)) {
       d <- d %>%
-        dplyr::rename(trial_day = time)
+        dplyr::rename(trial_day = .data$time)
     }
   }
   d
