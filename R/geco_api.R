@@ -1,4 +1,7 @@
 
+LOGIN <- 'users/login'
+
+# ---- data api endpoints ----
 TRIALS <- 'data/projectversion/{project_version_id}/trials'
 TRIALARMS <- 'data/projectversion/{project_version_id}/trialarms'
 SUBJECTS <- 'data/projectversion/{project_version_id}/subjects'
@@ -9,7 +12,12 @@ TIMEVARYING <- 'data/projectversion/{project_version_id}/tvs'
 REGIMENS <- 'data/projectversion/{project_version_id}/regimens'
 PROJECTVERSIONS <- 'data/project/{project}/projectversions'
 PROJECTS <- 'data/projects'
-LOGIN <- 'users/login'
+
+# ---- inference api endpoints ----
+IDATA <- '/inferences/projectversion/{project_version_id}/dataset/attributes'
+IMODELS <- '/inferences/projectversion/{project_version_id}/models'
+IRUNS <- '/inferences/projectversion/{project_version_id}/runs'
+IDATASET <- '/inferences/projectversion/{project_version_id}/run/{run_id}/dataset'
 
 ENV <- new.env(parent = emptyenv())
 
