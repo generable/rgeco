@@ -1,7 +1,7 @@
 
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!!
-.fetch_inference_data <- function(project = NULL, project_version_id = NULL) {
+fetch_inference_data <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   datasets <- geco_api(IDATA, project_version_id = pv_id)
   d <- as_dataframe.geco_api_data(datasets, flatten_names = NULL)

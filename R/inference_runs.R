@@ -1,6 +1,6 @@
 
 #' @importFrom magrittr %>%
-.fetch_inference_runs <- function(project = NULL, project_version_id = NULL) {
+fetch_inference_runs <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   ret <- geco_api(IRUNS, project_version_id = pv_id)
   if (length(ret$content) > 0) {
