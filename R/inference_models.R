@@ -6,9 +6,9 @@ fetch_inference_models <- function(project = NULL, project_version_id = NULL) {
   if (length(models$content) > 0) {
     d <- models$content %>%
       purrr::map_dfr(tibble::enframe) %>%
-      tidyr::spread(name, value) %>%
+      tidyr::spread(.data$name, .data$value) %>%
       dplyr::select_if(.predicate = ~ all(!is.null(unlist(.x)))) %>%
-      tidyr::unnest(cols = c(one_of('descirption', 'has_priors', 'hash', 'id', 'inference_engine', 'name', 'run_id', 'type', 'version')))
+      tidyr::unnest(cols = c(dplyr::one_of('descirption', 'has_priors', 'hash', 'id', 'inference_engine', 'name', 'run_id', 'type', 'version')))
   } else {
     d <- tibble::tibble(id = character(0))
   }
