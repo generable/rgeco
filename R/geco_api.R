@@ -18,11 +18,11 @@ IDATA <- '/inferences/projectversion/{project_version_id}/dataset/attributes'
 IMODELS <- '/inferences/projectversion/{project_version_id}/models'
 IRUNS <- '/inferences/projectversion/{project_version_id}/runs'
 IDATASET <- '/inferences/projectversion/{project_version_id}/run/{run_id}/dataset'
-
+IDRAWS <- '/inferences/projectversion/{project_version_id}/run/{run_id}/{type}/{parameter}'
 ENV <- new.env(parent = emptyenv())
 
 #' @importFrom glue glue_safe
-geco_api_url <- function(..., project = NULL, project_version_id = NULL) {
+geco_api_url <- function(..., project = NULL, project_version_id = NULL, run_id=NULL, parameter=NULL, type=NULL) {
   if (Sys.getenv('GECO_API_URL') != '') {
     futile.logger::flog.debug(glue::glue('Default Geco API URL overridden via GECO_API_URL environment variable ({Sys.getenv("GECO_API_URL")})'))
   }
@@ -69,8 +69,8 @@ get_auth <- function() {
 
 #' @import httr
 #' @importFrom jsonlite fromJSON
-geco_api <- function(path, ..., method = c('GET', 'POST'), project = NULL, project_version_id = NULL) {
-  url <- geco_api_url(path, project = project, project_version_id = project_version_id)
+geco_api <- function(path, ..., method = c('GET', 'POST'), project = NULL, project_version_id = NULL, run_id=NULL, type=NULL, parameter=NULL) {
+  url <- geco_api_url(path, project = project, project_version_id = project_version_id, run_id=run_id, type=type, parameter=parameter)
 
   ua <- httr::user_agent("https://github.com/generable/rgeco")
 
