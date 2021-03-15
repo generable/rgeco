@@ -1,9 +1,5 @@
-#' @importFrom reticulate py_install
-setup_reticulate <- function() {
-  library(reticulate)
-  #reticulate::conda_create('rgeco')
-  #reticulate::use_condaenv('rgeco', required=TRUE)
-  reticulate::py_install(packages = c('xarray', 'netCDF4'))
+.onLoad <- function(libname, pkgname) {
+  reticulate::configure_environment(pkgname)
 }
 
 convert_draws_to_df <- function(resp) {
