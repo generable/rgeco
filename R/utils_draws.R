@@ -3,7 +3,6 @@
 }
 
 convert_draws_to_df <- function(resp) {
-  setup_reticulate()
   xr <- reticulate::import('xarray', convert = FALSE)
   py_dict <- reticulate::r_to_py(resp$content)
   py_dataset <- xr$Dataset$from_dict(py_dict)
