@@ -14,6 +14,14 @@ fetch_inference_runs <- function(project = NULL, project_version_id = NULL) {
         d <- d %>%
           dplyr::rename_at(.vars = dplyr::vars(-dplyr::one_of(c('dataset_id', 'model_id', 'run_args'))),
                            .funs = ~ stringr::str_c('run_', .x))
+        # unpack columns that are lists of chrs
+        d <- d %>%
+          dplyr::mutate_at(.vars = dplyr::vars(dplyr::one_of('run_parameters', 'run_posterior_predictive', 'run_prior_predictive', 'run_priors')),
+                           .funs = ~ purrr::map(.x, unlist))
+        # convert named-list columns to tibbles
+        d <- d %>%
+          dplyr::mutate_at(.vars = dplyr::vars(dplyr::one_of('run_args', 'run_environment')),
+                           .funs = ~ purrr::map(.x, tibble::as_tibble))
       })
   } else {
     d <- tibble::tibble(run_id = character(0))
