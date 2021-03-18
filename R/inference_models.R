@@ -16,7 +16,7 @@ fetch_inference_models <- function(project = NULL, project_version_id = NULL) {
                            .funs = ~ stringr::str_c('model_', .x))
       })
   } else {
-    futile.logger::flog.info('No models returned for this projectversion.')
+    futile.logger::flog.info('No models returned.')
     d <- tibble::tibble(model_id = character(0))
   }
   d
