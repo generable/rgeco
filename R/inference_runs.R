@@ -10,14 +10,15 @@ fetch_inference_runs <- function(project = NULL, project_version_id = NULL) {
       dplyr::select_if(.predicate = ~ all(!is.null(unlist(.x)))) %>%
       tidyr::unnest(cols = c(dplyr::one_of('dataset_id', 'model_id', 'started_on', 'id'))) %>%
       dplyr::select(-.data$.id)
+      suppressWarnings({
+        d <- d %>%
+          dplyr::rename_at(.vars = dplyr::vars(-dplyr::one_of(c('dataset_id', 'model_id', 'run_args'))),
+                           .funs = ~ stringr::str_c('run_', .x))
+      })
   } else {
-    d <- tibble::tibble(id = character(0))
+    d <- tibble::tibble(run_id = character(0))
+    futile.logger::flog.info('No runs returned.')
   }
-  suppressWarnings({
-    d <- d %>%
-      dplyr::rename_at(.vars = dplyr::vars(-dplyr::one_of(c('dataset_id', 'model_id', 'run_args'))),
-                       .funs = ~ stringr::str_c('run_', .x))
-  })
   d
 }
 
