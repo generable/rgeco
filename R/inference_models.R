@@ -14,6 +14,9 @@ fetch_inference_models <- function(project = NULL, project_version_id = NULL) {
         d <- d %>%
           dplyr::rename_at(.vars = dplyr::vars(-dplyr::one_of(c('run_id'))),
                            .funs = ~ stringr::str_c('model_', .x))
+        d <- d %>%
+          dplyr::mutate_at(.vars = dplyr::vars(dplyr::one_of('model_parameters', 'model_has_predicted_values')),
+                           .funs = ~ purrr::map(.x, unlist))
       })
   } else {
     futile.logger::flog.info('No models returned.')

@@ -17,8 +17,9 @@ PROJECTS <- 'data/projects'
 IDATA <- '/inferences/projectversion/{project_version_id}/dataset/attributes'
 IMODELS <- '/inferences/projectversion/{project_version_id}/models'
 IRUNS <- '/inferences/projectversion/{project_version_id}/runs'
-IDATASET <- '/inferences/projectversion/{project_version_id}/run/{run_id}/dataset'
+IRUNDATA <- '/inferences/projectversion/{project_version_id}/run/{run_id}/dataset'
 IDRAWS <- '/inferences/projectversion/{project_version_id}/run/{run_id}/{type}/{parameter}'
+IPDRAWS <- '/inferences/projectversion/{project_version_id}/run/{run_id}/{type}/{parameter}/predictive'
 ENV <- new.env(parent = emptyenv())
 
 #' @importFrom glue glue_safe
