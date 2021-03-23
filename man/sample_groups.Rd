@@ -22,8 +22,10 @@ subset of data with `n` groups selected
 Filter the data to include only `n` groups
 }
 \examples{
+ \dontrun{
  # plot data for a random individual, defined by `individual_id`
  d \%>\%
  sample_groups(n = 1, individual_id) \%>\%
  ggplot(., aes(...))
+ }
 }

@@ -8,10 +8,12 @@
 #' @importFrom rlang ensyms !!!
 #' @export
 #' @examples
+#'  \dontrun{
 #'  # plot data for a random individual, defined by `individual_id`
 #'  d %>%
 #'  sample_groups(n = 1, individual_id) %>%
 #'  ggplot(., aes(...))
+#'  }
 sample_groups <- function(d, n, ..., replace = F) {
   group_vars <- rlang::ensyms(...)
   d %>%
