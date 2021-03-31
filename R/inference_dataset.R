@@ -4,17 +4,53 @@
 fetch_inference_dataset_info <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   datasets <- geco_api(IDATA, project_version_id = pv_id)
-  d <- as_dataframe.geco_api_data(datasets, flatten_names = NULL)
-  if ('inputs' %in% names(d$params)) {
-    d_inputs <- d$params$inputs %>%
-      tibble::tibble(!!!.) %>%
-      dplyr::rename_all(.funs = ~ stringr::str_c('args_',.x))
-    d <- dplyr::bind_cols(d, d_inputs)
+  if (httr::http_error(datasets$response)) {
+    stop(stringr::str_c('Error querying API: ', datasets$response))
+  }
+  # base dataset response
+  dataset_no_pars <- datasets$content %>%
+    purrr::map(purrr::list_modify, params = NULL)
+  d <- as_dataframe.geco_api_data(content = dataset_no_pars, flatten_names = NULL)
+
+  # handle params
+  dataset_params <- datasets$content %>%
+    purrr::map('params') %>%
+    purrr::set_names(purrr::map_chr(dataset_no_pars, 'run_id'))
+  all_param_names <- dataset_params %>% purrr::map(names) %>% unlist() %>% unique()
+  if ('inputs' %in% all_param_names) {
+    d_inputs <- dataset_params %>%
+      purrr::map('inputs') %>%
+      purrr::map(unlist, recursive = F) %>%
+      purrr::map_dfr(~ tibble::tibble(!!!.x), .id = 'run_id') %>%
+      dplyr::rename_at(.vars = dplyr::vars(-.data$run_id), .funs = ~ stringr::str_c('args_',.x))
+    d <- dplyr::left_join(d, d_inputs, by = 'run_id')
+  }
+  if ('sampling_scheme' %in% all_param_names) {
+    d_sampling <- dataset_params %>%
+      purrr::map('sampling_scheme') %>%
+      purrr::map(unlist, recursive = F) %>%
+      purrr::map_dfr(~ tibble::tibble(!!!.x), .id = 'run_id') %>%
+      dplyr::rename_at(.vars = dplyr::vars(-.data$run_id), .funs = ~ stringr::str_c('args_sampling_',.x))
+    d <- dplyr::left_join(d, d_sampling, by = 'run_id')
+  }
+  if ('seed_subjects' %in% all_param_names) {
+    d_subject_seed <- dataset_params %>%
+      purrr::map('seed_subjects') %>%
+      purrr::map_dfr(~ tibble::tibble(seed_subjects = .x), .id = 'run_id') %>%
+      dplyr::rename_at(.vars = dplyr::vars(-.data$run_id), .funs = ~ stringr::str_c('args_sampling_',.x))
+    d <- dplyr::left_join(d, d_subject_seed, by = 'run_id')
+  }
+  if ('seed_truncation' %in% all_param_names) {
+    d_trunc_seed <- dataset_params %>%
+      purrr::map('seed_truncation') %>%
+      purrr::map_dfr(~ tibble::tibble(seed_truncation = .x), .id = 'run_id') %>%
+      dplyr::rename_at(.vars = dplyr::vars(-.data$run_id), .funs = ~ stringr::str_c('args_sampling_',.x))
+    d <- dplyr::left_join(d, d_trunc_seed, by = 'run_id')
   }
   suppressWarnings({
     d <- d %>%
       dplyr::rename_at(.vars = dplyr::vars(-dplyr::one_of(c('run_id', 'project_id', 'project_version_id'))),
-                        .funs = ~ stringr::str_c('dataset_', .x))
+                       .funs = ~ stringr::str_c('dataset_', .x))
   })
   d
 }
@@ -51,7 +87,7 @@ fetch_inference_data <- function(run_id, project = NULL, project_version_id = NU
     purrr::map(tibble::as_tibble)
   if (length(numeric_fields) > 0)
     results <- results %>%
-      purrr::map(dplyr::mutate_at, .vars = dplyr::vars(dplyr::one_of(numeric_fields)), .funs = as.double)
+    purrr::map(dplyr::mutate_at, .vars = dplyr::vars(dplyr::one_of(numeric_fields)), .funs = as.double)
   dplyr::bind_rows(results)
 }
 
