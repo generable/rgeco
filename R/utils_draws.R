@@ -13,7 +13,7 @@ convert_xarray_to_df <- function(resp, name = NULL) {
     if (!is.null(name)) {
       quo_name = rlang::sym(name)
       df <- df %>%
-        tidyr::gather(.data$.variable, .data$.value, !!quo_name)
+        tidyr::pivot_longer(c(quo_name), names_to = '.variable', values_to = '.value')
     }
   } else {
     futile.logger::flog.info('No draws returned.')
