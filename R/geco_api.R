@@ -16,6 +16,7 @@ PROJECTS <- 'data/projects'
 # ---- inference api endpoints ----
 IDATA <- '/inferences/projectversion/{project_version_id}/dataset/attributes'
 IPARS <- '/inferences/projectversion/{project_version_id}/model/attributes'
+IPREDS <- '/inferences/projectversion/{project_version_id}/model/predictions'
 IMODELS <- '/inferences/projectversion/{project_version_id}/models'
 IRUNS <- '/inferences/projectversion/{project_version_id}/runs'
 IRUNDATA <- '/inferences/projectversion/{project_version_id}/run/{run_id}/dataset'
