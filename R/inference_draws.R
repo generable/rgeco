@@ -23,6 +23,7 @@ fetch_inference_quantiles <- function(project = NULL, project_version_id = NULL,
   } else {
     draws <- geco_api(IDRAWS, project_version_id = pv_id, run_id=run_id, parameter=summarized_parameter, type=type)
   }
-  d <- convert_xarray_to_df(draws, name = summarized_parameter)
+  d <- convert_xarray_to_df(draws, name = summarized_parameter) %>%
+    dplyr::mutate(.variable = stringr::str_remove(.data$.variable, pattern = '^summarized_'))
 }
 
