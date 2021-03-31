@@ -43,13 +43,13 @@ fetch_inference_model_pars <- function(project = NULL, project_version_id = NULL
                          .funs = ~ unlist(purrr::map(.x, unlist)))
 
       d <- d %>%
-        dplyr::mutate(params = purrr::map(params,
+        dplyr::mutate(params = purrr::map(.data$params,
                                           ~ purrr::set_names(.x, purrr::map_chr(.x, 'name')) %>%
                                             purrr::map('dimensions') %>%
                                             purrr::map_dfr(~ tibble::tibble(dim = unlist(.x)), .id = 'parameter'))) %>%
         dplyr::select(-.data$.id, -.data$description) %>%
         dplyr::distinct() %>%
-        tidyr::unnest(params)
+        tidyr::unnest(.data$params)
     })
   } else {
     futile.logger::flog.info('No models returned.')

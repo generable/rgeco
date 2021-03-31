@@ -13,7 +13,7 @@ convert_xarray_to_df <- function(resp, name = NULL) {
     if (!is.null(name)) {
       quo_name = rlang::sym(name)
       df <- df %>%
-        tidyr::gather(.variable, .value, !!quo_name)
+        tidyr::gather(.data$.variable, .data$.value, !!quo_name)
     }
   } else {
     futile.logger::flog.info('No draws returned.')
@@ -48,12 +48,12 @@ format_quantiles_as_widths <- function(df) {
     return(df)
   }
   df %>%
-    dplyr::mutate(.width = .width_from_quantile(quantile),
-                  .label = dplyr::case_when(quantile < 0.5 ~ '.lower',
-                                            quantile > 0.5 ~ '.upper',
-                                            quantile == 0.5 ~ '.median')) %>%
-    dplyr::select(-quantile) %>%
-    tidyr::spread(.label, .value) %>%
-    tidyr::fill(.median, .direction = 'updown') %>%
-    dplyr::filter(!is.na(.width))
+    dplyr::mutate(.width = .width_from_quantile(.data$quantile),
+                  .label = dplyr::case_when(.data$quantile < 0.5 ~ '.lower',
+                                            .data$quantile > 0.5 ~ '.upper',
+                                            .data$quantile == 0.5 ~ '.median')) %>%
+    dplyr::select(-.data$quantile) %>%
+    tidyr::spread(.data$.label, .data$.value) %>%
+    tidyr::fill(.data$.median, .direction = 'updown') %>%
+    dplyr::filter(!is.na(.data$.width))
 }
