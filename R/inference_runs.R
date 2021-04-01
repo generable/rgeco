@@ -1,6 +1,6 @@
 
 #' @importFrom magrittr %>%
-#' @importFrom lubridgate ymd_hms
+#' @importFrom lubridate ymd_hms
 fetch_inference_runs <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   ret <- geco_api(IRUNS, project_version_id = pv_id)
