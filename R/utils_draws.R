@@ -15,6 +15,15 @@ convert_xarray_to_df <- function(resp, name = NULL) {
       df <- df %>%
         tidyr::pivot_longer(c(quo_name), names_to = '.variable', values_to = '.value')
     }
+    if (any(stringr::str_detect(names(df), pattern = '^subject\\.'))) {
+      df <- df  %>%
+        dplyr::rename_at(.vars = vars(dplyr::starts_with('subject.')),
+                         .funs = ~ stringr::str_remove(.x, 'subject.'))
+    }
+    if ('subject' %in% names(df)) {
+      df <- df %>%
+        dplyr::rename(subject_id = .data$subject)
+    }
   } else {
     futile.logger::flog.info('No draws returned.')
     df <- tibble::tibble()
@@ -56,4 +65,28 @@ format_quantiles_as_widths <- function(df) {
     tidyr::spread(.data$.label, .data$.value) %>%
     tidyr::fill(.data$.median, .direction = 'updown') %>%
     dplyr::filter(!is.na(.data$.width))
+}
+
+.get_default_run <- function(parameter, project = NULL, project_version_id = NULL, type = c('posterior', 'prior'), predictive = F, quantiles = T) {
+  type <- match.arg(type, several.ok = F)
+  pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
+  # get name of run_info field containing relevant parameter names
+  if (isTRUE(predictive))
+    run_info_field <- glue::glue('run_{type}_predictive')
+  else if (type == 'prior')
+    run_info_field <- 'run_priors'
+  else if (type == 'posterior')
+    run_info_field <- 'run_parameters'
+  else
+    stop("You found an error.")
+  param_name <- glue::glue('{dplyr::if_else(quantiles, "summarized_", "")}{parameter}')
+  futile.logger::flog.debug(glue::glue("looking in {run_info_field} for {param_name}"))
+  run_info_sym <- rlang::sym(run_info_field)
+  run_id <- fetch_inference_runs(project_version_id = pv_id) %>%
+    dplyr::filter(purrr::map_lgl(!!run_info_sym, ~ param_name %in% .x)) %>%
+    dplyr::filter(run_start_datetime == max(run_start_datetime)) %>%
+    dplyr::pull(run_id)
+  if (length(run_id) > 0)
+    futile.logger::flog.info(glue::glue('Fetching results for run: {run_id}.'))
+  run_id
 }

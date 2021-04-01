@@ -1,5 +1,6 @@
 
 #' @importFrom magrittr %>%
+#' @importFrom lubridgate ymd_hms
 fetch_inference_runs <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   ret <- geco_api(IRUNS, project_version_id = pv_id)
@@ -22,6 +23,11 @@ fetch_inference_runs <- function(project = NULL, project_version_id = NULL) {
         d <- d %>%
           dplyr::mutate_at(.vars = dplyr::vars(dplyr::one_of('run_args', 'run_environment')),
                            .funs = ~ purrr::map(.x, tibble::as_tibble))
+        # convert run_started_at into date-time field
+        if ('run_started_on' %in% names(d)) {
+          d <- d %>%
+            dplyr::mutate(run_start_datetime = lubridate::ymd_hms(run_started_on))
+        }
       })
   } else {
     d <- tibble::tibble(run_id = character(0))
