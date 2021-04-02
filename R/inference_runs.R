@@ -26,7 +26,7 @@ fetch_inference_runs <- function(project = NULL, project_version_id = NULL) {
         # convert run_started_at into date-time field
         if ('run_started_on' %in% names(d)) {
           d <- d %>%
-            dplyr::mutate(run_start_datetime = lubridate::ymd_hms(run_started_on))
+            dplyr::mutate(run_start_datetime = lubridate::ymd_hms(.data$run_started_on))
         }
       })
   } else {

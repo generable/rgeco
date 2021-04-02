@@ -17,7 +17,7 @@ convert_xarray_to_df <- function(resp, name = NULL) {
     }
     if (any(stringr::str_detect(names(df), pattern = '^subject\\.'))) {
       df <- df  %>%
-        dplyr::rename_at(.vars = vars(dplyr::starts_with('subject.')),
+        dplyr::rename_at(.vars = dplyr::vars(dplyr::starts_with('subject.')),
                          .funs = ~ stringr::str_remove(.x, 'subject.'))
     }
     if ('subject' %in% names(df)) {
@@ -84,8 +84,8 @@ format_quantiles_as_widths <- function(df) {
   run_info_sym <- rlang::sym(run_info_field)
   run_id <- fetch_inference_runs(project_version_id = pv_id) %>%
     dplyr::filter(purrr::map_lgl(!!run_info_sym, ~ param_name %in% .x)) %>%
-    dplyr::filter(run_start_datetime == max(run_start_datetime)) %>%
-    dplyr::pull(run_id)
+    dplyr::filter(.data$run_start_datetime == max(.data$run_start_datetime)) %>%
+    dplyr::pull(.data$run_id)
   if (length(run_id) > 0)
     futile.logger::flog.info(glue::glue('Fetching results for run: {run_id}.'))
   run_id
