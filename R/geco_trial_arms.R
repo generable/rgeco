@@ -5,6 +5,7 @@
   if (httr::http_error(trial_arms$response)) {
     ta <- as_dataframe.geco_api_data(trial_arms, flatten_names = c('params', 'regimen'))
   } else {
+    cohorts <- .prepare_cohort_df(trial_arms$content)
     trial_arms_content <- trial_arms$content %>%
       purrr::map(purrr::list_modify, cohorts = NULL)
     ta <- as_dataframe.geco_api_data(content = trial_arms_content, flatten_names = c('params', 'regimen'))
@@ -20,6 +21,10 @@
       ta <- ta %>%
         dplyr::left_join(regimens, by = c('trial_arm_regimen_id'))
     }
+    if (nrow(cohorts) > 0) {
+      ta <- ta %>%
+        dplyr::left_join(cohorts, by = c('id'))
+    }
     if ('params' %in% names(ta) && ncol(ta$params) > 0) {
       ta <- dplyr::bind_cols(ta, ta$params %>% dplyr::rename_all(~ stringr::str_c('trial_arm_', .x))) %>%
         dplyr::select(-.data$params)
@@ -33,3 +38,14 @@
   ta
 }
 
+.prepare_cohort_df <- function(trial_arms_content) {
+  cohort_df <- trial_arms_content %>%
+    purrr::set_names(purrr::map_chr(trial_arms_content, 'id')) %>%
+    purrr::map('cohorts') %>%
+    purrr::map(unlist, recursive = F) %>%
+    purrr::map_dfr(tibble::as_tibble_row, .id = 'trial_arm_id') %>%
+    dplyr::rename_at(.vars = dplyr::vars(-.data$trial_arm_id),
+                     .funs = .add_prefix, 'cohort') %>%
+    dplyr::rename(id = .data$trial_arm_id)
+
+}
