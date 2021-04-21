@@ -39,13 +39,27 @@
 }
 
 .prepare_cohort_df <- function(trial_arms_content) {
-  cohort_df <- trial_arms_content %>%
+  cohort_info <- trial_arms_content %>%
     purrr::set_names(purrr::map_chr(trial_arms_content, 'id')) %>%
-    purrr::map('cohorts') %>%
-    purrr::map(unlist, recursive = F) %>%
-    purrr::map_dfr(tibble::as_tibble_row, .id = 'trial_arm_id') %>%
-    dplyr::rename_at(.vars = dplyr::vars(-.data$trial_arm_id),
-                     .funs = .add_prefix, 'cohort') %>%
-    dplyr::rename(id = .data$trial_arm_id)
-
+    purrr::map('cohorts')
+  n_cohorts_per_arm <- cohort_info %>%
+    purrr::map_int(length)
+  if (any(n_cohorts_per_arm > 1)) {
+    # return nested dataframe
+    cohort_info %>%
+      purrr::map_depth(2, tibble::as_tibble_row) %>%
+      purrr::map_dfr(dplyr::bind_rows, .id = 'trial_arm_id') %>%
+      dplyr::rename_at(.vars = dplyr::vars(-.data$trial_arm_id),
+                       .funs = .add_prefix, 'cohort') %>%
+      dplyr::rename(id = .data$trial_arm_id) %>%
+      tidyr::nest(cohort = c(dplyr::starts_with('cohort')))
+  } else {
+    # unnest cohort info
+    cohort_info %>%
+      purrr::map(unlist, recursive = F) %>%
+      purrr::map_dfr(tibble::as_tibble_row, .id = 'trial_arm_id') %>%
+      dplyr::rename_at(.vars = dplyr::vars(-.data$trial_arm_id),
+                       .funs = .add_prefix, 'cohort') %>%
+      dplyr::rename(id = .data$trial_arm_id)
+  }
 }
