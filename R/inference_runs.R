@@ -22,7 +22,7 @@ fetch_inference_runs <- function(project = NULL, project_version_id = NULL) {
         # convert named-list columns to tibbles
         d <- d %>%
           dplyr::mutate_at(.vars = dplyr::vars(dplyr::one_of('run_args', 'run_environment')),
-                           .funs = ~ purrr::map(.x, tibble::as_tibble))
+                           .funs = ~ purrr::map(.x, ~ tibble::as_tibble(purrr::compact(.x))))
         # convert run_started_at into date-time field
         if ('run_started_on' %in% names(d)) {
           d <- d %>%
