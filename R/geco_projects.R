@@ -4,6 +4,7 @@
 #' @export
 fetch_projects <- function() {
   projects <- .fetch_projects_data()
+  return(projects)
 }
 
 .fetch_projects_data <- function() {
