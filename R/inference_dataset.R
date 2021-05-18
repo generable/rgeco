@@ -3,59 +3,38 @@
 #' @importFrom rlang !!!
 fetch_inference_dataset_info <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
-  datasets <- geco_api(IDATA, project_version_id = pv_id)
-  if (httr::http_error(datasets$response)) {
-    stop(stringr::str_c('Error querying API: ', datasets$response))
+  ret <- geco_api(IDATA, project_version_id = pv_id)
+  if (httr::http_error(ret$response)) {
+    stop(stringr::str_c('Error querying API: ', ret$response))
   }
-  # base dataset response
-  dataset_no_pars <- datasets$content %>%
-    purrr::map(purrr::list_modify, params = NULL)
-  d <- as_dataframe.geco_api_data(content = dataset_no_pars, flatten_names = NULL)
-
-  # handle params
-  dataset_params <- datasets$content %>%
-    purrr::map('params') %>%
-    purrr::set_names(purrr::map_chr(dataset_no_pars, 'run_id'))
-  all_param_names <- dataset_params %>% purrr::map(names) %>% unlist() %>% unique()
-  if ('inputs' %in% all_param_names) {
-    d_inputs <- dataset_params %>%
-      purrr::map('inputs') %>%
-      purrr::map(unlist, recursive = F) %>%
-      purrr::map_dfr(~ tibble::tibble(!!!.x), .id = 'run_id') %>%
-      dplyr::rename_at(.vars = dplyr::vars(-.data$run_id), .funs = ~ stringr::str_c('args_',.x))
-    d <- dplyr::left_join(d, d_inputs, by = 'run_id')
-  }
-  if ('sampling_scheme' %in% all_param_names) {
-    d_sampling <- dataset_params %>%
-      purrr::map('sampling_scheme') %>%
-      purrr::map(unlist, recursive = F) %>%
-      purrr::map_dfr(~ tibble::tibble(!!!.x), .id = 'run_id') %>%
-      dplyr::rename_at(.vars = dplyr::vars(-.data$run_id), .funs = ~ stringr::str_c('args_sampling_',.x))
-    d <- dplyr::left_join(d, d_sampling, by = 'run_id')
-  }
-  if ('seed_subjects' %in% all_param_names) {
-    d_subject_seed <- dataset_params %>%
-      purrr::map('seed_subjects') %>%
-      purrr::map_dfr(~ tibble::tibble(seed_subjects = .x), .id = 'run_id') %>%
-      dplyr::rename_at(.vars = dplyr::vars(-.data$run_id), .funs = ~ stringr::str_c('args_sampling_',.x))
-    d <- dplyr::left_join(d, d_subject_seed, by = 'run_id')
-  }
-  if ('seed_truncation' %in% all_param_names) {
-    d_trunc_seed <- dataset_params %>%
-      purrr::map('seed_truncation') %>%
-      purrr::map_dfr(~ tibble::tibble(seed_truncation = .x), .id = 'run_id') %>%
-      dplyr::rename_at(.vars = dplyr::vars(-.data$run_id), .funs = ~ stringr::str_c('args_sampling_',.x))
-    d <- dplyr::left_join(d, d_trunc_seed, by = 'run_id')
-  }
-  suppressWarnings({
+  if (length(ret$content) > 0) {
+    d <- ret$content %>%
+      purrr::map(purrr::compact) %>%
+      purrr::map(purrr::map_if, ~ is.list(.x) & length(.x) > 1, ~ list(.x)) %>%
+      purrr::map_dfr(tibble::as_tibble_row)
     d <- d %>%
-      dplyr::rename_at(.vars = dplyr::vars(-dplyr::one_of(c('run_id', 'project_id', 'project_version_id'))),
+      dplyr::rename_at(.vars = dplyr::vars(-dplyr::starts_with('dataset_')),
                        .funs = ~ stringr::str_c('dataset_', .x))
-  })
+  } else {
+    d <- tibble::tibble(dataset_id = character(0))
+    futile.logger::flog.info('No analysis datasets returned.')
+  }
   d
 }
 
-
+#' Characterize sampling information given dataset info, using standard column locations
+#' @importFrom tidyr hoist
+#' @param d data.frame containing result of `fetch_inference_dataset_info`
+#' @return data.frame with new columns containing information about the sample of data generated.
+extract_subsample_info <- function(d) {
+  d %>%
+    tidyr::hoist(.data$dataset_params,
+                 sample_n = c('sampling_scheme', 'n'),
+                 truncate_min_days = c('sampling_scheme', 'min_days'),
+                 truncate_max_days = c('sampling_scheme', 'max_days'),
+                 sample_id = c('seed_subjects')) %>%
+    dplyr::mutate(sample_id = dplyr::if_else(is.na(sample_n), 0L, sample_id))
+}
 
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!!

@@ -6,7 +6,7 @@ fetch_inference_runs <- function(project = NULL, project_version_id = NULL) {
   ret <- geco_api(IRUNS, project_version_id = pv_id)
   if (length(ret$content) > 0) {
     d <- ret$content %>%
-      purrr::map(purrr::map_if, is.list, ~ list(purrr::flatten(.x))) %>%
+      purrr::map(purrr::map_if, ~ is.list(.x) & length(.x) > 1, ~ list(.x)) %>%
       purrr::map_dfr(tibble::as_tibble_row)
     # convert run_started_at into date-time field
     if ('run_started_on' %in% names(d)) {
@@ -14,7 +14,7 @@ fetch_inference_runs <- function(project = NULL, project_version_id = NULL) {
         dplyr::mutate(run_start_datetime = lubridate::ymd_hms(.data$run_started_on))
     }
     d <- d %>%
-      dplyr::rename_at(.vars = dplyr::vars(-dplyr::starts_with('run_'), -dataset_id, -model_id),
+      dplyr::rename_at(.vars = dplyr::vars(-dplyr::starts_with('run_'), -.data$dataset_id, -.data$model_id),
                        .funs = ~ stringr::str_c('run_', .x))
   } else {
     d <- tibble::tibble(run_id = character(0))
