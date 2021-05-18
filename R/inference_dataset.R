@@ -1,6 +1,8 @@
 
+#' Fetch the model attributes for all datasets with at least one run in a project-version
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!!
+#' @export
 fetch_inference_dataset_info <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   ret <- geco_api(IDATA, project_version_id = pv_id)
@@ -26,6 +28,7 @@ fetch_inference_dataset_info <- function(project = NULL, project_version_id = NU
 #' @importFrom tidyr hoist
 #' @param d data.frame containing result of `fetch_inference_dataset_info`
 #' @return data.frame with new columns containing information about the sample of data generated.
+#' @export
 extract_subsample_info <- function(d) {
   d %>%
     tidyr::hoist(.data$dataset_params,
@@ -36,8 +39,11 @@ extract_subsample_info <- function(d) {
     dplyr::mutate(sample_id = dplyr::if_else(is.na(sample_n), 0L, sample_id))
 }
 
+#' Fetch the datasets used for a particular model run.
+#' @return a named list of data.frames, provided as input to the model fit.
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!!
+#' @export
 fetch_inference_data <- function(run_id, project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   resp <- geco_api(IRUNDATA, project_version_id = pv_id, run_id=run_id)

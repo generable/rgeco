@@ -52,6 +52,9 @@ convert_draws_to_df <- function(resp, name = NULL) {
                    quantile == 0.5 ~ NA_real_)
 }
 
+#' Format a long summary of parameter quantiles (one record per run, parameter, and quantile) into a wide format (one record per run, parameter, and interval-width)
+#' @return a data.frame with new fields (compatible with ggdist plotting functions): .width, .lower, .upper, and .median
+#' @export
 format_quantiles_as_widths <- function(df) {
   if (nrow(df) == 0) {
     return(df)

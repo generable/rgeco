@@ -1,5 +1,7 @@
 
+#' Fetch the model attributes for all models used at least once within a project-version
 #' @importFrom magrittr %>%
+#' @export
 fetch_inference_models <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   models <- geco_api(IMODELS, project_version_id = pv_id)
