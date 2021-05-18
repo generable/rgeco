@@ -8,7 +8,7 @@ fetch_inference_models <- function(project = NULL, project_version_id = NULL) {
       purrr::map_dfr(tibble::enframe, .id = '.id') %>%
       tidyr::spread(.data$name, .data$value) %>%
       dplyr::select_if(.predicate = ~ all(!is.null(unlist(.x)))) %>%
-      tidyr::unnest(cols = c(dplyr::one_of('description', 'has_priors', 'hash', 'id', 'inference_engine', 'name', 'run_id', 'type', 'version'))) %>%
+      tidyr::unnest(cols = c(dplyr::one_of('description', 'hash', 'id', 'inference_engine', 'name', 'run_id', 'type', 'version'))) %>%
       dplyr::select(-.data$.id)
       suppressWarnings({
         d <- d %>%
