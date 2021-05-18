@@ -8,6 +8,12 @@ Description: R client for accessing Generable Compute (Geco) API.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+Config/reticulate:
+  list(
+    packages = list(
+      list(package = "xarray")
+    )
+  )
 Imports:
     httr,
     jsonlite,
@@ -25,7 +31,8 @@ Imports:
     survival,
     lubridate,
     forcats,
-    table1
+    table1,
+    reticulate
 Suggests: 
     testthat,
     knitr,
