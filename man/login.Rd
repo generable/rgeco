@@ -7,9 +7,12 @@
 login(user, password)
 }
 \arguments{
-\item{user}{(chr) user email. [If not provided, reads from GECO_API_USER environment variable]}
+\item{user}{User email address. If not provided, will read the `GECO_API_USER` environment variable.}
 
-\item{password}{(chr) user password [If not provided, reads from GECO_API_USER environment variable]}
+\item{password}{User password. If not provided, will read the `GECO_API_PASSWORD` environment variable.}
+}
+\value{
+OAuth 2.0 Bearer Token for the Generable API
 }
 \description{
 Login to the Generable API

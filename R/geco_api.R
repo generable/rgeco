@@ -35,8 +35,10 @@ geco_api_url <- function(..., project = NULL, project_version_id = NULL, run_id=
 }
 
 #' Login to the Generable API
-#' @param user (chr) user email. [If not provided, reads from GECO_API_USER environment variable]
-#' @param password (chr) user password [If not provided, reads from GECO_API_USER environment variable]
+#'
+#' @param user User email address. If not provided, will read the `GECO_API_USER` environment variable.
+#' @param password User password. If not provided, will read the `GECO_API_PASSWORD` environment variable.
+#' @return Response which includes the OAuth 2.0 Bearer Token for the Generable API
 #' @export
 login <- function(user, password) {
   if (missing(user)) {
