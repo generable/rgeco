@@ -36,8 +36,10 @@ geco_api_url <- function(..., project = NULL, project_version_id = NULL, run_id=
 
 #' Login to the Generable API
 #'
-#' This method logs the user into the Generable API. The user must log in before calling other functions.
-#' The authentication token for the API is stored in the rgeco package's environment.
+#' This method logs the user into the Generable API.
+#'
+#' This method logs the user into the Generable API. The user must log in before calling other functions
+#' that require authentication. The authentication token for the API is stored in the rgeco package's environment.
 #'
 #' When this call is successful, it will return the OAuth 2.0 Bearer Token for the user, invisibly.
 #' Otherwise, it will error with an error message.
