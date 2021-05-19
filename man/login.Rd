@@ -12,8 +12,13 @@ login(user, password)
 \item{password}{User password. If not provided, will read the `GECO_API_PASSWORD` environment variable.}
 }
 \value{
-OAuth 2.0 Bearer Token for the Generable API
+The OAuth 2.0 Bearer Token for the Generable API
 }
 \description{
-Login to the Generable API
+This method logs the user into the Generable API. The user must log in before calling other functions.
+The authentication token for the API is stored in the rgeco package's environment.
+}
+\details{
+When this call is successful, it will return the OAuth 2.0 Bearer Token for the user, invisibly.
+Otherwise, it will error with an error message.
 }
