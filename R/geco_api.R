@@ -14,14 +14,14 @@ PROJECTVERSIONS <- 'data/project/{project}/projectversions'
 PROJECTS <- 'data/projects'
 
 # ---- inference api endpoints ----
-IDATA <- '/inferences/projectversion/{project_version_id}/dataset/attributes'
-IMODELS <- '/inferences/projectversion/{project_version_id}/models'
-IRUNS <- '/inferences/projectversion/{project_version_id}/runs'
-IRUNDATA <- '/inferences/projectversion/{project_version_id}/run/{run_id}/dataset'
-IDRAWS <- '/inferences/projectversion/{project_version_id}/run/{run_id}/draws/{type}/{parameter}'
-IPDRAWS <- '/inferences/projectversion/{project_version_id}/run/{run_id}/draws/{type}/{parameter}/predictive'
-ITILES <- '/inferences/projectversion/{project_version_id}/run/{run_id}/quantiles/{type}/{parameter}'
-IPTILES <- '/inferences/projectversion/{project_version_id}/run/{run_id}/quantiles/{type}/{parameter}/predictive'
+IDATA <- 'inferences/projectversion/{project_version_id}/dataset/attributes'
+IMODELS <- 'inferences/projectversion/{project_version_id}/models'
+IRUNS <- 'inferences/projectversion/{project_version_id}/runs'
+IRUNDATA <- 'inferences/projectversion/{project_version_id}/run/{run_id}/dataset'
+IDRAWS <- 'inferences/projectversion/{project_version_id}/run/{run_id}/draws/{type}/{parameter}'
+IPDRAWS <- 'inferences/projectversion/{project_version_id}/run/{run_id}/draws/{type}/{parameter}/predictive'
+ITILES <- 'inferences/projectversion/{project_version_id}/run/{run_id}/quantiles/{type}/{parameter}'
+IPTILES <- 'inferences/projectversion/{project_version_id}/run/{run_id}/quantiles/{type}/{parameter}/predictive'
 ENV <- new.env(parent = emptyenv())
 
 #' @importFrom glue glue_safe
