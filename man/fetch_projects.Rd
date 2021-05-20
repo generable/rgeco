@@ -2,13 +2,20 @@
 % Please edit documentation in R/geco_projects.R
 \name{fetch_projects}
 \alias{fetch_projects}
-\title{Fetch listing of available GECO projects}
+\title{Lists available projects}
 \usage{
 fetch_projects()
 }
 \value{
-data.frame of project-level data, including information about the project scope
+data.frame containing information about each available project,
+   one project per row.
 }
 \description{
-Fetch listing of available GECO projects
+Lists projects available to the authenticated user.
+}
+\details{
+This function fetches the list of projects available to the
+authenticated user from the Generable API. Included are the
+project id, description, and other information pertient to
+the project.
 }

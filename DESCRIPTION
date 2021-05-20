@@ -1,10 +1,10 @@
 Package: rgeco
 Type: Package
-Title: R Client for Geco Data API
+Title: R package for accessing the Generable API
 Version: 0.0.1.9000
 Author: Generable Inc
 Maintainer: Jacqueline Buros <jacqueline.buros@generable.com>
-Description: R client for accessing Generable Compute (Geco) API.
+Description: The Generable API is a HTTP REST API that provides access to data and inferences. The rgeco package provides convenient access to the information in the API in an R-friendly format.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

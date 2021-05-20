@@ -14,14 +14,14 @@ PROJECTVERSIONS <- 'data/project/{project}/projectversions'
 PROJECTS <- 'data/projects'
 
 # ---- inference api endpoints ----
-IDATA <- '/inferences/projectversion/{project_version_id}/dataset/attributes'
-IMODELS <- '/inferences/projectversion/{project_version_id}/models'
-IRUNS <- '/inferences/projectversion/{project_version_id}/runs'
-IRUNDATA <- '/inferences/projectversion/{project_version_id}/run/{run_id}/dataset'
-IDRAWS <- '/inferences/projectversion/{project_version_id}/run/{run_id}/draws/{type}/{parameter}'
-IPDRAWS <- '/inferences/projectversion/{project_version_id}/run/{run_id}/draws/{type}/{parameter}/predictive'
-ITILES <- '/inferences/projectversion/{project_version_id}/run/{run_id}/quantiles/{type}/{parameter}'
-IPTILES <- '/inferences/projectversion/{project_version_id}/run/{run_id}/quantiles/{type}/{parameter}/predictive'
+IDATA <- 'inferences/projectversion/{project_version_id}/dataset/attributes'
+IMODELS <- 'inferences/projectversion/{project_version_id}/models'
+IRUNS <- 'inferences/projectversion/{project_version_id}/runs'
+IRUNDATA <- 'inferences/projectversion/{project_version_id}/run/{run_id}/dataset'
+IDRAWS <- 'inferences/projectversion/{project_version_id}/run/{run_id}/draws/{type}/{parameter}'
+IPDRAWS <- 'inferences/projectversion/{project_version_id}/run/{run_id}/draws/{type}/{parameter}/predictive'
+ITILES <- 'inferences/projectversion/{project_version_id}/run/{run_id}/quantiles/{type}/{parameter}'
+IPTILES <- 'inferences/projectversion/{project_version_id}/run/{run_id}/quantiles/{type}/{parameter}/predictive'
 ENV <- new.env(parent = emptyenv())
 
 #' @importFrom glue glue_safe
@@ -35,8 +35,18 @@ geco_api_url <- function(..., project = NULL, project_version_id = NULL, run_id=
 }
 
 #' Login to the Generable API
-#' @param user (chr) user email. [If not provided, reads from GECO_API_USER environment variable]
-#' @param password (chr) user password [If not provided, reads from GECO_API_USER environment variable]
+#'
+#' This method logs the user into the Generable API.
+#'
+#' This method logs the user into the Generable API. The user must log in before calling other functions
+#' that require authentication. The authentication token for the API is stored in the rgeco package's environment.
+#'
+#' When this call is successful, it will return the OAuth 2.0 Bearer Token for the user, invisibly.
+#' Otherwise, it will error with an error message.
+#'
+#' @param user User email address. If not provided, will read the `GECO_API_USER` environment variable.
+#' @param password User password. If not provided, will read the `GECO_API_PASSWORD` environment variable.
+#' @return The OAuth 2.0 Bearer Token for the Generable API
 #' @export
 login <- function(user, password) {
   if (missing(user)) {
@@ -48,7 +58,7 @@ login <- function(user, password) {
   body <- list(email = user, password = password)
   resp <- geco_api(LOGIN, body = body, encode = 'json', method = 'POST')
   ENV$.GECO_AUTH <- resp$content
-  invisible(resp)
+  invisible(resp$content)
 }
 
 get_latest_version_id <- function(project) {
