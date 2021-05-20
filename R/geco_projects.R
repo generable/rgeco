@@ -1,9 +1,19 @@
 
-#' Fetch listing of available GECO projects
-#' @return data.frame of project-level data, including information about the project scope
+#' Lists available projects
+#'
+#' Lists projects available to the authenticated user.
+#'
+#' This function fetches the list of projects available to the
+#' authenticated user from the Generable API. Included are the
+#' project id, description, and other information pertient to
+#' the project.
+#'
+#' @return data.frame containing information about each available project,
+#'    one project per row.
 #' @export
 fetch_projects <- function() {
   projects <- .fetch_projects_data()
+  return(projects)
 }
 
 .fetch_projects_data <- function() {
