@@ -62,7 +62,10 @@ fetch_inference_data <- function(run_id, project = NULL, project_version_id = NU
 }
 
 .discover_numeric_fields <- function(results) {
-  contains_numeric <- results %>% purrr::transpose() %>% purrr::map_depth(2, is.numeric) %>% purrr::map_lgl(~ any(unlist(.x)))
+  contains_numeric <- results %>%
+    purrr::transpose() %>%
+    purrr::map_depth(2, is.numeric) %>%
+    purrr::map_lgl(~ any(unlist(.x)))
   names(contains_numeric)[contains_numeric]
 }
 
