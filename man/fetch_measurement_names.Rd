@@ -7,12 +7,12 @@
 fetch_measurement_names(project = NULL, project_version_id = NULL)
 }
 \arguments{
-\item{project}{(chr) Name of project to return data for}
+\item{project}{Project name}
 
-\item{project_version_id}{(chr) Optionally, a specific version of project data to return, if not the most recent}
+\item{project_version_id}{Project version. If this is specified, the `project` argument is ignored.}
 }
 \value{
-character vector of measurement names with at least one observation
+vector of measurement names where there is at least one observation in the proejct
 }
 \description{
 Fetch distinct list of measurement names for a project
