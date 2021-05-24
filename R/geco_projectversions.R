@@ -1,7 +1,16 @@
 
-#' Fetch information about versions available for a project
-#' @param project (chr) project id for which version information is requested
-#' @return data.frame with information about each project-version available for a project
+#' Lists project versions within a project
+#'
+#' Lists project versions and provides information about each
+#' project version
+#'
+#' This function fetches the list of project versions within the specified
+#' project from the Generable API. Included are the
+#' project version id, description, and other information pertient to
+#' the project version
+#'
+#' @return data.frame containing information about each available project version,
+#'    one project version per row.
 #' @export
 fetch_projectversions <- function(project) {
   projectversions <- .fetch_projectversion_data(project = project)

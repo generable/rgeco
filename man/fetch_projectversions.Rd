@@ -2,16 +2,21 @@
 % Please edit documentation in R/geco_projectversions.R
 \name{fetch_projectversions}
 \alias{fetch_projectversions}
-\title{Fetch information about versions available for a project}
+\title{Lists project versions within a project}
 \usage{
 fetch_projectversions(project)
 }
-\arguments{
-\item{project}{(chr) project id for which version information is requested}
-}
 \value{
-data.frame with information about each project-version available for a project
+data.frame containing information about each available project version,
+   one project version per row.
 }
 \description{
-Fetch information about versions available for a project
+Lists project versions and provides information about each
+project version
+}
+\details{
+This function fetches the list of project versions within the specified
+project from the Generable API. Included are the
+project version id, description, and other information pertient to
+the project version
 }
