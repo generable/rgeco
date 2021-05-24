@@ -79,7 +79,7 @@ fetch_biomarkers <- function(project = NULL, project_version_id = NULL, measurem
   b
 }
 
-#' Fetch distinct list of measurement names for a project
+#' Fetch distinct list of biomarker measurement names for a project
 #'
 #' @param project Project name
 #' @param project_version_id Project version. If this is specified, the `project` argument is ignored.

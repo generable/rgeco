@@ -2,7 +2,7 @@
 % Please edit documentation in R/geco_biomarkers.R
 \name{fetch_measurement_names}
 \alias{fetch_measurement_names}
-\title{Fetch distinct list of measurement names for a project}
+\title{Fetch distinct list of biomarker measurement names for a project}
 \usage{
 fetch_measurement_names(project = NULL, project_version_id = NULL)
 }
@@ -15,5 +15,5 @@ fetch_measurement_names(project = NULL, project_version_id = NULL)
 vector of measurement names where there is at least one observation in the proejct
 }
 \description{
-Fetch distinct list of measurement names for a project
+Fetch distinct list of biomarker measurement names for a project
 }
