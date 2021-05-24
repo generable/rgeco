@@ -2,13 +2,33 @@
 % Please edit documentation in R/inference_dataset.R
 \name{fetch_inference_data}
 \alias{fetch_inference_data}
-\title{Fetch the datasets used for a particular model run.}
+\title{Fetch the dataset from the Generable API for a run}
 \usage{
 fetch_inference_data(run_id, project = NULL, project_version_id = NULL)
 }
+\arguments{
+\item{run_id}{Run id; required.}
+
+\item{project}{Project name}
+
+\item{project_version_id}{Project version. If this is specified, the `project` argument is ignored.}
+}
 \value{
-a named list of data.frames, provided as input to the model fit.
+named list of data.frames
 }
 \description{
-Fetch the datasets used for a particular model run.
+Fetch the dataset from the Generable API for a run.
+}
+\details{
+A `dataset` is used by a model to generate a run. This function retrieves
+the dataset used by a particular run. This returns the subjects, biomarkers,
+and other information as a list of data.frames.
+
+Authentication (see \code{\link{login}}) is required prior to using this function
+and this pulls the metadata from the Generable API.
+
+A project can be specified by using the project name or a specific project version.
+If a project is specified using the name, data is fetched for the latest version of the project.
+If a project is specified using the project version, the project name is ignored if it
+is also included as an argument.
 }
