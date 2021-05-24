@@ -60,9 +60,9 @@ extract_subsample_info <- function(d) {
 }
 
 
-#' Fetch the dataset from the Generable API for a run
+#' Fetch the dataset from the Generable API for a model run
 #'
-#' Fetch the dataset from the Generable API for a run.
+#' Fetch the dataset from the Generable API for a model run.
 #'
 #' A `dataset` is used by a model to generate a run. This function retrieves
 #' the dataset used by a particular run. This returns the subjects, biomarkers,
@@ -79,7 +79,7 @@ extract_subsample_info <- function(d) {
 #' @param run_id Run id; required.
 #' @param project Project name
 #' @param project_version_id Project version. If this is specified, the `project` argument is ignored.
-#' @return named list of data.frames
+#' @return named list of `data.frame`s
 #'
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!!

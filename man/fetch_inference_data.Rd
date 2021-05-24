@@ -2,7 +2,7 @@
 % Please edit documentation in R/inference_dataset.R
 \name{fetch_inference_data}
 \alias{fetch_inference_data}
-\title{Fetch the dataset from the Generable API for a run}
+\title{Fetch the dataset from the Generable API for a model run}
 \usage{
 fetch_inference_data(run_id, project = NULL, project_version_id = NULL)
 }
@@ -14,10 +14,10 @@ fetch_inference_data(run_id, project = NULL, project_version_id = NULL)
 \item{project_version_id}{Project version. If this is specified, the `project` argument is ignored.}
 }
 \value{
-named list of data.frames
+named list of `data.frame`s
 }
 \description{
-Fetch the dataset from the Generable API for a run.
+Fetch the dataset from the Generable API for a model run.
 }
 \details{
 A `dataset` is used by a model to generate a run. This function retrieves
