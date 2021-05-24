@@ -41,7 +41,7 @@ the parameter or predictive quantity to query. A data.frame in long format is re
 `.chain`, `.iteration`, `.variable`, `.value`, and `.draw`.
 
 Note: this function may take a long time to return depending on the size of the parameter.
-If a summary of the parameter is sufficient, use \code{\link{fetch_inference_quantiles}} to
+If a summary of the parameter is sufficient, use \code{\link{fetch_quantiles}} to
 access the quantiles of the draw.
 
 The parameters or predictive quantities for a particular model run can be found by calling
@@ -62,5 +62,5 @@ If a project is specified using the project version, the project name is ignored
 is also included as an argument.
 }
 \seealso{
-\code{\link{fetch_inference_quantiles}}
+\code{\link{fetch_quantiles}}
 }

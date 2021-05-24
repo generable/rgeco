@@ -9,7 +9,7 @@
 #' `.chain`, `.iteration`, `.variable`, `.value`, and `.draw`.
 #'
 #' Note: this function may take a long time to return depending on the size of the parameter.
-#' If a summary of the parameter is sufficient, use \code{\link{fetch_inference_quantiles}} to
+#' If a summary of the parameter is sufficient, use \code{\link{fetch_quantiles}} to
 #' access the quantiles of the draw.
 #'
 #' The parameters or predictive quantities for a particular model run can be found by calling
@@ -39,7 +39,7 @@
 #' @return `data.frame` of draws in long format with `.chain`, `.iteration`, `.variable`, `.value`, and
 #'         `.draw`.
 #'
-#' @seealso \code{\link{fetch_inference_quantiles}}
+#' @seealso \code{\link{fetch_quantiles}}
 #'
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!!
@@ -107,7 +107,7 @@ fetch_draws <- function(parameter, run_id = NULL, project = NULL, project_versio
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!!
 #' @export
-fetch_inference_quantiles <- function(parameter, run_id = NULL, project = NULL, project_version_id = NULL, predictive = F, type = c('posterior', 'prior')) {
+fetch_quantiles <- function(parameter, run_id = NULL, project = NULL, project_version_id = NULL, predictive = F, type = c('posterior', 'prior')) {
   type <- match.arg(type, several.ok = F)
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   if (is.null(run_id)) {
