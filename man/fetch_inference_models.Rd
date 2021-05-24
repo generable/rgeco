@@ -2,10 +2,30 @@
 % Please edit documentation in R/inference_models.R
 \name{fetch_inference_models}
 \alias{fetch_inference_models}
-\title{Fetch the model attributes for all models used at least once within a project-version}
+\title{Fetch model attributes from the Generable API}
 \usage{
 fetch_inference_models(project = NULL, project_version_id = NULL)
 }
+\arguments{
+\item{project}{Project name}
+
+\item{project_version_id}{Project version. If this is specified, the `project` argument is ignored.}
+}
+\value{
+data.frame of model attributes for the project specified
+}
 \description{
-Fetch the model attributes for all models used at least once within a project-version
+Fetch model attributes from the Generable API for a specific project.
+}
+\details{
+A model is used to generate a run. This function retrieves the attributes about
+all models within a project version with at least one run. 
+
+Authentication (see \code{\link{login}}) is required prior to using this function
+and this pulls the metadata from the Generable API.
+
+A project can be specified by using the project name or a specific project version.
+If a project is specified using the name, data is fetched for the latest version of the project.
+If a project is specified using the project version, the project name is ignored if it
+is also included as an argument.
 }
