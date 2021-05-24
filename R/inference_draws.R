@@ -36,10 +36,10 @@ fetch_inference_quantiles <- function(parameter, project = NULL, project_version
     }
   }
   if (isTRUE(predictive)) {
-    draws <- geco_api(IPTILES, project_version_id = pv_id, run_id=run_id, parameter=parameter, type=type)
+    quantiles <- geco_api(IPTILES, project_version_id = pv_id, run_id=run_id, parameter=parameter, type=type)
   } else {
-    draws <- geco_api(ITILES, project_version_id = pv_id, run_id=run_id, parameter=parameter, type=type)
+    quantiles <- geco_api(ITILES, project_version_id = pv_id, run_id=run_id, parameter=parameter, type=type)
   }
-  d <- convert_xarray_to_df(draws, name = parameter)
+  q <- convert_xarray_to_df(quantiles, name = parameter)
 }
 
