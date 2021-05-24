@@ -2,7 +2,7 @@
 % Please edit documentation in R/geco_subjects.R
 \name{fetch_subjects}
 \alias{fetch_subjects}
-\title{Fetch subjects data for a Generable project}
+\title{Fetch subject data from the Generable API}
 \usage{
 fetch_subjects(
   project = NULL,
@@ -12,17 +12,34 @@ fetch_subjects(
 )
 }
 \arguments{
-\item{project}{(chr) Name of project to return data for}
+\item{project}{Project name}
 
-\item{project_version_id}{(chr) Optionally, a specific version of project data to return, if not the most recent}
+\item{project_version_id}{Project version. If this is specified, the `project` argument is ignored.}
 
-\item{event_type}{(chr) Optionally limit event_types to the names provided (example: "overall_survival"). The default (NULL) is to include no event data.}
+\item{event_type}{If this argument is provided, event data that matches this event type will be
+joined into the return data.frame. Default is NULL (no event data).}
 
-\item{annotate}{(bool) if TRUE, return annotated (processed, formatted) subjects data}
+\item{annotate}{if `TRUE`, annotate subject data with dose data. Default is `TRUE`.}
 }
 \value{
-data.frame of subject-level data, including information about the trial & trial_arms
+data.frame of subject-level data, including information about the trial and trial_arms
 }
 \description{
-Fetch subjects data for a Generable project
+Fetch subject data from the Generable API for a specific project.
+}
+\details{
+This function retrieves subject data from the Generable API. This includes
+subject-level covariates.
+
+As a convenience, event data can be included in the returned `data.frame` by 
+specifying the `event_type` argument; the data returned from \code{\link{fetch_events}}
+matching the `event_type` will be merged into the returned data.
+
+Authentication (see \code{\link{login}}) is reqiured prior to use
+and this pulls subject data from the Generable API.
+
+A project can be specified by using the project name or a specific project version.
+If a project is specified using the name, data is fetched for the latest version of the project.
+If a project is specified using the project version, the project name is ignored if it
+is also included as an argument.
 }
