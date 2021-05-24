@@ -1,7 +1,7 @@
 
 #' Fetch biomarker data from the Generable API
 #'
-#' Fetch biomarker data from the Generable API for a specific Generable project.
+#' Fetch biomarker data from the Generable API for a specific project.
 #'
 #' This function retrieves biomarker data from the Generable API.
 #' It requires authentication (see \code{\link{login}}) prior to use

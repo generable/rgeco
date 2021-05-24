@@ -29,7 +29,7 @@ Default is `TRUE`.}
 data.frame of biomarkers data for the project specified
 }
 \description{
-Fetch biomarker data from the Generable API for a specific Generable project.
+Fetch biomarker data from the Generable API for a specific project.
 }
 \details{
 This function retrieves biomarker data from the Generable API.

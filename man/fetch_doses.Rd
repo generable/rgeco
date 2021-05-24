@@ -2,18 +2,28 @@
 % Please edit documentation in R/geco_doses.R
 \name{fetch_doses}
 \alias{fetch_doses}
-\title{Fetch dosing data for a Generable project}
+\title{Fetch dosing data from the Generable API}
 \usage{
 fetch_doses(project = NULL, project_version_id = NULL)
 }
 \arguments{
-\item{project}{(chr) Name of project to return data for}
+\item{project}{Project name}
 
-\item{project_version_id}{(chr) Optionally, a specific version of project data to return, if not the most recent}
+\item{project_version_id}{Project version. If this is specified, the `project` argument is ignored.}
 }
 \value{
-data.frame of biomarkers data
+data.frame of dosing information
 }
 \description{
-Fetch dosing data for a Generable project
+Fetch dosing data from the Generable API for a specific project.
+}
+\details{
+This function retrieves dosing information from the Generable API.
+It requires authentication (see \code{\link{login}}) prior to use
+and this pulls data from the Generable API.
+
+A project can be specified by using the project name or a specific project version.
+If a project is specified using the name, data is fetched for the latest version of the project.
+If a project is specified using the project version, the project name is ignored if it
+is also included as an argument.
 }

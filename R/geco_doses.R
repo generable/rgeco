@@ -1,8 +1,20 @@
 
-#' Fetch dosing data for a Generable project
-#' @param project (chr) Name of project to return data for
-#' @param project_version_id (chr) Optionally, a specific version of project data to return, if not the most recent
-#' @return data.frame of biomarkers data
+#' Fetch dosing data from the Generable API
+#'
+#' Fetch dosing data from the Generable API for a specific project.
+#'
+#' This function retrieves dosing information from the Generable API.
+#' It requires authentication (see \code{\link{login}}) prior to use
+#' and this pulls data from the Generable API.
+#'
+#' A project can be specified by using the project name or a specific project version.
+#' If a project is specified using the name, data is fetched for the latest version of the project.
+#' If a project is specified using the project version, the project name is ignored if it
+#' is also included as an argument.
+#'
+#' @param project Project name
+#' @param project_version_id Project version. If this is specified, the `project` argument is ignored.
+#' @return data.frame of dosing information
 #' @export
 fetch_doses <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
