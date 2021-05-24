@@ -38,5 +38,5 @@ is also included as an argument.
 }
 \seealso{
 \code{\link{list_models}}, \code{\link{list_datasets}},
-         \code{\link{fetch_inference_quantiles}}, \code{\link{fetch_inference_draws}}
+         \code{\link{fetch_inference_quantiles}}, \code{\link{fetch_draws}}
 }

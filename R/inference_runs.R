@@ -25,7 +25,7 @@
 #' @param project_version_id Project version. If this is specified, the `project` argument is ignored.
 #' @return data.frame of run attributes for the project specified
 #' @seealso \code{\link{list_models}}, \code{\link{list_datasets}},
-#'          \code{\link{fetch_inference_quantiles}}, \code{\link{fetch_inference_draws}}
+#'          \code{\link{fetch_inference_quantiles}}, \code{\link{fetch_draws}}
 #'
 #' @importFrom magrittr %>%
 #' @importFrom lubridate ymd_hms

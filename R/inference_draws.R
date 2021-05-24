@@ -44,7 +44,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!!
 #' @export
-fetch_inference_draws <- function(parameter, run_id = NULL, project = NULL, project_version_id = NULL, predictive = F, type = c('posterior', 'prior')) {
+fetch_draws <- function(parameter, run_id = NULL, project = NULL, project_version_id = NULL, predictive = F, type = c('posterior', 'prior')) {
   type <- match.arg(type, several.ok = F)
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   if (is.null(run_id)) {
@@ -102,7 +102,7 @@ fetch_inference_draws <- function(parameter, run_id = NULL, project = NULL, proj
 #' @return `data.frame` of quantiles in long format with `quantile`, `.variable`, and `.value` columns
 #'         for the 0.05, 0.10, 0.25, 0.50, 0.75, 0.90, and 0.95 quantile probabilities.
 #'
-#' @seealso \code{\link{fetch_inference_draws}}
+#' @seealso \code{\link{fetch_draws}}
 #'
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!!

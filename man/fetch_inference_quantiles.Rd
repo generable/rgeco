@@ -61,5 +61,5 @@ If a project is specified using the project version, the project name is ignored
 is also included as an argument.
 }
 \seealso{
-\code{\link{fetch_inference_draws}}
+\code{\link{fetch_draws}}
 }
