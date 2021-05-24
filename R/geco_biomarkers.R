@@ -79,13 +79,13 @@ fetch_biomarkers <- function(project = NULL, project_version_id = NULL, measurem
   b
 }
 
-#' Fetch distinct list of biomarker measurement names for a project
+#' List distinct biomarker measurement names for a project
 #'
 #' @param project Project name
 #' @param project_version_id Project version. If this is specified, the `project` argument is ignored.
 #' @return vector of measurement names where there is at least one observation in the proejct
 #' @export
-fetch_measurement_names <- function(project = NULL, project_version_id = NULL) {
+list_biomarker_names <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   b <- geco_api(TIMEVARYING, project_version_id = pv_id, add_headers(`X-Fields` = 'measurement_name')) %>%
     as_dataframe.geco_api_data()
