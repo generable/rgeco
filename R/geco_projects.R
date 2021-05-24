@@ -11,12 +11,12 @@
 #' @return data.frame containing information about each available project,
 #'    one project per row.
 #' @export
-fetch_projects <- function() {
-  projects <- .fetch_projects_data()
+list_projects <- function() {
+  projects <- .list_projects_data()
   return(projects)
 }
 
-.fetch_projects_data <- function() {
+.list_projects_data <- function() {
   projects <- geco_api(PROJECTS)
   p <- as_dataframe.geco_api_data(projects, flatten_names = c())
 }
