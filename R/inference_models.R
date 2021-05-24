@@ -1,7 +1,7 @@
 
-#' Fetch model attributes from the Generable API
+#' List models from the Generable API
 #'
-#' Fetch model attributes from the Generable API for a specific project.
+#' List model attributes from the Generable API for a specific project.
 #'
 #' A model is used to generate a run. This function retrieves the attributes about
 #' all models within a project version with at least one run. 
@@ -20,7 +20,7 @@
 #'
 #' @importFrom magrittr %>%
 #' @export
-fetch_inference_models <- function(project = NULL, project_version_id = NULL) {
+list_models <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   models <- geco_api(IMODELS, project_version_id = pv_id)
   if (length(models$content) > 0) {

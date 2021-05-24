@@ -24,7 +24,7 @@
 #' @param project Project name
 #' @param project_version_id Project version. If this is specified, the `project` argument is ignored.
 #' @return data.frame of run attributes for the project specified
-#' @seealso \code{\link{fetch_inference_models}}, \code{\link{fetch_inference_dataset_info}},
+#' @seealso \code{\link{list_models}}, \code{\link{fetch_inference_dataset_info}},
 #'          \code{\link{fetch_inference_quantiles}}, \code{\link{fetch_inference_draws}}
 #'
 #' @importFrom magrittr %>%
