@@ -44,7 +44,7 @@ Note: the quantile probabilites are set to 0.05, 0.10, 0.25, 0.50, 0.75, 0.90, a
 probabilities can be computed directly from the draws, if necessary.
 
 The parameters or predictive quantities for a particular model run can be found by calling
-\code{\link{fetch_inference_runs}}. The `run_quantiles` column in the returned `data.frame` contains
+\code{\link{list_runs}}. The `run_quantiles` column in the returned `data.frame` contains
 two named lists describing the `parameter_names`or the `predictive_names`. When a predictive quantity
 is requested, i.e. the name is in the `predictive_names` list, the user must set the `predictive`
 argument in this function to `TRUE`.

@@ -85,7 +85,7 @@ format_quantiles_as_widths <- function(df) {
   param_name <- glue::glue('{dplyr::if_else(quantiles, "summarized_", "")}{parameter}')
   futile.logger::flog.debug(glue::glue("looking in {run_info_field} for {param_name}"))
   run_info_sym <- rlang::sym(run_info_field)
-  run_id <- fetch_inference_runs(project_version_id = pv_id) %>%
+  run_id <- list_runs(project_version_id = pv_id) %>%
     dplyr::filter(purrr::map_lgl(!!run_info_sym, ~ param_name %in% .x)) %>%
     dplyr::filter(.data$run_start_datetime == max(.data$run_start_datetime)) %>%
     dplyr::pull(.data$run_id)
