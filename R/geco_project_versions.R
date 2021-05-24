@@ -12,12 +12,12 @@
 #' @return data.frame containing information about each available project version,
 #'    one project version per row.
 #' @export
-fetch_projectversions <- function(project) {
-  projectversions <- .fetch_projectversion_data(project = project)
-  return(projectversions)
+list_project_versions <- function(project) {
+  project_versions <- .list_project_version_data(project = project)
+  return(project_versions)
 }
 
-.fetch_projectversion_data <- function(project) {
+.list_project_version_data <- function(project) {
   versions <- geco_api(PROJECTVERSIONS, project = project)
   pv <- as_dataframe.geco_api_data(versions)
 }
