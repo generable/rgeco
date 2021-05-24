@@ -2,9 +2,9 @@
 
 export(extract_subsample_info)
 export(fetch_biomarkers)
+export(fetch_dataset)
 export(fetch_doses)
 export(fetch_events)
-export(fetch_inference_data)
 export(fetch_inference_draws)
 export(fetch_inference_quantiles)
 export(fetch_labs)

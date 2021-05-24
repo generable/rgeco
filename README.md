@@ -41,7 +41,7 @@ doses <- fetch_doses(project = 'demo')
 Read formatted PKPD data
 
 ```r
-measures <- fetch_measurement_names(project = 'demo')
+measures <- list_biomarker_names(project = 'demo')
 pkpd <- fetch_pkpd(project = 'demo', pd_measure = 'name_of_pd_measure', pk_measure = 'concentration')
 ```
 

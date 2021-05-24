@@ -83,7 +83,7 @@ extract_subsample_info <- function(d) {
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!!
 #' @export
-fetch_inference_data <- function(run_id, project = NULL, project_version_id = NULL) {
+fetch_dataset <- function(run_id, project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   resp <- geco_api(IRUNDATA, project_version_id = pv_id, run_id=run_id)
   d <- .format_inference_data(resp$content)

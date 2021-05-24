@@ -21,7 +21,7 @@ testthat::test_that('query for biomarkers data works when providing measurement_
 })
 
 testthat::test_that('measurement_names endpoint returns list of values', {
-  d <- fetch_measurement_names(TEST_PROJECT)
+  d <- list_biomarker_names(TEST_PROJECT)
   testthat::expect_is(d, 'character')
   testthat::expect_true(length(d) > 0)
 })
