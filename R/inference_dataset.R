@@ -1,5 +1,24 @@
 
-#' Fetch the model attributes for all datasets with at least one run in a project-version
+#' Fetch dataset information from the Generable API
+#'
+#' Fetch dataset information from the Generable API for a specific project.
+#'
+#' A `dataset` is used by a model to generate a run. This function retrieves
+#' the metadata about all datasets within a project version with at least one
+#' run. 
+#' 
+#' Authentication (see \code{\link{login}}) is required prior to using this function
+#' and this pulls the metadata from the Generable API.
+#'
+#' A project can be specified by using the project name or a specific project version.
+#' If a project is specified using the name, data is fetched for the latest version of the project.
+#' If a project is specified using the project version, the project name is ignored if it
+#' is also included as an argument.
+#'
+#' @param project Project name
+#' @param project_version_id Project version. If this is specified, the `project` argument is ignored.
+#' @return data.frame of metadata for all datasets for the project specified
+#'
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!!
 #' @export
@@ -25,6 +44,7 @@ fetch_inference_dataset_info <- function(project = NULL, project_version_id = NU
 }
 
 #' Characterize sampling information given dataset info, using standard column locations
+#'
 #' @importFrom tidyr hoist
 #' @param d data.frame containing result of `fetch_inference_dataset_info`
 #' @return data.frame with new columns containing information about the sample of data generated.

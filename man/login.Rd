@@ -20,6 +20,8 @@ This function logs the user into the Generable API.
 \details{
 This function logs the user into the Generable API. The user must log in before calling other functions
 that require authentication. The authentication token for the API is stored in the rgeco package's environment.
+The token expires when the Generable API is not access within 30 minutes. If this happens, reauthenticate
+using this function.
 
 When this call is successful, it will return the OAuth 2.0 Bearer Token for the user, invisibly.
 Otherwise, it will error with an error message.
