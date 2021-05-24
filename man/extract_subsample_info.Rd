@@ -7,7 +7,7 @@
 extract_subsample_info(d)
 }
 \arguments{
-\item{d}{data.frame containing result of `fetch_inference_dataset_info`}
+\item{d}{data.frame containing result of `list_datasets`}
 }
 \value{
 data.frame with new columns containing information about the sample of data generated.

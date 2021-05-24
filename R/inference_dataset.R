@@ -1,11 +1,10 @@
 
-#' Fetch dataset information from the Generable API
+#' List datasets from the Generable API
 #'
-#' Fetch dataset information from the Generable API for a specific project.
+#' List datasets from the Generable API for a specific project.
 #'
 #' A `dataset` is used by a model to generate a run. This function retrieves
-#' the metadata about all datasets within a project version with at least one
-#' run. 
+#' the metadata about all datasets within a project version. 
 #' 
 #' Authentication (see \code{\link{login}}) is required prior to using this function
 #' and this pulls the metadata from the Generable API.
@@ -22,7 +21,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!!
 #' @export
-fetch_inference_dataset_info <- function(project = NULL, project_version_id = NULL) {
+list_datasets <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   ret <- geco_api(IDATA, project_version_id = pv_id)
   if (httr::http_error(ret$response)) {
@@ -46,7 +45,7 @@ fetch_inference_dataset_info <- function(project = NULL, project_version_id = NU
 #' Characterize sampling information given dataset info, using standard column locations
 #'
 #' @importFrom tidyr hoist
-#' @param d data.frame containing result of `fetch_inference_dataset_info`
+#' @param d data.frame containing result of `list_datasets`
 #' @return data.frame with new columns containing information about the sample of data generated.
 #' @export
 extract_subsample_info <- function(d) {

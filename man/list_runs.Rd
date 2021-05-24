@@ -37,6 +37,6 @@ If a project is specified using the project version, the project name is ignored
 is also included as an argument.
 }
 \seealso{
-\code{\link{list_models}}, \code{\link{fetch_inference_dataset_info}},
+\code{\link{list_models}}, \code{\link{list_datasets}},
          \code{\link{fetch_inference_quantiles}}, \code{\link{fetch_inference_draws}}
 }
