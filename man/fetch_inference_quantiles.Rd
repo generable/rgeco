@@ -52,12 +52,14 @@ argument in this function to `TRUE`.
 Posterior quantiles are returned by default. The prior quantiles can be accessed by setting
 the `type` argument to `prior`.
 
-This function retrieves biomarker data from the Generable API.
-It requires authentication (see \code{\link{login}}) prior to use
-and this pulls data from the Generable API.
+Authentication (see \code{\link{login}}) is required prior to using this function
+and this pulls the quantiles from the Generable API.
 
 A project can be specified by using the project name or a specific project version.
 If a project is specified using the name, data is fetched for the latest version of the project.
 If a project is specified using the project version, the project name is ignored if it
 is also included as an argument.
+}
+\seealso{
+\code{\link{fetch_inference_draws}}
 }

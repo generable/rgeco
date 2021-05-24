@@ -2,17 +2,65 @@
 % Please edit documentation in R/inference_draws.R
 \name{fetch_inference_draws}
 \alias{fetch_inference_draws}
-\title{Fetch draws of parameter or predictive quantities for a model run}
+\title{Fetch draws from the Generable API for a run}
 \usage{
 fetch_inference_draws(
   parameter,
+  run_id = NULL,
   project = NULL,
   project_version_id = NULL,
-  run_id = NULL,
   predictive = F,
   type = c("posterior", "prior")
 )
 }
+\arguments{
+\item{parameter}{Name of the parameter or predictive quantity; this function does not take a vector.}
+
+\item{run_id}{Run id; required.}
+
+\item{project}{Project name}
+
+\item{project_version_id}{Project version. If this is specified, the `project` argument is ignored.}
+
+\item{predictive}{Set to `TRUE` if the parameter is a predictive quantity. Default is `FALSE`.}
+
+\item{type}{Type of quantile to return, either posterior or prior. Default is `posterior`. To access
+prior quantiles, set this to `prior`.}
+}
+\value{
+`data.frame` of draws in long format with `.chain`, `.iteration`, `.variable`, `.value`, and
+        `.draw`.
+}
 \description{
-Fetch draws of parameter or predictive quantities for a model run
+Fetch draws of the specified parameter or predictive quantity from the Generable API
+for a model run
+}
+\details{
+This function retrieves the draws from the Generable API for a model run. The user specifies
+the parameter or predictive quantity to query. A data.frame in long format is returned with
+`.chain`, `.iteration`, `.variable`, `.value`, and `.draw`.
+
+Note: this function may take a long time to return depending on the size of the parameter.
+If a summary of the parameter is sufficient, use \code{\link{fetch_inference_quantiles}} to
+access the quantiles of the draw.
+
+The parameters or predictive quantities for a particular model run can be found by calling
+\code{\link{fetch_inference_runs}}. The `run_quantiles` column in the returned `data.frame` contains
+two named lists describing the `parameter_names`or the `predictive_names`. When a predictive quantity
+is requested, i.e. the name is in the `predictive_names` list, the user must set the `predictive`
+argument in this function to `TRUE`.
+
+Posterior draws are returned by default. The prior draws can be accessed by setting
+the `type` argument to `prior`.
+
+Authentication (see \code{\link{login}}) is required prior to using this function
+and this pulls the draws from the Generable API.
+
+A project can be specified by using the project name or a specific project version.
+If a project is specified using the name, data is fetched for the latest version of the project.
+If a project is specified using the project version, the project name is ignored if it
+is also included as an argument.
+}
+\seealso{
+\code{\link{fetch_inference_quantiles}}
 }
