@@ -59,8 +59,28 @@ extract_subsample_info <- function(d) {
     dplyr::mutate(sample_id = dplyr::if_else(is.na(sample_n), 0L, sample_id))
 }
 
-#' Fetch the datasets used for a particular model run.
-#' @return a named list of data.frames, provided as input to the model fit.
+
+#' Fetch the dataset from the Generable API for a run
+#'
+#' Fetch the dataset from the Generable API for a run.
+#'
+#' A `dataset` is used by a model to generate a run. This function retrieves
+#' the dataset used by a particular run. This returns the subjects, biomarkers,
+#' and other information as a list of data.frames.
+#'
+#' Authentication (see \code{\link{login}}) is required prior to using this function
+#' and this pulls the metadata from the Generable API.
+#'
+#' A project can be specified by using the project name or a specific project version.
+#' If a project is specified using the name, data is fetched for the latest version of the project.
+#' If a project is specified using the project version, the project name is ignored if it
+#' is also included as an argument.
+#'
+#' @param run_id Run id; required.
+#' @param project Project name
+#' @param project_version_id Project version. If this is specified, the `project` argument is ignored.
+#' @return named list of data.frames
+#'
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!!
 #' @export
