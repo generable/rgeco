@@ -24,13 +24,19 @@ ITILES <- 'inferences/projectversion/{project_version_id}/run/{run_id}/quantiles
 IPTILES <- 'inferences/projectversion/{project_version_id}/run/{run_id}/quantiles/{type}/{parameter}/predictive'
 ENV <- new.env(parent = emptyenv())
 
+#' @param url_query_parameters named list of url query parameters
 #' @importFrom glue glue_safe
-geco_api_url <- function(..., project = NULL, project_version_id = NULL, run_id=NULL, parameter=NULL, type=NULL) {
+#' @importFrom httr modify_url
+geco_api_url <- function(..., project = NULL, project_version_id = NULL, run_id=NULL, parameter=NULL, type=NULL,
+                         url_query_parameters = NULL) { 
   if (Sys.getenv('GECO_API_URL') != '') {
     futile.logger::flog.debug(glue::glue('Default Geco API URL overridden via GECO_API_URL environment variable ({Sys.getenv("GECO_API_URL")})'))
   }
   root <- Sys.getenv('GECO_API_URL', unset = "https://geco.generable.com")
   url <- file.path(root, '/gecoapi/v1', ..., fsep = '/')
+  if (length(url_parameters) > 0) {
+    url <- modify_url(url, query = url_query_parameters)
+  }
   glue::glue_safe(url)
 }
 
@@ -84,8 +90,8 @@ get_auth <- function() {
 
 #' @import httr
 #' @importFrom jsonlite fromJSON
-geco_api <- function(path, ..., method = c('GET', 'POST'), project = NULL, project_version_id = NULL, run_id=NULL, type=NULL, parameter=NULL) {
-  url <- geco_api_url(path, project = project, project_version_id = project_version_id, run_id=run_id, type=type, parameter=parameter)
+geco_api <- function(path, ..., method = c('GET', 'POST'), project = NULL, project_version_id = NULL, run_id=NULL, type=NULL, parameter=NULL, url_query_parameters=NULL) {
+  url <- geco_api_url(path, project = project, project_version_id = project_version_id, run_id=run_id, type=type, parameter=parameter, url_query_parameters=url_query_parameters)
 
   ua <- httr::user_agent("https://github.com/generable/rgeco")
 
