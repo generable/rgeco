@@ -34,7 +34,7 @@ geco_api_url <- function(..., project = NULL, project_version_id = NULL, run_id=
   }
   root <- Sys.getenv('GECO_API_URL', unset = "https://geco.generable.com")
   url <- file.path(root, '/gecoapi/v1', ..., fsep = '/')
-  if (length(url_parameters) > 0) {
+  if (length(url_query_parameters) > 0) {
     url <- modify_url(url, query = url_query_parameters)
   }
   glue::glue_safe(url)
