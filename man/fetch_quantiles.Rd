@@ -9,20 +9,18 @@ fetch_quantiles(
   run_id = NULL,
   project = NULL,
   project_version_id = NULL,
-  predictive = F,
   type = c("posterior", "prior")
 )
 }
 \arguments{
-\item{parameter}{Name of the parameter or predictive quantity; this function does not take a vector.}
+\item{parameter}{Name of the parameter or predictive quantity; this function does not take a vector.
+See \code{\link{list_parameter_names}} and \code{\link{list_predictive_names}}.}
 
 \item{run_id}{Run id; required.}
 
 \item{project}{Project name}
 
 \item{project_version_id}{Project version. If this is specified, the `project` argument is ignored.}
-
-\item{predictive}{Set to `TRUE` if the parameter is a predictive quantity. Default is `FALSE`.}
 
 \item{type}{Type of quantile to return, either posterior or prior. Default is `posterior`. To access
 prior quantiles, set this to `prior`.}
@@ -44,10 +42,7 @@ Note: the quantile probabilites are set to 0.05, 0.10, 0.25, 0.50, 0.75, 0.90, a
 probabilities can be computed directly from the draws, if necessary.
 
 The parameters or predictive quantities for a particular model run can be found by calling
-\code{\link{list_runs}}. The `run_quantiles` column in the returned `data.frame` contains
-two named lists describing the `parameter_names`or the `predictive_names`. When a predictive quantity
-is requested, i.e. the name is in the `predictive_names` list, the user must set the `predictive`
-argument in this function to `TRUE`.
+\code{\link{list_parameter_names}} or \code{\link{list_predictive_names}}.
 
 Posterior quantiles are returned by default. The prior quantiles can be accessed by setting
 the `type` argument to `prior`.
@@ -61,5 +56,5 @@ If a project is specified using the project version, the project name is ignored
 is also included as an argument.
 }
 \seealso{
-\code{\link{fetch_draws}}
+\code{\link{list_parameter_names}}, \code{\link{list_predictive_names}}, \code{\link{fetch_draws}}
 }

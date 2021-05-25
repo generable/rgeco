@@ -70,7 +70,8 @@ format_quantiles_as_widths <- function(df) {
     dplyr::filter(!is.na(.data$.width))
 }
 
-.get_default_run <- function(parameter, project = NULL, project_version_id = NULL, type = c('posterior', 'prior'), predictive = F, quantiles = T) {
+.get_default_run <- function(parameter, project = NULL, project_version_id = NULL,
+                             type = c('posterior', 'prior'), predictive = F, quantiles = T) {
   type <- match.arg(type, several.ok = F)
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   # get name of run_info field containing relevant parameter names

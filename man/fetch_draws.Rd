@@ -9,7 +9,6 @@ fetch_draws(
   run_id = NULL,
   project = NULL,
   project_version_id = NULL,
-  predictive = F,
   type = c("posterior", "prior")
 )
 }
@@ -21,8 +20,6 @@ fetch_draws(
 \item{project}{Project name}
 
 \item{project_version_id}{Project version. If this is specified, the `project` argument is ignored.}
-
-\item{predictive}{Set to `TRUE` if the parameter is a predictive quantity. Default is `FALSE`.}
 
 \item{type}{Type of quantile to return, either posterior or prior. Default is `posterior`. To access
 prior quantiles, set this to `prior`.}
@@ -45,10 +42,7 @@ If a summary of the parameter is sufficient, use \code{\link{fetch_quantiles}} t
 access the quantiles of the draw.
 
 The parameters or predictive quantities for a particular model run can be found by calling
-\code{\link{list_runs}}. The `run_quantiles` column in the returned `data.frame` contains
-two named lists describing the `parameter_names`or the `predictive_names`. When a predictive quantity
-is requested, i.e. the name is in the `predictive_names` list, the user must set the `predictive`
-argument in this function to `TRUE`.
+\code{\link{list_parameter_names}} or \code{\link{list_predictive_names}}.
 
 Posterior draws are returned by default. The prior draws can be accessed by setting
 the `type` argument to `prior`.
