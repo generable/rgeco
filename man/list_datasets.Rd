@@ -19,7 +19,7 @@ List datasets from the Generable API for a specific project.
 }
 \details{
 A `dataset` is used by a model to generate a run. This function retrieves
-the metadata about all datasets within a project version. 
+the metadata about all datasets within a project version.
 
 Authentication (see \code{\link{login}}) is required prior to using this function
 and this pulls the metadata from the Generable API.

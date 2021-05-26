@@ -6,17 +6,21 @@
 \usage{
 list_project_versions(project)
 }
+\arguments{
+\item{project}{(str) the project id
+
+Lists project versions and provides information about each
+project version
+
+This function fetches the list of project versions within the specified
+project from the Generable API. Included are the
+project version id, description, and other information pertient to
+the project version}
+}
 \value{
 data.frame containing information about each available project version,
    one project version per row.
 }
 \description{
-Lists project versions and provides information about each
-project version
-}
-\details{
-This function fetches the list of project versions within the specified
-project from the Generable API. Included are the
-project version id, description, and other information pertient to
-the project version
+Lists project versions within a project
 }

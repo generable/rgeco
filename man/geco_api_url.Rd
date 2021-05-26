@@ -15,7 +15,19 @@ geco_api_url(
 )
 }
 \arguments{
-\item{url_query_parameters}{named list of url query parameters}
+\item{...}{path elements to the url}
+
+\item{project}{(str) project name}
+
+\item{project_version_id}{(str) project version id, if project not provided}
+
+\item{run_id}{(str) the run_id, if used by the URL path}
+
+\item{parameter}{(str) the parameter, if used by the URL path}
+
+\item{type}{(str) the type as either prior or posterior, if used by the URL path}
+
+\item{url_query_parameters}{(named list) other inputs to the query passed as GET params}
 }
 \description{
 Formatted URL for api endpoints

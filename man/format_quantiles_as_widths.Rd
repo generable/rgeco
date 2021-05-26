@@ -6,6 +6,9 @@
 \usage{
 format_quantiles_as_widths(df)
 }
+\arguments{
+\item{df}{a data.frame with quantile summary in long or denormalized format}
+}
 \value{
 a data.frame with new fields (compatible with ggdist plotting functions): .width, .lower, .upper, and .median
 }

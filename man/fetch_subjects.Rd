@@ -31,7 +31,7 @@ Fetch subject data from the Generable API for a specific project.
 This function retrieves subject data from the Generable API. This includes
 subject-level covariates.
 
-As a convenience, event data can be included in the returned `data.frame` by 
+As a convenience, event data can be included in the returned `data.frame` by
 specifying the `event_type` argument; the data returned from \code{\link{fetch_events}}
 matching the `event_type` will be merged into the returned data.
 
