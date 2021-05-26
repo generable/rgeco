@@ -24,11 +24,12 @@ ITILES <- 'inferences/projectversion/{project_version_id}/run/{run_id}/quantiles
 IPTILES <- 'inferences/projectversion/{project_version_id}/run/{run_id}/quantiles/{type}/{parameter}/predictive'
 ENV <- new.env(parent = emptyenv())
 
+#' Formatted URL for api endpoints
 #' @param url_query_parameters named list of url query parameters
 #' @importFrom glue glue_safe
 #' @importFrom httr modify_url
 geco_api_url <- function(..., project = NULL, project_version_id = NULL, run_id=NULL, parameter=NULL, type=NULL,
-                         url_query_parameters = NULL) { 
+                         url_query_parameters = NULL) {
   if (Sys.getenv('GECO_API_URL') != '') {
     futile.logger::flog.debug(glue::glue('Default Geco API URL overridden via GECO_API_URL environment variable ({Sys.getenv("GECO_API_URL")})'))
   }
@@ -89,7 +90,7 @@ get_auth <- function() {
 }
 
 #' @import httr
-#' @importFrom jsonlite fromJSON
+#' @importFrom RJSONIO fromJSON
 geco_api <- function(path, ..., method = c('GET', 'POST'), project = NULL, project_version_id = NULL, run_id=NULL, type=NULL, parameter=NULL, url_query_parameters=NULL) {
   url <- geco_api_url(path, project = project, project_version_id = project_version_id, run_id=run_id, type=type, parameter=parameter, url_query_parameters=url_query_parameters)
 
@@ -107,7 +108,7 @@ geco_api <- function(path, ..., method = c('GET', 'POST'), project = NULL, proje
     stop(glue::glue("Error connecting to API: {url} {print(resp)}"))
   }
 
-  parsed <- try(jsonlite::fromJSON(httr::content(resp, "text", encoding = 'UTF-8'), simplifyVector = FALSE), silent = T)
+  parsed <- try(RJSONIO::fromJSON(httr::content(resp, "text", encoding = 'UTF-8'), simplify = FALSE), silent = T)
 
   if (httr::http_error(resp)) {
     stop(
@@ -155,9 +156,9 @@ as_dataframe.geco_api_data <- function(x, content = x$content, flatten_names = '
     purrr::keep(~ .x %in% names(content[[1]]))
   if (length(to_flatten) > 0)
     content <- content %>%
-      purrr::map(purrr::map_at, to_flatten, ~ purrr::compact(.x) %>% tibble::as_tibble())
+      purrr::map(purrr::map_at, to_flatten, ~ purrr::compact(.x) %>% tibble::as_tibble_row())
   d <- content %>%
-    purrr::map_dfr(~ purrr::compact(.x) %>% tibble::as_tibble())
+    purrr::map_dfr(~ purrr::compact(.x) %>% tibble::as_tibble_row())
   if ('created_at' %in% names(d)) {
     d <- d %>%
       dplyr::mutate(created_at = lubridate::ymd_hms(.data$created_at))
