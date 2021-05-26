@@ -6,7 +6,7 @@
 \usage{
 fetch_quantiles(
   parameter,
-  run_id = NULL,
+  run_id,
   project = NULL,
   project_version_id = NULL,
   type = c("posterior", "prior")
