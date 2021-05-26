@@ -113,7 +113,7 @@ list_parameter_names <- function(run_id, project = NULL, project_version_id = NU
     }
   }
   run <- .get_run(project_version_id = pv_id, run_id = run_id)
-  return(sort(unlist((run %>% pull(run_quantiles))[[1]]$parameter_names)))
+  return(sort(unlist((run %>% dplyr::pull(.data$run_quantiles))[[1]]$parameter_names)))
 }
 
 #' List the predictive names for a run
@@ -152,5 +152,5 @@ list_predictive_names <- function(run_id, project = NULL, project_version_id = N
     }
   }
   run <- .get_run(project_version_id = pv_id, run_id = run_id)
-  return(sort(unlist((run %>% pull(run_quantiles))[[1]]$predictive_names)))
+  return(sort(unlist((run %>% dplyr::pull(.data$run_quantiles))[[1]]$predictive_names)))
 }
