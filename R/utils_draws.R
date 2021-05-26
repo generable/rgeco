@@ -10,10 +10,16 @@ convert_xarray_to_df <- function(resp, name = NULL) {
     py_dataset <- xr$Dataset$from_dict(py_dict)
     py_df <- py_dataset$to_dataframe()$reset_index()
     df <- reticulate::py_to_r(py_df)
+    # unlist list-columns that are just scalars
     if (!is.null(name)) {
       quo_name = rlang::sym(name)
       df <- df %>%
         tidyr::pivot_longer(c(quo_name), names_to = '.variable', values_to = '.value')
+      df <- df %>%
+        dplyr::mutate(length_values = purrr::map_int(.value, length)) %>%
+        dplyr::filter(.data$length_values == 1) %>%
+        dplyr::select(-.data$length_values) %>%
+        dplyr::mutate_if(rlang::is_list, unlist)
     }
     if (any(stringr::str_detect(names(df), pattern = '^subject\\.'))) {
       df <- df  %>%
