@@ -106,7 +106,7 @@ fetch_draws <- function(parameter, run_id = NULL, project = NULL, project_versio
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!!
 #' @export
-fetch_quantiles <- function(parameter, run_id = NULL, project = NULL, project_version_id = NULL, type = c('posterior', 'prior')) {
+fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_id = NULL, type = c('posterior', 'prior')) {
   type <- match.arg(type, several.ok = F)
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   if (is.null(run_id)) {
