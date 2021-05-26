@@ -57,16 +57,15 @@ fetch_biomarkers <- function(project = NULL, project_version_id = NULL, measurem
     biomarkers <- geco_api(TIMEVARYING, project_version_id = pv_id)
   }
   b <- as_dataframe.geco_api_data(biomarkers, flatten_names = 'params')
+  if (nrow(b) > 0 && 'params' %in% names(b) && isTRUE(annotate)) {
+    b <- b %>% tidyr::unnest_wider(.data$params)
+  }
   suppressWarnings({
     b <- b %>%
-      dplyr::rename_at(.vars = dplyr::vars(dplyr::one_of(c('created_at', 'params', 'id'))),
+      dplyr::rename_at(.vars = dplyr::vars(dplyr::one_of(c('created_at', 'id'))),
                        .funs = ~ stringr::str_c('measurement_', .x))
   })
   if (isTRUE(annotate) && nrow(b) > 0) {
-    if ('measurement_params' %in% names(b) && ncol(b$measurement_params) > 0) {
-      b <- dplyr::bind_cols(b, b$measurement_params) %>%
-        dplyr::select(-.data$measurement_params)
-    }
     if (!'time' %in% names(b)) {
       b <- b %>%
         dplyr::mutate(time = NA_character_)

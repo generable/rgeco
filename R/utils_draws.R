@@ -16,7 +16,7 @@ convert_xarray_to_df <- function(resp, name = NULL) {
       df <- df %>%
         tidyr::pivot_longer(c(quo_name), names_to = '.variable', values_to = '.value')
       df <- df %>%
-        dplyr::mutate(length_values = purrr::map_int(.value, length)) %>%
+        dplyr::mutate(length_values = purrr::map_int(.data$.value, length)) %>%
         dplyr::filter(.data$length_values == 1) %>%
         dplyr::select(-.data$length_values) %>%
         dplyr::mutate_if(rlang::is_list, unlist)
@@ -59,6 +59,7 @@ convert_draws_to_df <- function(resp, name = NULL) {
 }
 
 #' Format a long summary of parameter quantiles (one record per run, parameter, and quantile) into a wide format (one record per run, parameter, and interval-width)
+#' @param df a data.frame with quantile summary in long or denormalized format
 #' @return a data.frame with new fields (compatible with ggdist plotting functions): .width, .lower, .upper, and .median
 #' @export
 format_quantiles_as_widths <- function(df) {

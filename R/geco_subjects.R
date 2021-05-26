@@ -6,7 +6,7 @@
 #' This function retrieves subject data from the Generable API. This includes
 #' subject-level covariates.
 #'
-#' As a convenience, event data can be included in the returned `data.frame` by 
+#' As a convenience, event data can be included in the returned `data.frame` by
 #' specifying the `event_type` argument; the data returned from \code{\link{fetch_events}}
 #' matching the `event_type` will be merged into the returned data.
 #'
@@ -43,8 +43,8 @@ fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type
       dplyr::left_join(trials,
                        by = c('trial_id'), suffix = c('', '_trial'))
     if ('subject_params' %in% names(s)) {
-      s <- dplyr::bind_cols(s, s$subject_params) %>%
-        dplyr::select(-.data$subject_params)
+      s <- s %>%
+        tidyr::unnest_wider(.data$subject_params)
     }
     if (isTRUE(annotate)) {
       s <- .annotate_subjects_data(s)

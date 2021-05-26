@@ -45,13 +45,14 @@ list_runs <- function(project = NULL, project_version_id = NULL) {
         dplyr::mutate(run_start_datetime = lubridate::ymd_hms(.data$run_started_on))
     }
     d <- d %>%
-      dplyr::rename_at(.vars = dplyr::vars(-dplyr::starts_with('run_'), -.data$dataset_id, -.data$model_id),
+      dplyr::rename_at(.vars = dplyr::vars(-dplyr::starts_with('run_'),
+                                           -.data$dataset_id, -.data$model_id),
                        .funs = ~ stringr::str_c('run_', .x))
   } else {
     d <- tibble::tibble(run_id = character(0))
     futile.logger::flog.info('No runs returned.')
   }
-  d %>% arrange(desc(run_started_on))
+  d %>% dplyr::arrange(desc(.data$run_started_on))
 }
 
 .get_run <- function(project_version_id, run_id) {
@@ -67,13 +68,15 @@ list_runs <- function(project = NULL, project_version_id = NULL) {
         dplyr::mutate(run_start_datetime = lubridate::ymd_hms(.data$run_started_on))
     }
     d <- d %>%
-      dplyr::rename_at(.vars = dplyr::vars(-dplyr::starts_with('run_'), -.data$dataset_id, -.data$model_id),
+      dplyr::rename_at(.vars = dplyr::vars(-dplyr::starts_with('run_'),
+                                           -.data$dataset_id,
+                                           -.data$model_id),
                        .funs = ~ stringr::str_c('run_', .x))
   } else {
     d <- tibble::tibble(run_id = character(0))
     futile.logger::flog.info('No runs returned.')
   }
-  d  
+  d
 }
 
 #' List the parameter names for a run
@@ -105,13 +108,6 @@ list_runs <- function(project = NULL, project_version_id = NULL) {
 list_parameter_names <- function(run_id, project = NULL, project_version_id = NULL) {
 
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
-  if (is.null(run_id)) {
-    run_id = .get_default_run(parameter = parameter, project_version_id = pv_id, predictive = predictive, type = type)
-    if (length(run_id) == 0) {
-      # TODO list valid values
-      stop(glue::glue('No runs for this project version ({pv_id}) found with the requested parameter ({parameter}).'))
-    }
-  }
   run <- .get_run(project_version_id = pv_id, run_id = run_id)
   return(sort(unlist((run %>% dplyr::pull(.data$run_quantiles))[[1]]$parameter_names)))
 }
@@ -144,13 +140,6 @@ list_parameter_names <- function(run_id, project = NULL, project_version_id = NU
 #' @export
 list_predictive_names <- function(run_id, project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
-  if (is.null(run_id)) {
-    run_id = .get_default_run(parameter = parameter, project_version_id = pv_id, predictive = predictive, type = type)
-    if (length(run_id) == 0) {
-      # TODO list valid values
-      stop(glue::glue('No runs for this project version ({pv_id}) found with the requested parameter ({parameter}).'))
-    }
-  }
   run <- .get_run(project_version_id = pv_id, run_id = run_id)
   return(sort(unlist((run %>% dplyr::pull(.data$run_quantiles))[[1]]$predictive_names)))
 }

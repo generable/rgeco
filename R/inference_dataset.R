@@ -4,8 +4,8 @@
 #' List datasets from the Generable API for a specific project.
 #'
 #' A `dataset` is used by a model to generate a run. This function retrieves
-#' the metadata about all datasets within a project version. 
-#' 
+#' the metadata about all datasets within a project version.
+#'
 #' Authentication (see \code{\link{login}}) is required prior to using this function
 #' and this pulls the metadata from the Generable API.
 #'
@@ -55,7 +55,7 @@ extract_subsample_info <- function(d) {
                  truncate_min_days = c('sampling_scheme', 'min_days'),
                  truncate_max_days = c('sampling_scheme', 'max_days'),
                  sample_id = c('seed_subjects')) %>%
-    dplyr::mutate(sample_id = dplyr::if_else(is.na(sample_n), 0L, sample_id))
+    dplyr::mutate(sample_id = dplyr::if_else(is.na(.data$sample_n), 0L, .data$sample_id))
 }
 
 

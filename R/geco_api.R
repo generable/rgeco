@@ -26,6 +26,13 @@ ENV <- new.env(parent = emptyenv())
 
 #' Formatted URL for api endpoints
 #' @param url_query_parameters named list of url query parameters
+#' @param ... path elements to the url
+#' @param project (str) project name
+#' @param project_version_id (str) project version id, if project not provided
+#' @param run_id (str) the run_id, if used by the URL path
+#' @param parameter (str) the parameter, if used by the URL path
+#' @param type (str) the type as either prior or posterior, if used by the URL path
+#' @param url_query_parameters (named list) other inputs to the query passed as GET params
 #' @importFrom glue glue_safe
 #' @importFrom httr modify_url
 geco_api_url <- function(..., project = NULL, project_version_id = NULL, run_id=NULL, parameter=NULL, type=NULL,
@@ -156,9 +163,10 @@ as_dataframe.geco_api_data <- function(x, content = x$content, flatten_names = '
     purrr::keep(~ .x %in% names(content[[1]]))
   if (length(to_flatten) > 0)
     content <- content %>%
-      purrr::map(purrr::map_at, to_flatten, ~ purrr::compact(.x) %>% tibble::as_tibble_row())
+      purrr::map(purrr::map_at, to_flatten, ~ purrr::compact(.x) %>% tibble::as_tibble() %>% list(.))
   d <- content %>%
-    purrr::map_dfr(~ purrr::compact(.x) %>% tibble::as_tibble_row())
+    purrr::map(purrr::compact) %>%
+    purrr::map_dfr(tibble::as_tibble_row)
   if ('created_at' %in% names(d)) {
     d <- d %>%
       dplyr::mutate(created_at = lubridate::ymd_hms(.data$created_at))
@@ -188,4 +196,11 @@ as_dataframe.geco_api_data <- function(x, content = x$content, flatten_names = '
   }
   # return pv_id
   pv_id
+}
+
+.as_nested_data <- function(content) {
+  content %>%
+    purrr::map(purrr::compact) %>%
+    purrr::map(purrr::map_if, ~ is.list(.x) & length(.x) > 1, ~ list(.x)) %>%
+    purrr::map_dfr(tibble::as_tibble_row)
 }

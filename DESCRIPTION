@@ -16,7 +16,7 @@ Config/reticulate:
   )
 Imports:
     httr,
-    jsonlite,
+    RJSONIO,
     magrittr,
     futile.logger,
     checkmate,

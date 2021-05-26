@@ -40,7 +40,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!!
 #' @export
-fetch_draws <- function(parameter, run_id = NULL, project = NULL, project_version_id = NULL, type = c('posterior', 'prior')) {
+fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = NULL, type = c('posterior', 'prior')) {
   type <- match.arg(type, several.ok = F)
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   if (is.null(run_id)) {
@@ -79,7 +79,7 @@ fetch_draws <- function(parameter, run_id = NULL, project = NULL, project_versio
 #'
 #' The parameters or predictive quantities for a particular model run can be found by calling
 #' \code{\link{list_parameter_names}} or \code{\link{list_predictive_names}}.
-#' 
+#'
 #' Posterior quantiles are returned by default. The prior quantiles can be accessed by setting
 #' the `type` argument to `prior`.
 #'
@@ -127,6 +127,6 @@ fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_i
   } else {
     quantiles <- geco_api(IPTILES, project_version_id = pv_id, run_id=run_id, parameter=parameter, type=type)
   }
-  q <- convert_xarray_to_df(quantiles, name = parameter) %>% arrange(quantile)
+  q <- convert_xarray_to_df(quantiles, name = parameter) %>% arrange(.data$quantile)
 }
 

@@ -10,24 +10,29 @@
     ta <- as_dataframe.geco_api_data(content = trial_arms_content, flatten_names = c('params', 'regimen'))
   }
   if (nrow(ta) > 0) {
+    if ('id' %in% names(ta)) {
+      ta <- ta %>%
+        dplyr::rename(trial_arm_id = .data$id)
+    }
     if ('regimen' %in% names(ta)) {
       ta <- ta %>%
-        dplyr::mutate(trial_arm_regimen_id = .data$regimen$id) %>%
-        dplyr::select(-.data$regimen) %>%
+        tidyr::hoist(.data$regimen, 'id') %>%
+        tidyr::unnest_longer(.data$id) %>%
+        dplyr::rename(trial_arm_regimen_id = .data$id) %>%
         dplyr::distinct()
       regimens <- .fetch_regimens_data(project_version_id = pv_id) %>%
         dplyr::rename_all(.add_prefix, 'trial_arm')
       ta <- ta %>%
         dplyr::left_join(regimens, by = c('trial_arm_regimen_id'))
     }
-    if ('params' %in% names(ta) && ncol(ta$params) > 0) {
-      ta <- dplyr::bind_cols(ta, ta$params %>% dplyr::rename_all(~ stringr::str_c('trial_arm_', .x))) %>%
-        dplyr::select(-.data$params)
+    if ('params' %in% names(ta) && all(purrr::map_int(ta$params, nrow) == 1)) {
+      ta <- ta %>%
+        tidyr::unnest_wider(.data$params)
     }
   }
   suppressWarnings({
     ta <- ta %>%
-      dplyr::rename_at(.vars = dplyr::vars(dplyr::one_of(c('created_at', 'params', 'name', 'id'))),
+      dplyr::rename_at(.vars = dplyr::vars(-dplyr::starts_with('trial_arm_'), -.data$trial_id),
                        .funs = ~ stringr::str_c('trial_arm_', .x))
   })
   ta
