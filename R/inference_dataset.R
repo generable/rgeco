@@ -55,7 +55,7 @@ extract_subsample_info <- function(d) {
                  truncate_min_days = c('sampling_scheme', 'min_days'),
                  truncate_max_days = c('sampling_scheme', 'max_days'),
                  sample_id = c('seed_subjects')) %>%
-    dplyr::mutate(sample_id = dplyr::if_else(is.na(.data$sample_n), 0L, .data$sample_id))
+    dplyr::mutate(sample_id = ifelse(is.na(.data$sample_n), 0, .data$sample_id))
 }
 
 
