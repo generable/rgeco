@@ -70,7 +70,7 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
 }
 
 .fetch_draws_per_parameter_run <- function(run_id, parameter, project_version_id, type, pb = NULL) {
-  if (is.null(pb)) {
+  if (is.null(pb) && interactive()) {
     futile.logger::flog.info(glue::glue('Fetching draws for {parameter} from run {run_id}.'))
   }
   parameter_names <- list_parameter_names(run_id = run_id, project_version_id = project_version_id)
@@ -156,7 +156,7 @@ fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_i
 }
 
 .fetch_quantiles_per_parameter_run <- function(run_id, parameter, project_version_id, type, pb = NULL) {
-  if (is.null(pb)) {
+  if (is.null(pb) && interactive()) {
     futile.logger::flog.info(glue::glue('Querying {type} quantiles of {parameter} from run {run_id}.'))
   }
   parameter_names = list_parameter_names(run_id = run_id, project_version_id = project_version_id)
