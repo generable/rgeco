@@ -13,7 +13,7 @@ fetch_quantiles(
 )
 }
 \arguments{
-\item{parameter}{Name of the parameter or predictive quantity; this function does not take a vector.
+\item{parameter}{Name of the parameter or predictive quantity
 See \code{\link{list_parameter_names}} and \code{\link{list_predictive_names}}.}
 
 \item{run_id}{Run id; required.}
@@ -36,7 +36,8 @@ for a model run
 \details{
 This function retrieves the quantiles from the Generable API for a model run. The user specifies
 the parameter or predictive quantity to query. A data.frame in long format is returned with
-`quantile`, `.variable`, and `.value` columns.
+`quantile`, `.variable`, `run_id`, and `.value` columns, along with the dimensions over which the
+parameter is estimated such as `subject`, `survival_time`, or `study`.
 
 Note: the quantile probabilites are set to 0.05, 0.10, 0.25, 0.50, 0.75, 0.90, and 0.95. Other quantile
 probabilities can be computed directly from the draws, if necessary.
@@ -54,6 +55,10 @@ A project can be specified by using the project name or a specific project versi
 If a project is specified using the name, data is fetched for the latest version of the project.
 If a project is specified using the project version, the project name is ignored if it
 is also included as an argument.
+
+Both the parameter & run_id arguments are vectorized. In the case of multiple values,
+the rows returned for each run and/or parameter are concatenated into a single data.frame. This is
+intended for use where the runs use the same model, and parameters are similar dimension.
 }
 \seealso{
 \code{\link{list_parameter_names}}, \code{\link{list_predictive_names}}, \code{\link{fetch_draws}}
