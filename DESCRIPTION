@@ -32,7 +32,8 @@ Imports:
     lubridate,
     forcats,
     table1,
-    reticulate
+    reticulate,
+    checkmate
 Suggests: 
     testthat,
     knitr,
