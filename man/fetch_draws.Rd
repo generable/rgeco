@@ -13,7 +13,7 @@ fetch_draws(
 )
 }
 \arguments{
-\item{parameter}{Name of the parameter or predictive quantity; this function does not take a vector.}
+\item{parameter}{Name of the parameter or predictive quantity}
 
 \item{run_id}{Run id; required.}
 
@@ -35,7 +35,11 @@ for a model run
 \details{
 This function retrieves the draws from the Generable API for a model run. The user specifies
 the parameter or predictive quantity to query. A data.frame in long format is returned with
-`.chain`, `.iteration`, `.variable`, `.value`, and `.draw`.
+`run_id`, `.chain`, `.iteration`, `.variable`, `.value`, and `.draw`, plus the coordinates (indices)
+for the multi-dimensional parameters.
+
+For example, the dimensions for predicted_survival,
+the predicted survival per subject over time will be `subject` and `survival_time`.
 
 Note: this function may take a long time to return depending on the size of the parameter.
 If a summary of the parameter is sufficient, use \code{\link{fetch_quantiles}} to
@@ -54,6 +58,10 @@ A project can be specified by using the project name or a specific project versi
 If a project is specified using the name, data is fetched for the latest version of the project.
 If a project is specified using the project version, the project name is ignored if it
 is also included as an argument.
+
+Both the parameter & run_id arguments are vectorized. In the case of multiple values,
+the rows returned for each run and/or parameter are concatenated into a single data.frame. This is
+intended for use where the runs use the same model, and parameters are similar dimension.
 }
 \seealso{
 \code{\link{fetch_quantiles}}

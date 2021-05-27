@@ -6,7 +6,11 @@
 #'
 #' This function retrieves the draws from the Generable API for a model run. The user specifies
 #' the parameter or predictive quantity to query. A data.frame in long format is returned with
-#' `.chain`, `.iteration`, `.variable`, `.value`, and `.draw`.
+#' `run_id`, `.chain`, `.iteration`, `.variable`, `.value`, and `.draw`, plus the coordinates (indices)
+#' for the multi-dimensional parameters.
+#'
+#' For example, the dimensions for predicted_survival,
+#' the predicted survival per subject over time will be `subject` and `survival_time`.
 #'
 #' Note: this function may take a long time to return depending on the size of the parameter.
 #' If a summary of the parameter is sufficient, use \code{\link{fetch_quantiles}} to
@@ -26,7 +30,11 @@
 #' If a project is specified using the project version, the project name is ignored if it
 #' is also included as an argument.
 #'
-#' @param parameter Name of the parameter or predictive quantity; this function does not take a vector.
+#' Both the parameter & run_id arguments are vectorized. In the case of multiple values,
+#' the rows returned for each run and/or parameter are concatenated into a single data.frame. This is
+#' intended for use where the runs use the same model, and parameters are similar dimension.
+#'
+#' @param parameter Name of the parameter or predictive quantity
 #' @param run_id Run id; required.
 #' @param project Project name
 #' @param project_version_id Project version. If this is specified, the `project` argument is ignored.
@@ -69,9 +77,9 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
   }
   parameter_names <- list_parameter_names(run_id = run_id, project_version_id = project_version_id)
   if (parameter %in% parameter_names) {
-    draws <- geco_api(IDRAWS, project_version_id = pv_id, run_id=run_id, parameter=parameter, type=type)
+    draws <- geco_api(IDRAWS, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
   } else {
-    draws <- geco_api(IPDRAWS, project_version_id = pv_id, run_id=run_id, parameter=parameter, type=type)
+    draws <- geco_api(IPDRAWS, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
   }
   d <- convert_draws_to_df(draws, name = parameter) %>%
     dplyr::mutate(run_id = run_id)
@@ -152,11 +160,11 @@ fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_i
   } else {
     futile.logger::flog.info(glue::glue('Querying {type} quantiles of {parameter} from run {run_id}.'))
   }
-  parameter_names = list_parameter_names(run_id = run_id, project_version_id = pv_id)
+  parameter_names = list_parameter_names(run_id = run_id, project_version_id = project_version_id)
   if (parameter %in% parameter_names) {
-    quantiles <- geco_api(ITILES, project_version_id = pv_id, run_id=run_id, parameter=parameter, type=type)
+    quantiles <- geco_api(ITILES, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
   } else {
-    quantiles <- geco_api(IPTILES, project_version_id = pv_id, run_id=run_id, parameter=parameter, type=type)
+    quantiles <- geco_api(IPTILES, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
   }
   q <- convert_xarray_to_df(quantiles, name = parameter) %>%
     dplyr::mutate(run_id = run_id) %>%
