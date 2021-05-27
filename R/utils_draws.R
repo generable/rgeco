@@ -25,10 +25,6 @@ convert_xarray_to_df <- function(resp, name = NULL) {
       df <- df %>%
         dplyr::select(-dplyr::starts_with('subject.'))
     }
-    if (any(stringr::str_detect(names(df), pattern = '^trial_arm\\.'))) {
-      df <- df %>%
-        dplyr::select(-dplyr::starts_with('trial_arm.'))
-    }
     if ('subject' %in% names(df)) {
       df <- df %>%
         dplyr::rename(subject_id = .data$subject)

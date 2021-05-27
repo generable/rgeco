@@ -58,7 +58,7 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
   show_progress <- length(queries) > 5 && interactive()
   if (isTRUE(show_progress)) {
     pb <- dplyr::progress_estimated(length(queries))
-    futile.logger::flog.info(glue::glue('Querying draws for {length(queries)} run_idXparameter combinations.'))
+    futile.logger::flog.info(glue::glue('Fetching draws for {length(queries)} run_idXparameter combinations.'))
   } else {
     pb <- NULL
   }
@@ -70,16 +70,17 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
 }
 
 .fetch_draws_per_parameter_run <- function(run_id, parameter, project_version_id, type, pb = NULL) {
-  if (!is.null(pb)) {
-    pb$tick()$print()
-  } else {
-    futile.logger::flog.info(glue::glue('Querying draws for {parameter} from run {run_id}.'))
+  if (is.null(pb)) {
+    futile.logger::flog.info(glue::glue('Fetching draws for {parameter} from run {run_id}.'))
   }
   parameter_names <- list_parameter_names(run_id = run_id, project_version_id = project_version_id)
   if (parameter %in% parameter_names) {
     draws <- geco_api(IDRAWS, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
   } else {
     draws <- geco_api(IPDRAWS, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
+  }
+  if (!is.null(pb)) {
+    pb$tick()$print()
   }
   d <- convert_draws_to_df(draws, name = parameter) %>%
     dplyr::mutate(run_id = run_id)
@@ -155,9 +156,7 @@ fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_i
 }
 
 .fetch_quantiles_per_parameter_run <- function(run_id, parameter, project_version_id, type, pb = NULL) {
-  if (!is.null(pb)) {
-    pb$tick()$print()
-  } else {
+  if (is.null(pb)) {
     futile.logger::flog.info(glue::glue('Querying {type} quantiles of {parameter} from run {run_id}.'))
   }
   parameter_names = list_parameter_names(run_id = run_id, project_version_id = project_version_id)
@@ -165,6 +164,9 @@ fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_i
     quantiles <- geco_api(ITILES, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
   } else {
     quantiles <- geco_api(IPTILES, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
+  }
+  if (!is.null(pb)) {
+    pb$tick()$print()
   }
   q <- convert_xarray_to_df(quantiles, name = parameter) %>%
     dplyr::mutate(run_id = run_id) %>%
