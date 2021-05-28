@@ -188,7 +188,7 @@ find_runs <- function(project = NULL, project_version_id = NULL,
     extract_subsample_info() %>%
     tidyr::unnest_wider(.data$run_args) %>%
     dplyr::mutate(run_started_on = lubridate::ymd_hms(.data$run_started_on),
-                  model_version = factor(model_version, ordered = TRUE))
+                  model_version = factor(.data$model_version, ordered = TRUE))
 
   # process filters
   if (!is.null(model_type)) {
