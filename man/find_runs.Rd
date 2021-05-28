@@ -9,7 +9,8 @@ find_runs(
   project_version_id = NULL,
   model_type = NULL,
   model_version = NULL,
-  min_draws = 100
+  min_draws = 100,
+  extra_fields = c()
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ find_runs(
 \item{model_version}{(character vector) filter to runs with this model version string. NULL to disable this filter.}
 
 \item{min_draws}{(scalar int) filter to runs with >= this many draws combined across all chains. NULL to disable this filter.}
+
+\item{extra_fields}{(character vector) names of additional fields to include in the summary. See results of \code{\link{list_datasets}}, \code{\link{list_runs}}, and \code{\link{list_models}} for available fields.}
 }
 \value{
 a data frame with key metadata about the run.

@@ -163,13 +163,14 @@ list_predictive_names <- function(run_id, project = NULL, project_version_id = N
 #' @param model_type (character vector) filter to runs with this model type, as one of: joint, survival, biomarker. NULL to disable this filter.
 #' @param model_version (character vector) filter to runs with this model version string. NULL to disable this filter.
 #' @param min_draws (scalar int) filter to runs with >= this many draws combined across all chains. NULL to disable this filter.
+#' @param extra_fields (character vector) names of additional fields to include in the summary. See results of \code{\link{list_datasets}}, \code{\link{list_runs}}, and \code{\link{list_models}} for available fields.
 #' @return a data frame with key metadata about the run.
 #' @seealso \code{\link{list_runs}}, \code{\link{list_models}}, \code{\link{list_datasets}},
 #'          \code{\link{fetch_quantiles}}, \code{\link{fetch_draws}}
 #' @export
 find_runs <- function(project = NULL, project_version_id = NULL,
                       model_type = NULL, model_version = NULL,
-                      min_draws = 100) {
+                      min_draws = 100, extra_fields = c()) {
   # format inputs
   checkmate::assert_character(model_type, null.ok = TRUE, unique = TRUE)
   checkmate::assert_character(model_version, null.ok = TRUE, unique = TRUE)
@@ -186,7 +187,8 @@ find_runs <- function(project = NULL, project_version_id = NULL,
               by = 'model_id') %>%
     extract_subsample_info() %>%
     tidyr::unnest_wider(.data$run_args) %>%
-    dplyr::mutate(run_started_on = lubridate::ymd_hms(.data$run_started_on))
+    dplyr::mutate(run_started_on = lubridate::ymd_hms(.data$run_started_on),
+                  model_version = factor(model_version, ordered = TRUE))
 
   # process filters
   if (!is.null(model_type)) {
@@ -206,6 +208,7 @@ find_runs <- function(project = NULL, project_version_id = NULL,
   return(
     run_info %>%
       dplyr::select(.data$run_id, .data$dataset_description, .data$sample_id,
-                    .data$model_type, .data$model_version, .data$run_started_on)) %>%
+                    .data$model_type, .data$model_version, .data$run_started_on,
+                    !!!rlang::syms(extra_fields))) %>%
     dplyr::arrange(.data$run_started_on)
 }
