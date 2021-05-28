@@ -117,6 +117,10 @@ geco_api <- function(path, ..., method = c('GET', 'POST'), project = NULL, proje
 
   parsed <- try(RJSONIO::fromJSON(httr::content(resp, "text", encoding = 'UTF-8'), simplify = FALSE), silent = T)
 
+  if (inherits(parsed, 'try-error')) {
+    stop(glue::glue('Unable to connect to the API: [{stringr::str_replace_all(parsed, "[\r\n]" , "")}]. Did you provide the right project_version_id?'),
+         call. = FALSE)
+  }
   if (httr::http_error(resp)) {
     stop(
       sprintf(
@@ -178,12 +182,24 @@ as_dataframe.geco_api_data <- function(x, content = x$content, flatten_names = '
   # check inputs
   if (!is.null(project) && is.null(project_version_id)) {
     checkmate::check_character(project, len = 1, any.missing = FALSE)
+    all_projects <- list_projects()$id
+    if (!project %in% all_projects) {
+      stop(glue::glue('Project `{project}` could not be found. You have access to the following projects: {glue::glue_collapse(all_projects, sep = ", ", last = ", and ")}'),
+           call. = FALSE)
+    }
   } else if (is.null(project) && !is.null(project_version_id)) {
-    checkmate::check_character(project_version_id, len = 1, any.missing = FALSE)
+    checkmate::check_character(project_version_id, len = 1, min.chars = 36, any.missing = FALSE)
   } else if (is.null(project) && is.null(project_version_id)) {
     stop("Either project or project_version_id is required.", call. = F)
   } else if (!is.null(project) && !is.null(project_version_id)) {
-    warning("Both project and project_version_id were provided. Project input will be ignored.", call. = F)
+    all_versions <- list_project_versions(project)
+    if (!project_version_id %in% all_versions) {
+      stop(glue::glue("Provided project_version_id `{project_version_id}`",
+                      " is not a valid project version for project {project}.",
+                      "\nRun `list_project_versions('{project}')` to review versions for this project."
+                      )
+           )
+    }
   }
   # get project_version_id
   if (is.null(project_version_id)) {
