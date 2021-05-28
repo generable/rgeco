@@ -178,6 +178,11 @@ as_dataframe.geco_api_data <- function(x, content = x$content, flatten_names = '
   # check inputs
   if (!is.null(project) && is.null(project_version_id)) {
     checkmate::check_character(project, len = 1, any.missing = FALSE)
+    all_projects <- list_projects()$id
+    if (!project %in% all_projects) {
+      stop(glue::glue('Project `{project}` could not be found. You have access to the following projects: {glue::glue_collapse(all_projects, sep = ", ", last = ", and ")}'),
+           call. = FALSE)
+    }
   } else if (is.null(project) && !is.null(project_version_id)) {
     checkmate::check_character(project_version_id, len = 1, any.missing = FALSE)
   } else if (is.null(project) && is.null(project_version_id)) {
