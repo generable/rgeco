@@ -206,5 +206,6 @@ find_runs <- function(project = NULL, project_version_id = NULL,
   return(
     run_info %>%
       dplyr::select(.data$run_id, .data$dataset_description, .data$sample_id,
-                    .data$model_type, .data$model_version, .data$run_started_on))
+                    .data$model_type, .data$model_version, .data$run_started_on)) %>%
+    dplyr::arrange(.data$run_started_on)
 }
