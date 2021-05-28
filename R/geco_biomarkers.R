@@ -1,13 +1,27 @@
 
-#' Fetch biomarkers data for a Generable project
-#' @param project (chr) Name of project to return data for
-#' @param project_version_id (chr) Optionally, a specific version of project data to return, if not the most recent
-#' @param measurement_name (chr, vector) Optionally, a list of measurement names to return. NULL returns all measurements
-#' @param annotate (bool) if TRUE, annotate returned biomarker data
-#' @param annotate_doses (bool) if TRUE, annotated returned biomarker data with timing of dose administrations, if available
+#' Fetch biomarker data from the Generable API
+#'
+#' Fetch biomarker data from the Generable API for a specific project.
+#'
+#' This function retrieves biomarker data from the Generable API.
+#' It requires authentication (see \code{\link{login}}) prior to use
+#' and this pulls data from the Generable API.
+#'
+#' A project can be specified by using the project name or a specific project version.
+#' If a project is specified using the name, data is fetched for the latest version of the project.
+#' If a project is specified using the project version, the project name is ignored if it
+#' is also included as an argument.
+#'
+#' @param project Project name
+#' @param project_version_id Project version. If this is specified, the `project` argument is ignored.
+#' @param measurement_name Vector of measurement names to return. `NULL` returns all measurements. Default
+#'        is `NULL`.
+#' @param annotate if `TRUE`, annotate biomarker data with dose data. Default is `TRUE`.
+#' @param annotate_doses if `TRUE`, annotate biomarker data with timing of dose administrations.
+#'                       Default is `TRUE`.
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!
-#' @return data.frame of biomarkers data
+#' @return data.frame of biomarkers data for the project specified
 #' @export
 fetch_biomarkers <- function(project = NULL, project_version_id = NULL, measurement_name = NULL, annotate = T, annotate_doses = T) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
@@ -43,16 +57,15 @@ fetch_biomarkers <- function(project = NULL, project_version_id = NULL, measurem
     biomarkers <- geco_api(TIMEVARYING, project_version_id = pv_id)
   }
   b <- as_dataframe.geco_api_data(biomarkers, flatten_names = 'params')
+  if (nrow(b) > 0 && 'params' %in% names(b) && isTRUE(annotate)) {
+    b <- b %>% tidyr::unnest_wider(.data$params)
+  }
   suppressWarnings({
     b <- b %>%
-      dplyr::rename_at(.vars = dplyr::vars(dplyr::one_of(c('created_at', 'params', 'id'))),
+      dplyr::rename_at(.vars = dplyr::vars(dplyr::one_of(c('created_at', 'id'))),
                        .funs = ~ stringr::str_c('measurement_', .x))
   })
   if (isTRUE(annotate) && nrow(b) > 0) {
-    if ('measurement_params' %in% names(b) && ncol(b$measurement_params) > 0) {
-      b <- dplyr::bind_cols(b, b$measurement_params) %>%
-        dplyr::select(-.data$measurement_params)
-    }
     if (!'time' %in% names(b)) {
       b <- b %>%
         dplyr::mutate(time = NA_character_)
@@ -65,12 +78,13 @@ fetch_biomarkers <- function(project = NULL, project_version_id = NULL, measurem
   b
 }
 
-#' Fetch distinct list of measurement names for a project
-#' @param project (chr) Name of project to return data for
-#' @param project_version_id (chr) Optionally, a specific version of project data to return, if not the most recent
-#' @return character vector of measurement names with at least one observation
+#' List distinct biomarker measurement names for a project
+#'
+#' @param project Project name
+#' @param project_version_id Project version. If this is specified, the `project` argument is ignored.
+#' @return vector of measurement names where there is at least one observation in the proejct
 #' @export
-fetch_measurement_names <- function(project = NULL, project_version_id = NULL) {
+list_biomarker_names <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   b <- geco_api(TIMEVARYING, project_version_id = pv_id, add_headers(`X-Fields` = 'measurement_name')) %>%
     as_dataframe.geco_api_data()

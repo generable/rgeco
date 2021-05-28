@@ -1,6 +1,26 @@
 
+#' List models from the Generable API
+#'
+#' List model attributes from the Generable API for a specific project.
+#'
+#' A model is used to generate a run. This function retrieves the attributes about
+#' all models within a project version with at least one run. 
+#'
+#' Authentication (see \code{\link{login}}) is required prior to using this function
+#' and this pulls the metadata from the Generable API.
+#'
+#' A project can be specified by using the project name or a specific project version.
+#' If a project is specified using the name, data is fetched for the latest version of the project.
+#' If a project is specified using the project version, the project name is ignored if it
+#' is also included as an argument.
+#'
+#' @param project Project name
+#' @param project_version_id Project version. If this is specified, the `project` argument is ignored.
+#' @return data.frame of model attributes for the project specified
+#'
 #' @importFrom magrittr %>%
-fetch_inference_models <- function(project = NULL, project_version_id = NULL) {
+#' @export
+list_models <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   models <- geco_api(IMODELS, project_version_id = pv_id)
   if (length(models$content) > 0) {
@@ -8,7 +28,7 @@ fetch_inference_models <- function(project = NULL, project_version_id = NULL) {
       purrr::map_dfr(tibble::enframe, .id = '.id') %>%
       tidyr::spread(.data$name, .data$value) %>%
       dplyr::select_if(.predicate = ~ all(!is.null(unlist(.x)))) %>%
-      tidyr::unnest(cols = c(dplyr::one_of('description', 'has_priors', 'hash', 'id', 'inference_engine', 'name', 'run_id', 'type', 'version'))) %>%
+      tidyr::unnest(cols = c(dplyr::one_of('description', 'hash', 'id', 'inference_engine', 'name', 'type', 'version'))) %>%
       dplyr::select(-.data$.id)
       suppressWarnings({
         d <- d %>%
@@ -25,70 +45,5 @@ fetch_inference_models <- function(project = NULL, project_version_id = NULL) {
   d
 }
 
-#' @importFrom magrittr %>%
-fetch_inference_model_pars <- function(project = NULL, project_version_id = NULL) {
-  pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
-  models <- geco_api(IPARS, project_version_id = pv_id)
-  if (length(models$content) > 0) {
-    d <- models$content %>%
-      purrr::map_dfr(tibble::enframe, .id = '.id') %>%
-      tidyr::spread(.data$name, .data$value) %>%
-      dplyr::select_if(.predicate = ~ all(!is.null(unlist(.x))))
-    suppressWarnings({
-      #d <- d %>%
-      #  dplyr::rename_at(.vars = dplyr::vars(-dplyr::one_of(c('run_id'))),
-      #                   .funs = ~ stringr::str_c('model_', .x))
-      d <- d %>%
-        dplyr::mutate_at(.vars = dplyr::vars(dplyr::one_of('description', 'model_id')),
-                         .funs = ~ unlist(purrr::map(.x, unlist)))
-
-      d <- d %>%
-        dplyr::mutate(params = purrr::map(.data$params,
-                                          ~ purrr::set_names(.x, purrr::map_chr(.x, 'name')) %>%
-                                            purrr::map('dimensions') %>%
-                                            purrr::map_dfr(~ tibble::tibble(dim = unlist(.x)), .id = 'parameter'))) %>%
-        dplyr::select(-.data$.id, -.data$description) %>%
-        dplyr::distinct() %>%
-        tidyr::unnest(.data$params)
-    })
-  } else {
-    futile.logger::flog.info('No models returned.')
-    d <- tibble::tibble(model_id = character(0))
-  }
-  d
-}
-
-#' @importFrom magrittr %>%
-fetch_inference_model_preds <- function(project = NULL, project_version_id = NULL) {
-  pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
-  models <- geco_api(IPREDS, project_version_id = pv_id)
-  if (length(models$content) > 0) {
-    d <- models$content %>%
-      purrr::map_dfr(tibble::enframe, .id = '.id') %>%
-      tidyr::spread(.data$name, .data$value) %>%
-      dplyr::select_if(.predicate = ~ all(!is.null(unlist(.x))))
-    suppressWarnings({
-      #d <- d %>%
-      #  dplyr::rename_at(.vars = dplyr::vars(-dplyr::one_of(c('run_id'))),
-      #                   .funs = ~ stringr::str_c('model_', .x))
-      d <- d %>%
-        dplyr::mutate_at(.vars = dplyr::vars(dplyr::one_of('description', 'model_id')),
-                         .funs = ~ unlist(purrr::map(.x, unlist)))
-
-      d <- d %>%
-        dplyr::mutate(params = purrr::map(.data$params,
-                                          ~ purrr::set_names(.x, purrr::map_chr(.x, 'name')) %>%
-                                            purrr::map('dimensions') %>%
-                                            purrr::map_dfr(~ tibble::tibble(dim = unlist(.x)), .id = 'predicted_quantity'))) %>%
-        dplyr::select(-.data$.id, -.data$description) %>%
-        dplyr::distinct() %>%
-        tidyr::unnest(.data$params)
-    })
-  } else {
-    futile.logger::flog.info('No models returned.')
-    d <- tibble::tibble(model_id = character(0))
-  }
-  d
-}
 
 

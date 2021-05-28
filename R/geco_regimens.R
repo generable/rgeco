@@ -6,14 +6,16 @@
 }
 
 .format_treatments_data <- function(regimens) {
-  treatments <- regimens$content %>% purrr::set_names(purrr::map_chr(regimens$content, 'id')) %>% purrr::map('treatments')
+  treatments <- regimens$content %>%
+    purrr::set_names(purrr::map_chr(regimens$content, 'id')) %>%
+    purrr::map('treatments')
+
   td <- purrr::map_dfr(treatments, ~ as_dataframe.geco_api_data(content = .x, flatten_names = 'drug'), .id = 'regimen_id') %>%
-    dplyr::mutate(drug = dplyr::rename_all(.data$drug, .add_prefix, prefix = 'drug')) %>%
-    dplyr::rename_at(.vars = dplyr::vars(-dplyr::starts_with('drug'), -dplyr::starts_with('regimen')), .funs = .add_prefix, prefix = 'treatment')
-  td_drugs <- td$drug
-  td <- td %>%
-    dplyr::select(-.data$drug) %>%
-    dplyr::bind_cols(td_drugs)
+    tidyr::unnest_wider(.data$drug, names_sep = '_') %>%
+    dplyr::rename_at(.vars = dplyr::vars(-dplyr::starts_with('drug'),
+                                         -dplyr::starts_with('regimen')),
+                     .funs = .add_prefix,
+                     prefix = 'treatment')
   td
 }
 
@@ -32,13 +34,12 @@
 #' @importFrom magrittr %>%
 .fetch_regimens_data <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
-  regimens <- geco_api(REGIMENS, project_version_id = pv_id)
-  rd <- regimens %>%
-    as_dataframe.geco_api_data(flatten_names = c('treatments$drug')) %>%
-    dplyr::select(-.data$treatments) %>%
-    dplyr::distinct() %>%
+  ret <- geco_api(REGIMENS, project_version_id = pv_id)
+  rd <- ret$content %>%
+    .as_nested_data() %>%
     dplyr::rename_all(.add_prefix, prefix = 'regimen')
-  td <- .format_treatments_data(regimens) %>%
+  # format treatments & drugs, as these are important for this result
+  td <- .format_treatments_data(ret) %>%
     dplyr::distinct() %>%
     dplyr::group_by(.data$regimen_id) %>%
     dplyr::mutate(regimen_type = .format_treatment_type(.data$drug_treatment_type)) %>%

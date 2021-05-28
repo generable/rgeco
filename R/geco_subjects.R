@@ -1,10 +1,29 @@
 
-#' Fetch subjects data for a Generable project
-#' @param project (chr) Name of project to return data for
-#' @param project_version_id (chr) Optionally, a specific version of project data to return, if not the most recent
-#' @param event_type (chr) Optionally limit event_types to the names provided (example: "overall_survival"). The default (NULL) is to include no event data.
-#' @param annotate (bool) if TRUE, return annotated (processed, formatted) subjects data
-#' @return data.frame of subject-level data, including information about the trial & trial_arms
+#' Fetch subject data from the Generable API
+#'
+#' Fetch subject data from the Generable API for a specific project.
+#'
+#' This function retrieves subject data from the Generable API. This includes
+#' subject-level covariates.
+#'
+#' As a convenience, event data can be included in the returned `data.frame` by
+#' specifying the `event_type` argument; the data returned from \code{\link{fetch_events}}
+#' matching the `event_type` will be merged into the returned data.
+#'
+#' Authentication (see \code{\link{login}}) is reqiured prior to use
+#' and this pulls subject data from the Generable API.
+#'
+#' A project can be specified by using the project name or a specific project version.
+#' If a project is specified using the name, data is fetched for the latest version of the project.
+#' If a project is specified using the project version, the project name is ignored if it
+#' is also included as an argument.
+#'
+#' @param project Project name
+#' @param project_version_id Project version. If this is specified, the `project` argument is ignored.
+#' @param event_type If this argument is provided, event data that matches this event type will be
+#'                   joined into the return data.frame. Default is NULL (no event data).
+#' @param annotate if `TRUE`, annotate subject data with dose data. Default is `TRUE`.
+#' @return data.frame of subject-level data, including information about the trial and trial_arms
 #' @export
 fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type = NULL, annotate = T) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
@@ -24,8 +43,8 @@ fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type
       dplyr::left_join(trials,
                        by = c('trial_id'), suffix = c('', '_trial'))
     if ('subject_params' %in% names(s)) {
-      s <- dplyr::bind_cols(s, s$subject_params) %>%
-        dplyr::select(-.data$subject_params)
+      s <- s %>%
+        tidyr::unnest_wider(.data$subject_params)
     }
     if (isTRUE(annotate)) {
       s <- .annotate_subjects_data(s)

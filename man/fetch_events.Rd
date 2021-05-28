@@ -2,20 +2,31 @@
 % Please edit documentation in R/geco_events.R
 \name{fetch_events}
 \alias{fetch_events}
-\title{Fetch event data for a Generable project}
+\title{Fetch event data from the Generable API}
 \usage{
 fetch_events(project = NULL, project_version_id = NULL, event_type = NULL)
 }
 \arguments{
-\item{project}{(chr) Name of project to return data for}
+\item{project}{Project name}
 
-\item{project_version_id}{(chr) Optionally, a specific version of project data to return, if not the most recent}
+\item{project_version_id}{Project version. If this is specified, the `project` argument is ignored.}
 
-\item{event_type}{(chr) Optionally limit event_types to the names provided (example: "overall_survival"). NULL is unfiltered.}
+\item{event_type}{Limits the event_types to the names provided. Example: "overall_survival".
+NULL is unfiltered. Default is NULL.}
 }
 \value{
 data.frame with one record per subject and event type
 }
 \description{
-Fetch event data for a Generable project
+Fetch event data from the Generable API for a specific project.
+}
+\details{
+This function retrieves event data from the Generable API.
+It requires authentication (see \code{\link{login}}) prior to use
+and this pulls data from the Generable API.
+
+A project can be specified by using the project name or a specific project version.
+If a project is specified using the name, data is fetched for the latest version of the project.
+If a project is specified using the project version, the project name is ignored if it
+is also included as an argument.
 }

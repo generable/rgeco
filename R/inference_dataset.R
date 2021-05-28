@@ -1,65 +1,89 @@
 
+#' List datasets from the Generable API
+#'
+#' List datasets from the Generable API for a specific project.
+#'
+#' A `dataset` is used by a model to generate a run. This function retrieves
+#' the metadata about all datasets within a project version.
+#'
+#' Authentication (see \code{\link{login}}) is required prior to using this function
+#' and this pulls the metadata from the Generable API.
+#'
+#' A project can be specified by using the project name or a specific project version.
+#' If a project is specified using the name, data is fetched for the latest version of the project.
+#' If a project is specified using the project version, the project name is ignored if it
+#' is also included as an argument.
+#'
+#' @param project Project name
+#' @param project_version_id Project version. If this is specified, the `project` argument is ignored.
+#' @return data.frame of metadata for all datasets for the project specified
+#'
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!!
-fetch_inference_dataset_info <- function(project = NULL, project_version_id = NULL) {
+#' @export
+list_datasets <- function(project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
-  datasets <- geco_api(IDATA, project_version_id = pv_id)
-  if (httr::http_error(datasets$response)) {
-    stop(stringr::str_c('Error querying API: ', datasets$response))
+  ret <- geco_api(IDATA, project_version_id = pv_id)
+  if (httr::http_error(ret$response)) {
+    stop(stringr::str_c('Error querying API: ', ret$response))
   }
-  # base dataset response
-  dataset_no_pars <- datasets$content %>%
-    purrr::map(purrr::list_modify, params = NULL)
-  d <- as_dataframe.geco_api_data(content = dataset_no_pars, flatten_names = NULL)
-
-  # handle params
-  dataset_params <- datasets$content %>%
-    purrr::map('params') %>%
-    purrr::set_names(purrr::map_chr(dataset_no_pars, 'run_id'))
-  all_param_names <- dataset_params %>% purrr::map(names) %>% unlist() %>% unique()
-  if ('inputs' %in% all_param_names) {
-    d_inputs <- dataset_params %>%
-      purrr::map('inputs') %>%
-      purrr::map(unlist, recursive = F) %>%
-      purrr::map_dfr(~ tibble::tibble(!!!.x), .id = 'run_id') %>%
-      dplyr::rename_at(.vars = dplyr::vars(-.data$run_id), .funs = ~ stringr::str_c('args_',.x))
-    d <- dplyr::left_join(d, d_inputs, by = 'run_id')
-  }
-  if ('sampling_scheme' %in% all_param_names) {
-    d_sampling <- dataset_params %>%
-      purrr::map('sampling_scheme') %>%
-      purrr::map(unlist, recursive = F) %>%
-      purrr::map_dfr(~ tibble::tibble(!!!.x), .id = 'run_id') %>%
-      dplyr::rename_at(.vars = dplyr::vars(-.data$run_id), .funs = ~ stringr::str_c('args_sampling_',.x))
-    d <- dplyr::left_join(d, d_sampling, by = 'run_id')
-  }
-  if ('seed_subjects' %in% all_param_names) {
-    d_subject_seed <- dataset_params %>%
-      purrr::map('seed_subjects') %>%
-      purrr::map_dfr(~ tibble::tibble(seed_subjects = .x), .id = 'run_id') %>%
-      dplyr::rename_at(.vars = dplyr::vars(-.data$run_id), .funs = ~ stringr::str_c('args_sampling_',.x))
-    d <- dplyr::left_join(d, d_subject_seed, by = 'run_id')
-  }
-  if ('seed_truncation' %in% all_param_names) {
-    d_trunc_seed <- dataset_params %>%
-      purrr::map('seed_truncation') %>%
-      purrr::map_dfr(~ tibble::tibble(seed_truncation = .x), .id = 'run_id') %>%
-      dplyr::rename_at(.vars = dplyr::vars(-.data$run_id), .funs = ~ stringr::str_c('args_sampling_',.x))
-    d <- dplyr::left_join(d, d_trunc_seed, by = 'run_id')
-  }
-  suppressWarnings({
+  if (length(ret$content) > 0) {
+    d <- ret$content %>%
+      purrr::map(purrr::compact) %>%
+      purrr::map(purrr::map_if, ~ is.list(.x) & length(.x) > 1, ~ list(.x)) %>%
+      purrr::map_dfr(tibble::as_tibble_row)
     d <- d %>%
-      dplyr::rename_at(.vars = dplyr::vars(-dplyr::one_of(c('run_id', 'project_id', 'project_version_id'))),
+      dplyr::rename_at(.vars = dplyr::vars(-dplyr::starts_with('dataset_')),
                        .funs = ~ stringr::str_c('dataset_', .x))
-  })
+  } else {
+    d <- tibble::tibble(dataset_id = character(0))
+    futile.logger::flog.info('No analysis datasets returned.')
+  }
   d
 }
 
+#' Characterize sampling information given dataset info, using standard column locations
+#'
+#' @importFrom tidyr hoist
+#' @param d data.frame containing result of `list_datasets`
+#' @return data.frame with new columns containing information about the sample of data generated.
+#' @export
+extract_subsample_info <- function(d) {
+  d %>%
+    tidyr::hoist(.data$dataset_params,
+                 sample_n = c('sampling_scheme', 'n'),
+                 truncate_min_days = c('sampling_scheme', 'min_days'),
+                 truncate_max_days = c('sampling_scheme', 'max_days'),
+                 sample_id = c('seed_subjects')) %>%
+    dplyr::mutate(sample_id = ifelse(is.na(.data$sample_n), 0, .data$sample_id))
+}
 
 
+#' Fetch the dataset from the Generable API for a model run
+#'
+#' Fetch the dataset from the Generable API for a model run.
+#'
+#' A `dataset` is used by a model to generate a run. This function retrieves
+#' the dataset used by a particular run. This returns the subjects, biomarkers,
+#' and other information as a list of data.frames.
+#'
+#' Authentication (see \code{\link{login}}) is required prior to using this function
+#' and this pulls the metadata from the Generable API.
+#'
+#' A project can be specified by using the project name or a specific project version.
+#' If a project is specified using the name, data is fetched for the latest version of the project.
+#' If a project is specified using the project version, the project name is ignored if it
+#' is also included as an argument.
+#'
+#' @param run_id Run id; required.
+#' @param project Project name
+#' @param project_version_id Project version. If this is specified, the `project` argument is ignored.
+#' @return named list of `data.frame`s
+#'
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!!
-fetch_inference_data <- function(run_id, project = NULL, project_version_id = NULL) {
+#' @export
+fetch_dataset <- function(run_id, project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   resp <- geco_api(IRUNDATA, project_version_id = pv_id, run_id=run_id)
   d <- .format_inference_data(resp$content)
@@ -77,7 +101,10 @@ fetch_inference_data <- function(run_id, project = NULL, project_version_id = NU
 }
 
 .discover_numeric_fields <- function(results) {
-  contains_numeric <- results %>% purrr::transpose() %>% purrr::map_depth(2, is.numeric) %>% purrr::map_lgl(~ any(unlist(.x)))
+  contains_numeric <- results %>%
+    purrr::transpose() %>%
+    purrr::map_depth(2, is.numeric) %>%
+    purrr::map_lgl(~ any(unlist(.x)))
   names(contains_numeric)[contains_numeric]
 }
 

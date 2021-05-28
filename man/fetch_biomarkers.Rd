@@ -2,7 +2,7 @@
 % Please edit documentation in R/geco_biomarkers.R
 \name{fetch_biomarkers}
 \alias{fetch_biomarkers}
-\title{Fetch biomarkers data for a Generable project}
+\title{Fetch biomarker data from the Generable API}
 \usage{
 fetch_biomarkers(
   project = NULL,
@@ -13,19 +13,31 @@ fetch_biomarkers(
 )
 }
 \arguments{
-\item{project}{(chr) Name of project to return data for}
+\item{project}{Project name}
 
-\item{project_version_id}{(chr) Optionally, a specific version of project data to return, if not the most recent}
+\item{project_version_id}{Project version. If this is specified, the `project` argument is ignored.}
 
-\item{measurement_name}{(chr, vector) Optionally, a list of measurement names to return. NULL returns all measurements}
+\item{measurement_name}{Vector of measurement names to return. `NULL` returns all measurements. Default
+is `NULL`.}
 
-\item{annotate}{(bool) if TRUE, annotate returned biomarker data}
+\item{annotate}{if `TRUE`, annotate biomarker data with dose data. Default is `TRUE`.}
 
-\item{annotate_doses}{(bool) if TRUE, annotated returned biomarker data with timing of dose administrations, if available}
+\item{annotate_doses}{if `TRUE`, annotate biomarker data with timing of dose administrations.
+Default is `TRUE`.}
 }
 \value{
-data.frame of biomarkers data
+data.frame of biomarkers data for the project specified
 }
 \description{
-Fetch biomarkers data for a Generable project
+Fetch biomarker data from the Generable API for a specific project.
+}
+\details{
+This function retrieves biomarker data from the Generable API.
+It requires authentication (see \code{\link{login}}) prior to use
+and this pulls data from the Generable API.
+
+A project can be specified by using the project name or a specific project version.
+If a project is specified using the name, data is fetched for the latest version of the project.
+If a project is specified using the project version, the project name is ignored if it
+is also included as an argument.
 }
