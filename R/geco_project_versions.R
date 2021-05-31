@@ -16,7 +16,10 @@
 #' @export
 list_project_versions <- function(project) {
   project_versions <- .list_project_version_data(project = project)
-  return(project_versions)
+  return(
+    project_versions %>%
+      dplyr::arrange(.data$created_at)
+  )
 }
 
 .list_project_version_data <- function(project) {
