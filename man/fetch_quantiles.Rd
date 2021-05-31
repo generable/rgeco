@@ -13,16 +13,16 @@ fetch_quantiles(
 )
 }
 \arguments{
-\item{parameter}{Name(s) of the parameters or predictive quantities to be retrieved [required]
+\item{parameter}{(str) [required] Name(s) of the parameters or predictive quantities to be retrieved.
 See \code{\link{list_parameter_names}} and \code{\link{list_predictive_names}}.}
 
-\item{run_id}{Run id(s) [required]}
+\item{run_id}{(str) [required] Run id(s). See \code{\link{find_runs}} to see runs available for this project.}
 
-\item{project}{Project name. If NULL, defaults to value of environment variable GECO_API_PROJECT}
+\item{project}{(str) Project name. If NULL, defaults to value of environment variable GECO_API_PROJECT}
 
-\item{project_version_id}{Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION}
+\item{project_version_id}{(str) Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION}
 
-\item{type}{Type of quantile to return, either posterior or prior. Default is `posterior`. To access
+\item{type}{(str) Type of quantile to return, either posterior or prior. Default is `posterior`. To access
 prior quantiles, set this to `prior`.}
 }
 \value{
@@ -42,7 +42,7 @@ The returned object is a data.frame with one record per run, parameter, combinat
 The data.frame has columns: `quantile`, `.variable`, `run_id`, and `.value` columns, along with the dimensions over which the
 parameter is estimated such as `subject`, `survival_time`, or `study`.
 
-Use \code{\link{convert_quantiles_to_widths}} to convert this to a format mimicking the format used by `tidybayes`.
+Use \code{\link{format_quantiles_as_widths}} to convert this to a format mimicking the format used by `tidybayes`.
 
 Posterior quantiles are returned by default. The prior quantiles can be accessed by setting
 the `type` argument to `prior`.
@@ -69,5 +69,5 @@ the rows returned for each run and/or parameter are concatenated into a single d
 intended for use where the runs use the same model, and parameters are similar dimension.
 }
 \seealso{
-\code{\link{list_parameter_names}}, \code{\link{list_predictive_names}}, \code{\link{fetch_draws}}
+\code{\link{fetch_draws}}, \code{\link{list_parameter_names}}, \code{\link{list_predictive_names}}, \code{\link{format_quantiles_as_widths}}
 }

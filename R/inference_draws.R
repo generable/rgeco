@@ -8,7 +8,7 @@
 #'
 #' The user provides a parameter or predictive quantity to query.
 #'
-#' The returned object is a data.frame in long format, mimicking the structure of \code{\link{draws_df}} in the
+#' The returned object is a data.frame in long format, mimicking the structure of \code{\link[pkg:posterior]{draws_df}} in the
 #' posterior package. The data.frame has columns `run_id`, `.chain`, `.iteration`, `.variable`, `.value`, and `.draw`, plus the coordinates (indices)
 #' for the multi-dimensional parameters.
 #'
@@ -48,7 +48,7 @@
 #' @return `data.frame` of draws in long format with `.chain`, `.iteration`, `.variable`, `.value`, and
 #'         `.draw`.
 #'
-#' @seealso \code{\link{fetch_quantiles}}
+#' @seealso \code{\link{fetch_quantiles}}, \code{\link{list_parameter_names}}, \code{\link{list_predictive_names}}
 #'
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!!
@@ -105,7 +105,7 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
 #' The data.frame has columns: `quantile`, `.variable`, `run_id`, and `.value` columns, along with the dimensions over which the
 #' parameter is estimated such as `subject`, `survival_time`, or `study`.
 #'
-#' Use \code{\link{convert_quantiles_to_widths}} to convert this to a format mimicking the format used by `tidybayes`.
+#' Use \code{\link{format_quantiles_as_widths}} to convert this to a format mimicking the format used by `tidybayes`.
 #'
 #' Posterior quantiles are returned by default. The prior quantiles can be accessed by setting
 #' the `type` argument to `prior`.
@@ -134,17 +134,17 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
 #' the rows returned for each run and/or parameter are concatenated into a single data.frame. This is
 #' intended for use where the runs use the same model, and parameters are similar dimension.
 #'
-#' @param parameter Name(s) of the parameters or predictive quantities to be retrieved [required]
+#' @param parameter (str) [required] Name(s) of the parameters or predictive quantities to be retrieved.
 #'                  See \code{\link{list_parameter_names}} and \code{\link{list_predictive_names}}.
-#' @param run_id Run id(s) [required]
-#' @param project Project name. If NULL, defaults to value of environment variable GECO_API_PROJECT
-#' @param project_version_id Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION
-#' @param type Type of quantile to return, either posterior or prior. Default is `posterior`. To access
+#' @param run_id (str) [required] Run id(s). See \code{\link{find_runs}} to see runs available for this project.
+#' @param project (str) Project name. If NULL, defaults to value of environment variable GECO_API_PROJECT
+#' @param project_version_id (str) Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION
+#' @param type (str) Type of quantile to return, either posterior or prior. Default is `posterior`. To access
 #'             prior quantiles, set this to `prior`.
 #' @return `data.frame` of quantiles in long format with `quantile`, `.variable`, and `.value` columns
 #'         for the 0.05, 0.10, 0.25, 0.50, 0.75, 0.90, and 0.95 quantile probabilities.
 #'
-#' @seealso \code{\link{list_parameter_names}}, \code{\link{list_predictive_names}}, \code{\link{fetch_draws}}
+#' @seealso  \code{\link{fetch_draws}}, \code{\link{list_parameter_names}}, \code{\link{list_predictive_names}}, \code{\link{format_quantiles_as_widths}}
 #'
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!!

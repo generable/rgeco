@@ -38,7 +38,7 @@ This function retrieves the draws from the Generable API for one or more model r
 
 The user provides a parameter or predictive quantity to query.
 
-The returned object is a data.frame in long format, mimicking the structure of \code{\link{draws_df}} in the
+The returned object is a data.frame in long format, mimicking the structure of \code{\link[pkg:posterior]{draws_df}} in the
 posterior package. The data.frame has columns `run_id`, `.chain`, `.iteration`, `.variable`, `.value`, and `.draw`, plus the coordinates (indices)
 for the multi-dimensional parameters.
 
@@ -68,5 +68,5 @@ the rows returned for each run and/or parameter are concatenated into a single d
 intended for use where the runs use the same model, and parameters are similar dimension.
 }
 \seealso{
-\code{\link{fetch_quantiles}}
+\code{\link{fetch_quantiles}}, \code{\link{list_parameter_names}}, \code{\link{list_predictive_names}}
 }
