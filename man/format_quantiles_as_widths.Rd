@@ -15,3 +15,6 @@ a data.frame with new fields (compatible with ggdist plotting functions): .width
 \description{
 Format a long summary of parameter quantiles (one record per run, parameter, and quantile) into a wide format (one record per run, parameter, and interval-width)
 }
+\note{
+This function expects a data.frame in the format returned by \link{\code{fetch_quantiles}}. Results will be unexpected for data in other formats.
+}
