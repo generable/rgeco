@@ -77,16 +77,6 @@ login <- function(user, password) {
   invisible(resp$content)
 }
 
-get_latest_version_id <- function(project) {
-  get_latest_version(project)$id
-}
-
-get_latest_version <- function(project) {
-  v <- list_project_versions(project = project)
-  v %>%
-    dplyr::filter(.data$created_at == max(.data$created_at)) %>%
-    as.list()
-}
 
 get_auth <- function() {
   if (!exists(envir = ENV, '.GECO_AUTH')) {
@@ -178,6 +168,22 @@ as_dataframe.geco_api_data <- function(x, content = x$content, flatten_names = '
   d
 }
 
+.get_project <- function() {
+  env_project <- dplyr::na_if(Sys.getenv('GECO_API_PROJECT', unset = NA), '')
+  if (is.na(env_project))
+    env_project <- NULL
+  if (!is.null(env_project))
+    futile.logger::flog.info(glue::glue('Project set to {env_project}'))
+  return(env_project)
+}
+
+.get_project_version <- function() {
+  env_project_version <- dplyr::na_if(Sys.getenv('GECO_API_PROJECT_VERSION', unset = NA), '')
+  if (is.na(env_project_version))
+    env_project_version <- NULL
+  return(env_project_version)
+}
+
 .process_project_inputs <- function(project = NULL, project_version_id = NULL) {
   # check inputs
   if (!is.null(project) && is.null(project_version_id)) {
@@ -190,7 +196,15 @@ as_dataframe.geco_api_data <- function(x, content = x$content, flatten_names = '
   } else if (is.null(project) && !is.null(project_version_id)) {
     checkmate::check_character(project_version_id, len = 1, min.chars = 36, any.missing = FALSE)
   } else if (is.null(project) && is.null(project_version_id)) {
-    stop("Either project or project_version_id is required.", call. = F)
+    futile.logger::flog.debug('Neither project nor project_version_id provided. Using ENV variables: GECO_API_PROJECT & GECO_API_PROJECT_VERSION.')
+    env_project <- .get_project()
+    env_project_version <- .get_project_version()
+    if (is.null(env_project) && is.null(env_project_version)) {
+      futile.logger::flog.debug('Neither project nor project_version_id provided. Please provide either a project or project_version_id, or set the ENV variables (GECO_API_PROJECT & GECO_API_PROJECT_VERSION).')
+      stop()
+    } else {
+      return(.process_project_inputs(project = env_project, project_version_id = env_project_version))
+    }
   } else if (!is.null(project) && !is.null(project_version_id)) {
     all_versions <- list_project_versions(project) %>% dplyr::pull(.data$id)
     if (!project_version_id %in% all_versions) {
