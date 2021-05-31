@@ -42,7 +42,7 @@ The returned object is a data.frame with one record per run, parameter, combinat
 The data.frame has columns: `quantile`, `.variable`, `run_id`, and `.value` columns, along with the dimensions over which the
 parameter is estimated such as `subject`, `survival_time`, or `study`.
 
-Use \code{\link{format_quantiles_as_widths}} to convert this to a format mimicking the format used by `tidybayes`.
+Use \code{\link{format_quantiles_as_widths}} to convert this to a format mimicking the format used by \link[tidybayes:tidybayes-package]{tidybayes}.
 
 Posterior quantiles are returned by default. The prior quantiles can be accessed by setting
 the `type` argument to `prior`.

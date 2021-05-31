@@ -38,8 +38,8 @@ This function retrieves the draws from the Generable API for one or more model r
 
 The user provides a parameter or predictive quantity to query.
 
-The returned object is a data.frame in long format, mimicking the structure of \code{\link[pkg:posterior]{draws_df}} in the
-posterior package. The data.frame has columns `run_id`, `.chain`, `.iteration`, `.variable`, `.value`, and `.draw`, plus the coordinates (indices)
+The returned object is a data.frame in long format, mimicking the structure of \code{\link[posterior:draws_df]{draws_df}} in the
+\link[posterior:posterior-package]{posterior} package. The data.frame has columns `run_id`, `.chain`, `.iteration`, `.variable`, `.value`, and `.draw`, plus the coordinates (indices)
 for the multi-dimensional parameters.
 
 Note: this function may take a long time to return depending on the size of the parameter.
