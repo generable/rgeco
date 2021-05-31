@@ -60,10 +60,10 @@ convert_draws_to_df <- function(resp, name = NULL) {
 #' Format a long summary of parameter quantiles (one record per run, parameter, and quantile) into a wide format (one record per run, parameter, and interval-width)
 #'
 #' @note
-#' This function expects a data.frame in the format returned by \code{\link{fetch_quantiles}}. Results will be unexpected for data in other formats.
+#' This function expects a data.frame in the format returned by \code{\link{fetch_quantiles}}.
 #'
 #' @param df a data.frame with quantile summary in long or denormalized format
-#' @return a data.frame with new fields (compatible with ggdist plotting functions): .width, .lower, .upper, and .median
+#' @return a data.frame with new fields (compatible with ggdist plotting functions): .width, .lower, .upper, and .value
 #' @export
 format_quantiles_as_widths <- function(df) {
   if (nrow(df) == 0) {
@@ -77,7 +77,8 @@ format_quantiles_as_widths <- function(df) {
     dplyr::select(-.data$quantile) %>%
     tidyr::spread(.data$.label, .data$.value) %>%
     tidyr::fill(.data$.median, .direction = 'updown') %>%
-    dplyr::filter(!is.na(.data$.width))
+    dplyr::filter(!is.na(.data$.width)) %>%
+    dplyr::rename(.value = .data$.median)
 }
 
 
