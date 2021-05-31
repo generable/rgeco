@@ -40,6 +40,7 @@
 #' @param project_version_id Project version. If this is specified, the `project` argument is ignored.
 #' @param type Type of quantile to return, either posterior or prior. Default is `posterior`. To access
 #'             prior quantiles, set this to `prior`.
+#' @param quiet (bool) if TRUE, suppress informative messages
 #' @return `data.frame` of draws in long format with `.chain`, `.iteration`, `.variable`, `.value`, and
 #'         `.draw`.
 #'
@@ -48,7 +49,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!!
 #' @export
-fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = NULL, type = c('posterior', 'prior')) {
+fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = NULL, type = c('posterior', 'prior'), quiet = FALSE) {
   type <- match.arg(type, several.ok = F)
   checkmate::assert_character(parameter, unique = TRUE)
   checkmate::assert_character(run_id, unique = TRUE)
@@ -58,7 +59,8 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
   show_progress <- length(queries) > 5 && interactive()
   if (isTRUE(show_progress)) {
     pb <- dplyr::progress_estimated(length(queries))
-    futile.logger::flog.info(glue::glue('Fetching draws for {length(queries)} run_idXparameter combinations.'))
+    if (isFALSE(quiet))
+      futile.logger::flog.info(glue::glue('Fetching draws for {length(queries)} run_idXparameter combinations.'))
   } else {
     pb <- NULL
   }
@@ -66,11 +68,12 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
     purrr::map_dfr(~ .fetch_draws_per_parameter_run(run_id = .x[[1]], parameter = .x[[2]],
                                                     project_version_id=pv_id,
                                                     type=type,
-                                                    pb=pb))
+                                                    pb=pb,
+                                                    quiet=quiet))
 }
 
-.fetch_draws_per_parameter_run <- function(run_id, parameter, project_version_id, type, pb = NULL) {
-  if (is.null(pb) && interactive()) {
+.fetch_draws_per_parameter_run <- function(run_id, parameter, project_version_id, type, pb = NULL, quiet = FALSE) {
+  if (is.null(pb) && interactive() && isFALSE(quiet)) {
     futile.logger::flog.info(glue::glue('Fetching draws for {parameter} from run {run_id}.'))
   }
   parameter_names <- list_parameter_names(run_id = run_id, project_version_id = project_version_id)
@@ -125,6 +128,7 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
 #' @param project_version_id Project version. If this is specified, the `project` argument is ignored.
 #' @param type Type of quantile to return, either posterior or prior. Default is `posterior`. To access
 #'             prior quantiles, set this to `prior`.
+#' @param quiet (bool) if TRUE, suppress informative messages
 #' @return `data.frame` of quantiles in long format with `quantile`, `.variable`, and `.value` columns
 #'         for the 0.05, 0.10, 0.25, 0.50, 0.75, 0.90, and 0.95 quantile probabilities.
 #'
@@ -134,7 +138,7 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
 #' @importFrom rlang !!!
 #' @import checkmate
 #' @export
-fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_id = NULL, type = c('posterior', 'prior')) {
+fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_id = NULL, type = c('posterior', 'prior'), quiet = FALSE) {
   type <- match.arg(type, several.ok = F)
   checkmate::assert_character(parameter, unique = TRUE)
   checkmate::assert_character(run_id, unique = TRUE)
@@ -144,7 +148,9 @@ fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_i
   show_progress <- length(queries) > 5 && interactive()
   if (isTRUE(show_progress)) {
     pb <- dplyr::progress_estimated(length(queries))
-    futile.logger::flog.info(glue::glue('Querying {type} quantiles for {length(queries)} run_idXparameter combinations.'))
+    if (isFALSE(quiet)) {
+      futile.logger::flog.info(glue::glue('Querying {type} quantiles for {length(queries)} run_idXparameter combinations.'))
+    }
   } else {
     pb <- NULL
   }
@@ -152,11 +158,11 @@ fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_i
     purrr::map_dfr(~ .fetch_quantiles_per_parameter_run(run_id = .x[[1]], parameter = .x[[2]],
                                                     project_version_id=pv_id,
                                                     type=type,
-                                                    pb=pb))
+                                                    pb=pb, quiet=quiet))
 }
 
-.fetch_quantiles_per_parameter_run <- function(run_id, parameter, project_version_id, type, pb = NULL) {
-  if (is.null(pb) && interactive()) {
+.fetch_quantiles_per_parameter_run <- function(run_id, parameter, project_version_id, type, pb = NULL, quiet = FALSE) {
+  if (is.null(pb) && interactive() && isFALSE(quiet)) {
     futile.logger::flog.info(glue::glue('Querying {type} quantiles of {parameter} from run {run_id}.'))
   }
   parameter_names = list_parameter_names(run_id = run_id, project_version_id = project_version_id)

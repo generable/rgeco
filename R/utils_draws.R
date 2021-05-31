@@ -25,9 +25,26 @@ convert_xarray_to_df <- function(resp, name = NULL) {
       df <- df %>%
         dplyr::select(-dplyr::starts_with('subject.'))
     }
+    if (any(stringr::str_detect(names(df), pattern = '^trial_arm\\.[^\\d]+'))) {
+      names <- names(df)[stringr::str_detect(names(df), pattern = '^trial_arm\\.[^\\d]+')]
+      df <- df %>%
+        dplyr::select(-dplyr::one_of(names))
+    }
+    if ('trial_arm.1' %in% names(df)) {
+      df <- df %>%
+        dplyr::rename(control_arm_id = .data$`trial_arm.1`)
+    }
+    if ('trial_arm' %in% names(df)) {
+      df <- df %>%
+        dplyr::rename(trial_arm_id = .data$trial_arm)
+    }
     if ('subject' %in% names(df)) {
       df <- df %>%
         dplyr::rename(subject_id = .data$subject)
+    }
+    if ('study' %in% names(df)) {
+      df <- df %>%
+        dplyr::rename(study_id = .data$study)
     }
   } else {
     futile.logger::flog.info('No draws returned.')
