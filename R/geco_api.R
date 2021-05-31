@@ -192,7 +192,7 @@ as_dataframe.geco_api_data <- function(x, content = x$content, flatten_names = '
   } else if (is.null(project) && is.null(project_version_id)) {
     stop("Either project or project_version_id is required.", call. = F)
   } else if (!is.null(project) && !is.null(project_version_id)) {
-    all_versions <- list_project_versions(project)
+    all_versions <- list_project_versions(project) %>% dplyr::pull(.data$id)
     if (!project_version_id %in% all_versions) {
       stop(glue::glue("Provided project_version_id `{project_version_id}`",
                       " is not a valid project version for project {project}.",
