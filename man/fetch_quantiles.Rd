@@ -14,16 +14,16 @@ fetch_quantiles(
 )
 }
 \arguments{
-\item{parameter}{Name of the parameter or predictive quantity
+\item{parameter}{(str) [required] Name(s) of the parameters or predictive quantities to be retrieved.
 See \code{\link{list_parameter_names}} and \code{\link{list_predictive_names}}.}
 
-\item{run_id}{Run id; required.}
+\item{run_id}{(str) [required] Run id(s). See \code{\link{find_runs}} to see runs available for this project.}
 
-\item{project}{Project name}
+\item{project}{(str) Project name. If NULL, defaults to value of environment variable GECO_API_PROJECT}
 
-\item{project_version_id}{Project version. If this is specified, the `project` argument is ignored.}
+\item{project_version_id}{(str) Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION}
 
-\item{type}{Type of quantile to return, either posterior or prior. Default is `posterior`. To access
+\item{type}{(str) Type of quantile to return, either posterior or prior. Default is `posterior`. To access
 prior quantiles, set this to `prior`.}
 
 \item{quiet}{(bool) if TRUE, suppress informative messages}
@@ -38,31 +38,39 @@ for a model run
 }
 \details{
 This function retrieves the quantiles from the Generable API for a model run. The user specifies
-the parameter or predictive quantity to query. A data.frame in long format is returned with
-`quantile`, `.variable`, `run_id`, and `.value` columns, along with the dimensions over which the
+the parameter or predictive quantity to query.
+
+The returned object is a data.frame with one record per run, parameter, combination of parameter indices, and quantile value.
+
+The data.frame has columns: `quantile`, `.variable`, `run_id`, and `.value` columns, along with the dimensions over which the
 parameter is estimated such as `subject`, `survival_time`, or `study`.
 
-Note: the quantile probabilites are set to 0.05, 0.10, 0.25, 0.50, 0.75, 0.90, and 0.95. Other quantile
-probabilities can be computed directly from the draws, if necessary.
-
-The parameters or predictive quantities for a particular model run can be found by calling
-\code{\link{list_parameter_names}} or \code{\link{list_predictive_names}}.
+Use \code{\link{format_quantiles_as_widths}} to convert this to a format mimicking the format used by \link[tidybayes:tidybayes-package]{tidybayes}.
 
 Posterior quantiles are returned by default. The prior quantiles can be accessed by setting
 the `type` argument to `prior`.
 
 Authentication (see \code{\link{login}}) is required prior to using this function
 and this pulls the quantiles from the Generable API.
+}
+\note{
+The quantile probabilites are set to 0.05, 0.10, 0.25, 0.50, 0.75, 0.90, and 0.95. Other quantile
+probabilities can be computed directly from the draws, if necessary.
+
+The parameters or predictive quantities for a particular model run can be found by calling
+\code{\link{list_parameter_names}} or \code{\link{list_predictive_names}}.
 
 A project can be specified by using the project name or a specific project version.
-If a project is specified using the name, data is fetched for the latest version of the project.
-If a project is specified using the project version, the project name is ignored if it
-is also included as an argument.
+\enumerate{
+  \item If a project is specified using the name, data is fetched for the latest version of the project.
+  \item If a project is specified using the project version, the project name is not required.
+  \item If neither a project nor a project version is provided, the default project or project version is used. These are set by the environment variables GECO_API_PROJECT and GECO_API_PROJECT_VERSION
+}
 
 Both the parameter & run_id arguments are vectorized. In the case of multiple values,
 the rows returned for each run and/or parameter are concatenated into a single data.frame. This is
 intended for use where the runs use the same model, and parameters are similar dimension.
 }
 \seealso{
-\code{\link{list_parameter_names}}, \code{\link{list_predictive_names}}, \code{\link{fetch_draws}}
+\code{\link{fetch_draws}}, \code{\link{list_parameter_names}}, \code{\link{list_predictive_names}}, \code{\link{format_quantiles_as_widths}}
 }

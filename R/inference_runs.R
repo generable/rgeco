@@ -16,13 +16,16 @@
 #' Authentication (see \code{\link{login}}) is required prior to using this function
 #' and this pulls the metadata from the Generable API.
 #'
+#' @note
 #' A project can be specified by using the project name or a specific project version.
-#' If a project is specified using the name, data is fetched for the latest version of the project.
-#' If a project is specified using the project version, the project name is ignored if it
-#' is also included as an argument.
+#' \enumerate{
+#'   \item If a project is specified using the name, data is fetched for the latest version of the project.
+#'   \item If a project is specified using the project version, the project name is not required.
+#'   \item If neither a project nor a project version is provided, the default project or project version is used. These are set by the environment variables GECO_API_PROJECT and GECO_API_PROJECT_VERSION
+#' }
 #'
-#' @param project Project name
-#' @param project_version_id Project version. If this is specified, the `project` argument is ignored.
+#' @param project Project name. If NULL, defaults to value of environment variable GECO_API_PROJECT
+#' @param project_version_id Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION
 #' @return data.frame of run attributes for the project specified
 #' @seealso \code{\link{list_models}}, \code{\link{list_datasets}},
 #'          \code{\link{fetch_quantiles}}, \code{\link{fetch_draws}}
@@ -91,13 +94,15 @@ list_runs <- function(project = NULL, project_version_id = NULL) {
 #' and this pulls the list of parameter names from the Generable API.
 #'
 #' A project can be specified by using the project name or a specific project version.
-#' If a project is specified using the name, data is fetched for the latest version of the project.
-#' If a project is specified using the project version, the project name is ignored if it
-#' is also included as an argument.
+#' \enumerate{
+#'   \item If a project is specified using the name, data is fetched for the latest version of the project.
+#'   \item If a project is specified using the project version, the project name is not required.
+#'   \item If neither a project nor a project version is provided, the default project or project version is used. These are set by the environment variables GECO_API_PROJECT and GECO_API_PROJECT_VERSION
+#' }
 #'
 #' @param run_id Run id; required
-#' @param project Project name
-#' @param project_version_id Project version. If this is specified, the `project` argument is ignored.
+#' @param project Project name. If NULL, defaults to value of environment variable GECO_API_PROJECT
+#' @param project_version_id Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION
 #' @return vector of parameter names for the specified run
 #' @seealso \code{\link{list_models}}, \code{\link{list_datasets}},
 #'          \code{\link{fetch_quantiles}}, \code{\link{fetch_draws}}
@@ -124,13 +129,15 @@ list_parameter_names <- function(run_id, project = NULL, project_version_id = NU
 #' and this pulls the list of predictive names names from the Generable API.
 #'
 #' A project can be specified by using the project name or a specific project version.
-#' If a project is specified using the name, data is fetched for the latest version of the project.
-#' If a project is specified using the project version, the project name is ignored if it
-#' is also included as an argument.
+#' \enumerate{
+#'   \item If a project is specified using the name, data is fetched for the latest version of the project.
+#'   \item If a project is specified using the project version, the project name is not required.
+#'   \item If neither a project nor a project version is provided, the default project or project version is used. These are set by the environment variables GECO_API_PROJECT and GECO_API_PROJECT_VERSION
+#' }
 #'
 #' @param run_id Run id; required
-#' @param project Project name
-#' @param project_version_id Project version. If this is specified, the `project` argument is ignored.
+#' @param project Project name. If NULL, defaults to value of environment variable GECO_API_PROJECT
+#' @param project_version_id Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION
 #' @return vector of predictive names for the specified run
 #' @seealso \code{\link{list_models}}, \code{\link{list_datasets}},
 #'          \code{\link{fetch_quantiles}}, \code{\link{fetch_draws}}
@@ -158,8 +165,15 @@ list_predictive_names <- function(run_id, project = NULL, project_version_id = N
 #' Authentication (see \code{\link{login}}) is required prior to using this function
 #' and this pulls the list of parameter names from the Generable API.
 #'
-#' @param project Project name
-#' @param project_version_id Project version. If this is specified, the `project` argument is ignored.
+#' A project can be specified by using the project name or a specific project version.
+#' \enumerate{
+#'   \item If a project is specified using the name, data is fetched for the latest version of the project.
+#'   \item If a project is specified using the project version, the project name is not required.
+#'   \item If neither a project nor a project version is provided, the default project or project version is used. These are set by the environment variables GECO_API_PROJECT and GECO_API_PROJECT_VERSION
+#' }
+#'
+#' @param project Project name. If NULL, defaults to value of environment variable GECO_API_PROJECT
+#' @param project_version_id Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION
 #' @param model_type (character vector) filter to runs with this model type, as one of: joint, survival, biomarker. NULL to disable this filter.
 #' @param model_version (character vector) filter to runs with this model version string. NULL to disable this filter.
 #' @param min_draws (scalar int) filter to runs with >= this many draws combined across all chains. NULL to disable this filter.

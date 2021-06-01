@@ -9,9 +9,9 @@ list_parameter_names(run_id, project = NULL, project_version_id = NULL)
 \arguments{
 \item{run_id}{Run id; required}
 
-\item{project}{Project name}
+\item{project}{Project name. If NULL, defaults to value of environment variable GECO_API_PROJECT}
 
-\item{project_version_id}{Project version. If this is specified, the `project` argument is ignored.}
+\item{project_version_id}{Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION}
 }
 \value{
 vector of parameter names for the specified run
@@ -28,9 +28,11 @@ Authentication (see \code{\link{login}}) is required prior to using this functio
 and this pulls the list of parameter names from the Generable API.
 
 A project can be specified by using the project name or a specific project version.
-If a project is specified using the name, data is fetched for the latest version of the project.
-If a project is specified using the project version, the project name is ignored if it
-is also included as an argument.
+\enumerate{
+  \item If a project is specified using the name, data is fetched for the latest version of the project.
+  \item If a project is specified using the project version, the project name is not required.
+  \item If neither a project nor a project version is provided, the default project or project version is used. These are set by the environment variables GECO_API_PROJECT and GECO_API_PROJECT_VERSION
+}
 }
 \seealso{
 \code{\link{list_models}}, \code{\link{list_datasets}},

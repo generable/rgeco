@@ -14,15 +14,16 @@ fetch_draws(
 )
 }
 \arguments{
-\item{parameter}{Name of the parameter or predictive quantity}
+\item{parameter}{(str) [required] Name(s) of the parameters or predictive quantities to be retrieved.
+See \code{\link{list_parameter_names}} and \code{\link{list_predictive_names}}.}
 
-\item{run_id}{Run id; required.}
+\item{run_id}{(str) [required] Run id(s). See \code{\link{find_runs}} to see runs available for this project.}
 
-\item{project}{Project name}
+\item{project}{(str) Project name. If NULL, defaults to value of environment variable GECO_API_PROJECT}
 
-\item{project_version_id}{Project version. If this is specified, the `project` argument is ignored.}
+\item{project_version_id}{(str) Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION}
 
-\item{type}{Type of quantile to return, either posterior or prior. Default is `posterior`. To access
+\item{type}{(str) Type of quantile to return, either posterior or prior. Default is `posterior`. To access
 prior quantiles, set this to `prior`.}
 
 \item{quiet}{(bool) if TRUE, suppress informative messages}
@@ -36,13 +37,13 @@ Fetch draws of the specified parameter or predictive quantity from the Generable
 for a model run
 }
 \details{
-This function retrieves the draws from the Generable API for a model run. The user specifies
-the parameter or predictive quantity to query. A data.frame in long format is returned with
-`run_id`, `.chain`, `.iteration`, `.variable`, `.value`, and `.draw`, plus the coordinates (indices)
-for the multi-dimensional parameters.
+This function retrieves the draws from the Generable API for one or more model runs.
 
-For example, the dimensions for predicted_survival,
-the predicted survival per subject over time will be `subject` and `survival_time`.
+The user provides a parameter or predictive quantity to query.
+
+The returned object is a data.frame in long format, mimicking the structure of \code{\link[posterior:draws_df]{draws_df}} in the
+\link[posterior:posterior-package]{posterior} package. The data.frame has columns `run_id`, `.chain`, `.iteration`, `.variable`, `.value`, and `.draw`, plus the coordinates (indices)
+for the multi-dimensional parameters.
 
 Note: this function may take a long time to return depending on the size of the parameter.
 If a summary of the parameter is sufficient, use \code{\link{fetch_quantiles}} to
@@ -56,16 +57,19 @@ the `type` argument to `prior`.
 
 Authentication (see \code{\link{login}}) is required prior to using this function
 and this pulls the draws from the Generable API.
-
+}
+\note{
 A project can be specified by using the project name or a specific project version.
-If a project is specified using the name, data is fetched for the latest version of the project.
-If a project is specified using the project version, the project name is ignored if it
-is also included as an argument.
+\enumerate{
+  \item If a project is specified using the name, data is fetched for the latest version of the project.
+  \item If a project is specified using the project version, the project name is not required.
+  \item If neither a project nor a project version is provided, the default project or project version is used. These are set by the environment variables GECO_API_PROJECT and GECO_API_PROJECT_VERSION
+}
 
 Both the parameter & run_id arguments are vectorized. In the case of multiple values,
 the rows returned for each run and/or parameter are concatenated into a single data.frame. This is
 intended for use where the runs use the same model, and parameters are similar dimension.
 }
 \seealso{
-\code{\link{fetch_quantiles}}
+\code{\link{fetch_quantiles}}, \code{\link{list_parameter_names}}, \code{\link{list_predictive_names}}
 }

@@ -737,8 +737,7 @@ fetch_association_state <- function(run_id,
 
 .fetch_par_intervals <- function(par, trans, level, run_id, project_version_id, type) {
   .fetch_par_quantiles(par = par, trans = trans, run_id = run_id, project_version_id = project_version_id, type = type, level = level) %>%
-    format_quantiles_as_widths() %>%
-    dplyr::rename(.value = .data$.median)
+    format_quantiles_as_widths()
 }
 
 .fetch_par_median <- function(par, trans, level, run_id, project_version_id, type) {
