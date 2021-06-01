@@ -25,8 +25,6 @@ fetch_biomarker_params(
 \item{project}{(str) The name of the project to which the run_id belongs.}
 
 \item{project_version_id}{(str) The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.}
-
-\item{include_noise}{(bool) Whether to include measurement error in the predicted summaries returned. Default: FALSE}
 }
 \value{
 data.frame in tidy format, with one record per parameter, run_id, and summarized level. See notes for specific details about each return type.

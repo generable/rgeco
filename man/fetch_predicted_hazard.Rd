@@ -16,7 +16,7 @@ fetch_predicted_hazard(
 \arguments{
 \item{run_id}{(str) [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.}
 
-\item{level}{(str) The level at which to return predicted values. One of: subject, trial_arm, study, or overall. Default value is per subject.}
+\item{level}{(str) The level at which to return predicted values. One of: subject, trial_arm, study, or overall. Default value is per study}
 
 \item{return}{(str) The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median}
 
@@ -25,8 +25,6 @@ fetch_predicted_hazard(
 \item{project}{(str) The name of the project to which the run_id belongs.}
 
 \item{project_version_id}{(str) The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.}
-
-\item{include_noise}{(bool) Whether to include measurement error in the predicted summaries returned. Default: FALSE}
 }
 \value{
 data.frame in tidy format, with one record per parameter, run_id, and summarized level. See notes for specific details about each return type.

@@ -61,6 +61,7 @@
   stop(glue::glue('Predicted biomarker values are not available at the {level} level.'))
 }
 
+#' @importFrom boot inv.logit
 .get_pars_biomarker <- function(level, include_noise = NULL) {
   if (!is.null(include_noise)) {
     stop('include_noise must be NULL.')

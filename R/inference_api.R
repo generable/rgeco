@@ -223,8 +223,7 @@ fetch_predicted_biomarkers <- function(run_id,
 #' }
 #'
 #' @param run_id (str) [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.
-#' @param level (str) The level at which to return predicted values. One of: subject, trial_arm, study, or overall. Default value is per subject.
-#' @param include_noise (bool) Whether to include measurement error in the predicted summaries returned. Default: FALSE
+#' @param level (str) The level at which to return predicted values. One of: subject, trial_arm, study, or overall. Default value is per trial_arm.
 #' @param return (str) The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
 #' @param type (str) Whether to return posterior or prior predictions. Default: posterior
 #' @param project (str) The name of the project to which the run_id belongs.
@@ -332,8 +331,7 @@ fetch_predicted_survival <- function(run_id,
 #' }
 #'
 #' @param run_id (str) [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.
-#' @param level (str) The level at which to return predicted values. One of: subject, trial_arm, study, or overall. Default value is per subject.
-#' @param include_noise (bool) Whether to include measurement error in the predicted summaries returned. Default: FALSE
+#' @param level (str) The level at which to return predicted values. One of: subject, trial_arm, study, or overall. Default value is per trial_arm
 #' @param return (str) The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
 #' @param type (str) Whether to return posterior or prior predictions. Default: posterior
 #' @param project (str) The name of the project to which the run_id belongs.
@@ -454,8 +452,7 @@ fetch_predicted_median_survival <- function(run_id,
 #' }
 #'
 #' @param run_id (str) [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.
-#' @param level (str) The level at which to return predicted values. One of: subject, trial_arm, study, or overall. Default value is per subject.
-#' @param include_noise (bool) Whether to include measurement error in the predicted summaries returned. Default: FALSE
+#' @param level (str) The level at which to return predicted values. One of: subject, trial_arm, study, or overall. Default value is per study
 #' @param return (str) The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
 #' @param type (str) Whether to return posterior or prior predictions. Default: posterior
 #' @param project (str) The name of the project to which the run_id belongs.
@@ -553,7 +550,6 @@ fetch_predicted_hazard <- function(run_id,
 #'
 #' @param run_id (str) [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.
 #' @param level (str) The level at which to return predicted values. One of: subject, trial_arm, or overall. Default value is per subject.
-#' @param include_noise (bool) Whether to include measurement error in the predicted summaries returned. Default: FALSE
 #' @param return (str) The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
 #' @param type (str) Whether to return posterior or prior predictions. Default: posterior
 #' @param project (str) The name of the project to which the run_id belongs.
@@ -645,7 +641,6 @@ fetch_biomarker_params <- function(run_id,
 #'
 #' @param run_id (str) [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.
 #' @param level (str) The level at which to return predicted values. One of: subject or trial_arm. Default value is per subject.
-#' @param include_noise (bool) Whether to include measurement error in the predicted summaries returned. Default: FALSE
 #' @param return (str) The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
 #' @param type (str) Whether to return posterior or prior predictions. Default: posterior
 #' @param project (str) The name of the project to which the run_id belongs.
@@ -719,7 +714,7 @@ fetch_association_state <- function(run_id,
   d <- fetch_fun(parameter = par, project_version_id = project_version_id, type = type, run_id = run_id, quiet = TRUE)
   if (!is.null(trans)) {
     d <- d %>%
-      dplyr::mutate(.value = trans(.value))
+      dplyr::mutate(.value = trans(.data$.value))
   }
   d %>%
     dplyr::mutate(.type = !!type) %>%

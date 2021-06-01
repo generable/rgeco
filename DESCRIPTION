@@ -32,7 +32,8 @@ Imports:
     lubridate,
     forcats,
     table1,
-    reticulate
+    reticulate,
+    boot
 Suggests: 
     testthat,
     knitr,
