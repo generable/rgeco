@@ -4,7 +4,12 @@
 \alias{list_parameter_names}
 \title{List the parameter names for a run}
 \usage{
-list_parameter_names(run_id, project = NULL, project_version_id = NULL)
+list_parameter_names(
+  run_id,
+  project = NULL,
+  project_version_id = NULL,
+  include_raw = FALSE
+)
 }
 \arguments{
 \item{run_id}{Run id; required}
@@ -12,9 +17,11 @@ list_parameter_names(run_id, project = NULL, project_version_id = NULL)
 \item{project}{Project name. If NULL, defaults to value of environment variable GECO_API_PROJECT}
 
 \item{project_version_id}{Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION}
+
+\item{include_raw}{(bool) if TRUE, include the raw parameters (on unconstrained scale) in the listing. Default FALSE}
 }
 \value{
-vector of parameter names for the specified run
+data.frame with name, description, and submodel for each parameter exposed from the specified run
 }
 \description{
 List the parameter names from the Generable API for a specific run.

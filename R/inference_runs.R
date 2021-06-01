@@ -103,19 +103,112 @@ list_runs <- function(project = NULL, project_version_id = NULL) {
 #' @param run_id Run id; required
 #' @param project Project name. If NULL, defaults to value of environment variable GECO_API_PROJECT
 #' @param project_version_id Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION
-#' @return vector of parameter names for the specified run
+#' @param include_raw (bool) if TRUE, include the raw parameters (on unconstrained scale) in the listing. Default FALSE
+#' @return data.frame with name, description, and submodel for each parameter exposed from the specified run
 #' @seealso \code{\link{list_models}}, \code{\link{list_datasets}},
 #'          \code{\link{fetch_quantiles}}, \code{\link{fetch_draws}}
 #'
 #' @importFrom magrittr %>%
 #' @importFrom dplyr filter
 #' @export
-list_parameter_names <- function(run_id, project = NULL, project_version_id = NULL) {
+list_parameter_names <- function(run_id, project = NULL, project_version_id = NULL, include_raw = FALSE) {
 
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   run <- .get_run(project_version_id = pv_id, run_id = run_id)
-  return(sort(unlist((run %>% dplyr::pull(.data$run_quantiles))[[1]]$parameter_names)))
+  parameters <- sort(unlist((run %>% dplyr::pull(.data$run_quantiles))[[1]]$parameter_names))
+  parameter_data <- tibble::tibble(name = parameters) %>%
+    dplyr::left_join(tibble::tibble(name = names(.PAR_DESCRIPTIONS), description = .PAR_DESCRIPTIONS),
+                     by = 'name') %>%
+    dplyr::mutate(raw_scale = dplyr::if_else(stringr::str_detect(.data$name, pattern = '.*_raw$')
+                                             | stringr::str_detect(.data$name, pattern = '.*_unif$'), TRUE, FALSE),
+                  submodel = dplyr::case_when(stringr::str_detect(.data$name, pattern = 'kg')
+                                              | stringr::str_detect(.data$name, pattern = 'ks')
+                                              | stringr::str_detect(.data$name, pattern = 'f')
+                                              | stringr::str_detect(.data$name, pattern = 'sld') ~ 'biomarker',
+                                              stringr::str_detect(.data$name, pattern = 'association') ~ 'association',
+                                              stringr::str_detect(.data$name, pattern = 'hazard')
+                                              | stringr::str_detect(.data$name, pattern = 'lambda')
+                                              | stringr::str_detect(.data$name, pattern = 'betas') ~ 'hazard',
+                                              TRUE ~ NA_character_))
+  if (isFALSE(include_raw)) {
+    parameter_data <- parameter_data %>%
+      dplyr::filter(.data$raw_scale == FALSE)
+  }
+  return(parameter_data)
 }
+
+.PAR_DESCRIPTIONS <- c(
+  predicted_relative_hazard="Predicted difference in log(hazard) per subject, by arm",
+  smoking_exposure_betas="Relative hazard [as log(HR)] by smoking history",
+  hazard_multiplier="Subject-specific relative hazard",
+  lambdas="baseline hazard terms (RBF coefficients)",
+  lambdas_per_study="study-specific baseline hazard terms (RBF coefficients)",
+  survival_log_lik="subject-specific survival sub-model log-likelihood",
+  survival_event="observed event status (0: censored, 1: observed) per subject",
+  survival_time="observed event time per subject, in days",
+  association_betas="relative hazard [as log(HR)] for each unit change in association state",
+  kg="kg per subject (kg = growth rate among resistant cells)",
+  ks="ks per subject (ks = shrinkage rate among susceptible cells",
+  f="f per subject (f = portion of cells that are drug-susceptible)",
+  bas_sld="subject-specific estimated SLD at time 0",
+  association_states="derived quantities for association structure",
+  sld_trial_arm_betas="SLD parameter offsets per trial arm",
+  sld_trial_arm_betas_tau="SLD parameter variance per trial arm",
+  sld_trial_arm_betas_tau_unif="helper term for SLD parameter estimation per trial arm",
+  sld_trial_arm_betas_L_Omega="cholesky factor for correlation matrix among SLD parameters per trial arm",
+  sigma_sld="measurement noise for biomarker measurements, on log scale",
+  bas_sld_raw="bas_sld terms, before transformation",
+  sigma_f_raw="variance in f term, before transformation",
+  f_raw="f per subject, before transformation",
+  sigma_ks_raw="variance in ks term, before transformation",
+  ks_raw="ks per subject, before transformation",
+  kg_raw="kg per subject, before transformation",
+  sigma_kg_raw="variance in kg term among subjects, before transformation",
+  log_sld_hat="expected log_sld for each observed measurement occasion",
+  biomarker_log_lik="log_likelihood for observed biomarker values",
+  predicted_biomarker="predicted biomarker values at prediction times",
+  predicted_biomarker_hat_overall="population-level predicted values for expected biomarker, excluding measurement noise",
+  predicted_biomarker_hat_per_trial_arm="trial-arm-level predicted values for expected biomarker, excluding measurement noise",
+  predicted_biomarker_overall="population-level predicted values for biomarker measurements, including measurement noise",
+  predicted_biomarker_per_trial_arm="trial-arm-level predicted values for biomarker measurements, including measurement noise",
+  predicted_hazard="subject-specific predicted hazard rate (per day) at each follow-up time",
+  predicted_hazard_overall="predicted hazard rate (per day) at each follow-up time, overall",
+  predicted_hazard_per_study="predicted hazard rate (per day) at each follow-up time, by study",
+  predicted_hazard_per_trial_arm="predicted hazard rate (per day) at each follow-up time, by trial arm",
+  predicted_median_survival="predicted median survival time (in days) per subject",
+  predicted_median_survival_overall="predicted median survival time (in days) overall",
+  predicted_median_survival_per_study="predicted median survival time (in days) per study",
+  predicted_median_survival_per_trial_arm="predicted median survival time (in days) per trial arm",
+  predicted_survival="subject-specific predicted survival over time",
+  predicted_survival_overall="predicted survival probability at each follow-up time, overall",
+  predicted_survival_per_study="predicted survival probability at each follow-up time, by study",
+  predicted_survival_per_trial_arm="predicted survival probability at each follow-up time, by trial arm",
+  ppc_biomarker="predicted biomarker values at observed measurement times",
+  betas_kg_trial_arm="log(kg) parameter offset per trial arm",
+  betas_ks_trial_arm="log(ks) parameter offset per trial arm",
+  betas_f_trial_arm="logit(f) parameter offset per trial arm",
+  log_ks_trial_arm="log(ks) estimate per trial arm",
+  log_kg_trial_arm="log(kg) estimate per trial arm",
+  logit_f_trial_arm="logit(f) estimate per trial arm",
+  log_ks_overall="log(ks) at population-level, excluding covariate effects",
+  log_kg_overall="log(kg) at population-level, excluding covariate effects",
+  logit_f_overall="logit(f) at population-level, excluding covariate effects",
+  betas_f_trial_arm_raw='Estimate of how f varies by trial-arm, before transformation',
+  betas_kg_trial_arm_raw='Estimate of how kg varies by trial-arm, before transformation',
+  betas_ks_trial_arm_raw='Estimate of how ks varies by trial-arm, before transformation',
+  f_overall_raw='f per subject, before transformation',
+  kg_overall_raw='kg per subject, before transformation',
+  ks_overall_raw='ks per subject, before transformation',
+  log_bas_sld='baseline sld (sld at time 0) per subject, on log-scale',
+  log_hazard_multiplier='relative hazard per subject (xB), including covariate and association effects',
+  raw_lambdas_per_study='study-specific baseline hazard terms (RBF coefficients), before transformation',
+  smoking_exposure_betas_raw='Relative hazard [as log(HR)] by smoking history, before transformation',
+  L_Omega_betas_f_trial_arm='cholesky factor for correlation matrix for shared variance structure in betas_f_trial_arm',
+  L_Omega_betas_kg_trial_arm='cholesky factor for correlation matrix for shared variance structure in betas_kg_trial_arm',
+  L_Omega_betas_ks_trial_arm='cholesky factor for correlation matrix for shared variance structure in betas_ks_trial_arm',
+  predicted_log_hazard_ratio='predicted log(HR) for treatment vs control arms',
+  predicted_trial_arm_state='predicted trial-arm states, from trial-arm-level parameters'
+)
 
 #' List the predictive names for a run
 #'
@@ -138,7 +231,7 @@ list_parameter_names <- function(run_id, project = NULL, project_version_id = NU
 #' @param run_id Run id; required
 #' @param project Project name. If NULL, defaults to value of environment variable GECO_API_PROJECT
 #' @param project_version_id Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION
-#' @return vector of predictive names for the specified run
+#' @return data.frame with name, description, and submodel for each predictive quantity exposed from the specified run
 #' @seealso \code{\link{list_models}}, \code{\link{list_datasets}},
 #'          \code{\link{fetch_quantiles}}, \code{\link{fetch_draws}}
 #'
@@ -148,7 +241,16 @@ list_parameter_names <- function(run_id, project = NULL, project_version_id = NU
 list_predictive_names <- function(run_id, project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   run <- .get_run(project_version_id = pv_id, run_id = run_id)
-  return(sort(unlist((run %>% dplyr::pull(.data$run_quantiles))[[1]]$predictive_names)))
+  parameters <- sort(unlist((run %>% dplyr::pull(.data$run_quantiles))[[1]]$predictive_names))
+  parameter_data <- tibble::tibble(name = parameters) %>%
+    dplyr::left_join(tibble::tibble(name = names(.PAR_DESCRIPTIONS), description = .PAR_DESCRIPTIONS),
+                     by = 'name') %>%
+    dplyr::mutate(raw_scale = FALSE,
+                  submodel = dplyr::case_when(stringr::str_detect(.data$name, pattern = 'biomarker') ~ 'biomarker',
+                                              stringr::str_detect(.data$name, pattern = 'hazard')
+                                              | stringr::str_detect(.data$name, pattern = 'survival') ~ 'hazard',
+                                              stringr::str_detect(.data$name, pattern = 'state') ~ 'association',
+                                              TRUE ~ NA_character_))
 }
 
 
