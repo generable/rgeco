@@ -7,13 +7,16 @@
 #' It requires authentication (see \code{\link{login}}) prior to use
 #' and this pulls data from the Generable API.
 #'
+#' @note
 #' A project can be specified by using the project name or a specific project version.
-#' If a project is specified using the name, data is fetched for the latest version of the project.
-#' If a project is specified using the project version, the project name is ignored if it
-#' is also included as an argument.
+#' \enumerate{
+#'   \item If a project is specified using the name, data is fetched for the latest version of the project.
+#'   \item If a project is specified using the project version, the project name is not required.
+#'   \item If neither a project nor a project version is provided, the default project or project version is used. These are set by the environment variables GECO_API_PROJECT and GECO_API_PROJECT_VERSION
+#' }
 #'
-#' @param project Project name
-#' @param project_version_id Project version. If this is specified, the `project` argument is ignored.
+#' @param project Project name. If NULL, defaults to value of environment variable GECO_API_PROJECT
+#' @param project_version_id Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION
 #' @param measurement_name Vector of measurement names to return. `NULL` returns all measurements. Default
 #'        is `NULL`.
 #' @param annotate if `TRUE`, annotate biomarker data with dose data. Default is `TRUE`.

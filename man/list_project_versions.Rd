@@ -4,18 +4,10 @@
 \alias{list_project_versions}
 \title{Lists project versions within a project}
 \usage{
-list_project_versions(project)
+list_project_versions(project = NULL)
 }
 \arguments{
-\item{project}{(str) the project id
-
-Lists project versions and provides information about each
-project version
-
-This function fetches the list of project versions within the specified
-project from the Generable API. Included are the
-project version id, description, and other information pertient to
-the project version}
+\item{project}{(str) the project id. If NULL, defaults to value of environment variable GECO_API_PROJECT}
 }
 \value{
 data.frame containing information about each available project version,
@@ -23,4 +15,16 @@ data.frame containing information about each available project version,
 }
 \description{
 Lists project versions within a project
+}
+\note{
+The default project can set via ENV variable: GECO_API_PROJECT. Inputs given here will
+override the default value.
+
+Lists project versions and provides information about each
+project version
+
+This function fetches the list of project versions within the specified
+project from the Generable API. Included are the
+project version id, description, and other information pertient to
+the project version
 }
