@@ -41,7 +41,7 @@
     if (isTRUE(include_noise)) {
       return(list(predicted_biomarker = list(par = 'predicted_biomarker', trans = NULL, level = 'subject')))
     } else {
-      return(list(predicted_biomarker = list(par = 'log_sld_hat', trans = exp, level = 'subject')))
+      return(list(predicted_biomarker = list(par = 'predicted_biomarker', trans = NULL, level = 'subject')))
     }
   }
   if (level == 'trial_arm') {
