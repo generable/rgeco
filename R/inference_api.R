@@ -124,7 +124,7 @@ fetch_predicted_biomarkers <- function(run_id,
 }
 
 
-#' Fetch predicted survival (%) over time
+#' Fetch predicted survival (\%) over time
 #'
 #' Fetch predicted survival at predefined time intervals during the follow-up window.
 #'

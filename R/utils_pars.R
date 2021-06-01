@@ -32,7 +32,7 @@
   stop('Other types not yet implemented.')
 }
 
-#' @return
+
 .get_pars_predicted_biomarker <- function(level, include_noise) {
   if (is.null(include_noise)) {
     stop('include_noise cannot be NULL.')
@@ -61,7 +61,6 @@
   stop(glue::glue('Predicted biomarker values are not available at the {level} level.'))
 }
 
-#' @return
 .get_pars_biomarker <- function(level, include_noise = NULL) {
   if (!is.null(include_noise)) {
     stop('include_noise must be NULL.')
@@ -94,7 +93,6 @@
   stop(glue::glue('Biomarker params are not available at the {level} level.'))
 }
 
-#' @return
 .get_pars_association_state <- function(level) {
   if (level == 'subject') {
     return(

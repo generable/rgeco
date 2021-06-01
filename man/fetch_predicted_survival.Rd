@@ -2,7 +2,7 @@
 % Please edit documentation in R/inference_api.R
 \name{fetch_predicted_survival}
 \alias{fetch_predicted_survival}
-\title{Fetch predicted survival (%) over time}
+\title{Fetch predicted survival (\%) over time}
 \usage{
 fetch_predicted_survival(
   run_id,
