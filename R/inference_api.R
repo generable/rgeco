@@ -120,7 +120,7 @@ fetch_predicted_biomarkers <- function(run_id,
   type <- match.arg(type)
 
   parlist <- .get_pars_by_type(type = 'biomarker', level = level, include_noise = include_noise, project_version_id = pv_id)
-  .fetch_pars_by_type(parlist = parlist, return = return, run_id = run_id, type = type, project_version_id = pv_id)
+  .fetch_pars_by_type(parlist = parlist, return = return, run_id = run_id, type = type, project_version_id = pv_id, level = level)
 }
 
 
@@ -305,7 +305,7 @@ fetch_predicted_survival <- function(run_id,
 #'   scale_x_continuous('Predicted Median Survival (days)')
 #'
 #'
-#' # ---- Plot predicted median survival over time from intervals ----
+#' # ---- Plot predicted median survival from intervals ----
 #' d <- fetch_predicted_median_survival(run_id, level = 'trial_arm', return = 'intervals') %>%
 #'     left_join(fetch_subjects() %>% distinct(trial_arm_id, trial_arm_name),
 #'               by = 'trial_arm_id')
@@ -315,7 +315,7 @@ fetch_predicted_survival <- function(run_id,
 #'   geom_pointinterval() +
 #'   scale_x_continuous('Predicted Median Survival (days)')
 #'
-#' # ----Plot predicted survival over time from draws ----
+#' # ----Plot predicted median survival from draws ----
 #' d <- fetch_predicted_median_survival(run_id, level = 'trial_arm', return = 'draws') %>%
 #'     left_join(fetch_subjects() %>% distinct(trial_arm_id, trial_arm_name),
 #'               by = 'trial_arm_id')
@@ -324,7 +324,7 @@ fetch_predicted_survival <- function(run_id,
 #'   stat_pointinterval(.width = c(0.66, 0.99)) +
 #'   scale_x_continuous('Predicted Median Survival (days)')
 #'
-#' # ---- summarize Pr[MedianOS > 750] ----
+#' # ---- summarize Pr[MedianOS > 750] from draws ----
 #'
 #' d %>%
 #'   dplyr::group_by(trial_arm_name) %>%
@@ -624,7 +624,8 @@ fetch_biomarker_params <- function(run_id,
 #'
 #' # ---- Pairs plot of subject states ----
 #' subject_states <- fetch_association_state(run_id, level = 'subject') %>%
-#'          left_join(fetch_subjects() %>% distinct(subject_id, trial_arm_id, trial_arm_name),
+#'          left_join(fetch_subjects() %>%
+#'                         distinct(subject_id, trial_arm_id, trial_arm_name),
 #'                    by = 'subject_id')
 #'
 #' ggplot(subject_states %>% spread(association_state, .value),
@@ -637,8 +638,8 @@ fetch_biomarker_params <- function(run_id,
 #' library(posterior)
 #' d <- fetch_association_state(run_id, level = 'trial_arm', return = 'draws')
 #'
-#' d %>% spread(.variable, .value) %>%
-#'    group_by(.level, trial_arm_id, association_state, .type, run_id) %>%
+#' d %>% spread(association_state, .value) %>%
+#'    group_by(.level, trial_arm_id, .variable, .type, run_id) %>%
 #'    group_modify(~ summarise_draws(.x))
 #' }
 #'

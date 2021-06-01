@@ -96,7 +96,7 @@ format_quantiles_as_widths <- function(df) {
     tidyr::fill(.data$.median, .direction = 'updown') %>%
     dplyr::filter(!is.na(.data$.width)) %>%
     dplyr::mutate(.point = 'median',
-                  .interval = 'qi')
+                  .interval = 'qi') %>%
     dplyr::rename(.value = .data$.median)
 }
 

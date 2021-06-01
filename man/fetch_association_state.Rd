@@ -80,7 +80,8 @@ login()
 
 # ---- Pairs plot of subject states ----
 subject_states <- fetch_association_state(run_id, level = 'subject') \%>\%
-         left_join(fetch_subjects() \%>\% distinct(subject_id, trial_arm_id, trial_arm_name),
+         left_join(fetch_subjects() \%>\%
+                        distinct(subject_id, trial_arm_id, trial_arm_name),
                    by = 'subject_id')
 
 ggplot(subject_states \%>\% spread(association_state, .value),
@@ -93,8 +94,8 @@ ggplot(subject_states \%>\% spread(association_state, .value),
 library(posterior)
 d <- fetch_association_state(run_id, level = 'trial_arm', return = 'draws')
 
-d \%>\% spread(.variable, .value) \%>\%
-   group_by(.level, trial_arm_id, association_state, .type, run_id) \%>\%
+d \%>\% spread(association_state, .value) \%>\%
+   group_by(.level, trial_arm_id, .variable, .type, run_id) \%>\%
    group_modify(~ summarise_draws(.x))
 }
 

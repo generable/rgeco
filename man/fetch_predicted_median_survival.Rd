@@ -90,7 +90,7 @@ ggplot(d, aes(y = trial_arm_name, x = .value)) +
   scale_x_continuous('Predicted Median Survival (days)')
 
 
-# ---- Plot predicted median survival over time from intervals ----
+# ---- Plot predicted median survival from intervals ----
 d <- fetch_predicted_median_survival(run_id, level = 'trial_arm', return = 'intervals') \%>\%
     left_join(fetch_subjects() \%>\% distinct(trial_arm_id, trial_arm_name),
               by = 'trial_arm_id')
@@ -100,7 +100,7 @@ ggplot(d, aes(x = .value, y = trial_arm_name,
   geom_pointinterval() +
   scale_x_continuous('Predicted Median Survival (days)')
 
-# ----Plot predicted survival over time from draws ----
+# ----Plot predicted median survival from draws ----
 d <- fetch_predicted_median_survival(run_id, level = 'trial_arm', return = 'draws') \%>\%
     left_join(fetch_subjects() \%>\% distinct(trial_arm_id, trial_arm_name),
               by = 'trial_arm_id')
@@ -109,7 +109,7 @@ ggplot(d, aes(x = .value, y = trial_arm_name)) +
   stat_pointinterval(.width = c(0.66, 0.99)) +
   scale_x_continuous('Predicted Median Survival (days)')
 
-# ---- summarize Pr[MedianOS > 750] ----
+# ---- summarize Pr[MedianOS > 750] from draws ----
 
 d \%>\%
   dplyr::group_by(trial_arm_name) \%>\%
