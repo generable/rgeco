@@ -90,7 +90,9 @@ format_quantiles_as_widths <- function(df) {
     dplyr::select(-.data$quantile) %>%
     tidyr::spread(.data$.label, .data$.value) %>%
     tidyr::fill(.data$.median, .direction = 'updown') %>%
-    dplyr::filter(!is.na(.data$.width))
+    dplyr::filter(!is.na(.data$.width)) %>%
+    dplyr::mutate(.point = 'median',
+                  .interval = 'qi')
 }
 
 .get_default_run <- function(parameter, project = NULL, project_version_id = NULL,

@@ -9,7 +9,8 @@ fetch_quantiles(
   run_id,
   project = NULL,
   project_version_id = NULL,
-  type = c("posterior", "prior")
+  type = c("posterior", "prior"),
+  quiet = FALSE
 )
 }
 \arguments{
@@ -24,6 +25,8 @@ See \code{\link{list_parameter_names}} and \code{\link{list_predictive_names}}.}
 
 \item{type}{Type of quantile to return, either posterior or prior. Default is `posterior`. To access
 prior quantiles, set this to `prior`.}
+
+\item{quiet}{(bool) if TRUE, suppress informative messages}
 }
 \value{
 `data.frame` of quantiles in long format with `quantile`, `.variable`, and `.value` columns
