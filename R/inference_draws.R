@@ -81,7 +81,8 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
   if (is.null(pb) && interactive() && isFALSE(quiet)) {
     futile.logger::flog.info(glue::glue('Fetching draws for {parameter} from run {run_id}.'))
   }
-  parameter_names <- list_parameter_names(run_id = run_id, project_version_id = project_version_id)
+  parameter_names <- list_parameter_names(run_id = run_id, project_version_id = project_version_id) %>%
+    dplyr::pull(.data$name)
   if (parameter %in% parameter_names) {
     draws <- geco_api(IDRAWS, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
   } else {
@@ -181,7 +182,8 @@ fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_i
   if (is.null(pb) && interactive() && isFALSE(quiet)) {
     futile.logger::flog.info(glue::glue('Querying {type} quantiles of {parameter} from run {run_id}.'))
   }
-  parameter_names = list_parameter_names(run_id = run_id, project_version_id = project_version_id)
+  parameter_names = list_parameter_names(run_id = run_id, project_version_id = project_version_id) %>%
+    dplyr::pull(.data$name)
   if (parameter %in% parameter_names) {
     quantiles <- geco_api(ITILES, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
   } else {

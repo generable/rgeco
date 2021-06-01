@@ -663,6 +663,97 @@ fetch_association_state <- function(run_id,
 }
 
 
+#' Fetch inferences for hazard betas
+#'
+#' Fetch inferences for hazard beta parameters - these estimate the relative hazard according to covariate or state values
+#'
+#' Inferences for hazard are only available at a single level of the hierarchical model:
+#' \enumerate{
+#'   \item Overall
+#' }
+#'
+#' If/when additional levels are available, you will be able to use the `level` argument to select the desired level at which to summarize predicted values.
+#'
+#' Authentication (see \code{\link{login}}) is required prior to using this function
+#' and this pulls the quantiles from the Generable API.
+#'
+#' @note
+#' The columns returned depends on the value of the `return` argument. The default is to return median values for each \code{level} and parameter (\code{.variable}).
+#'
+#' All return formats share a set of columns containing meta-information about the predicted quantities:
+#' \enumerate{
+#'   \item \code{.variable} Text label for the predicted quantity or variable. In this case, there will be three values: one per association state estimated
+#'   \item \code{run_id} Text field containing the run_id from which each returned value was generated.
+#'   \item \code{.type} Text field containing the type (prior or posterior) of predicted quantity or inferences summarized.
+#'   \item \code{.level} Text field containing the level (subject, trial_arm, or overall) at which the predicted values were prepared.
+#'   \item \code{beta_category} The name of the type of beta estimate. For example, 'smoking_exposure'
+#'   \item \code{beta_value} The value or term within each beta category. For example: 'never', 'current', 'former'
+#' }
+#'
+#' In addition, there will be a few columns to provide and describe the predicted quantities.
+#' The set of columns included here will depend on the `return` argument:
+#' \enumerate{
+#'   \item if \code{return  == 'median'}, a pair of columns: \code{.value} and \code{.point}
+#'   \item if \code{return == 'quantiles'}, a pair of columns: \code{.value} and \code{quantile}
+#'   \item if \code{return == 'intervals'}, a set of columns: \code{.value}, \code{.width}, \code{.lower}, and \code{.upper} containing the median estimate (.value) along with the lower (.lower) and upper (.upper) bounds for the 50, 80, and 90 percent credible intervals (.width).
+#'      \itemize{
+#'        \item In addition, columns \code{.point} and \code{.interval} describe the type of point estimate ('median') and interval ('qi')
+#'        \item This data structure mimics that returned by \code{\link[tidybayes:median_qi]{median_qi}} function in the \code{\link[tidybayes:tidybayes-package]{tidybayes}} package.
+#'        }
+#'   \item if \code{return == 'draws'}, a set of columns: \code{.value}, \code{.chain}, \code{.iteration}, and \code{.draw} describing the predicted quantities for each draw, chain and iteration. This data structure mimics the \code{\link[posterior:draws_df]{draws_df}} format from the \code{\link[posterior:posterior-package]{posterior}} package.
+#' }
+#'
+#' @examples
+#' \dontrun{
+#' library(tidybayes)
+#' library(tidyverse)
+#'
+#' login()
+#'
+#' # ---- Pairs plot of subject states ----
+#' hazard_betas <- fetch_hazard_betas(run_id, return = 'intervals')
+#'
+#' ggplot(hazard_betas, aes(x = .value, xmin = .lower, xmax = .upper, y = beta_value)) +
+#'   geom_pointinterval() +
+#'   facet_grid(beta_category ~ ., scale = 'free_y')
+#'
+#'
+#' # ---- summarize sampling quality for hazard beta parameters ----
+#'
+#' library(posterior)
+#' d <- fetch_hazard_betas(run_id, return = 'draws')
+#'
+#' d %>%
+#'    group_by(.level, beta_category, beta_value, .variable, .type, run_id) %>%
+#'    group_modify(~ summarise_draws(.x))
+#' }
+#'
+#' @param run_id (str) [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.
+#' @param level (str) The level at which to return predicted values. Only Overall level available.
+#' @param return (str) The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
+#' @param type (str) Whether to return posterior or prior predictions. Default: posterior
+#' @param project (str) The name of the project to which the run_id belongs.
+#' @param project_version_id (str) The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
+#'
+#' @return data.frame in tidy format, with one record per parameter, run_id, and summarized level. See notes for specific details about each return type.
+#' @export
+fetch_hazard_betas <- function(run_id,
+                                    level = c('overall'),
+                                    return = c('median', 'quantiles', 'intervals', 'draws'),
+                                    type = c('posterior', 'prior'),
+                                    project = NULL, project_version_id = NULL) {
+  pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
+  level <- match.arg(level)
+  return <- match.arg(return)
+  type <- match.arg(type)
+
+  parlist <- .get_pars_by_type(type = 'hazard_betas', level = level, project_version_id = pv_id)
+  .fetch_pars_by_type(parlist = parlist, return = return, run_id = run_id, type = type, project_version_id = pv_id, level = level) %>%
+    tidyr::gather('beta_category', 'beta_value', .data$smoking_exposure, .data$association_state) %>%
+    dplyr::filter(!is.na(.data$beta_value))
+}
+
+
 .fetch_pars_by_type <- function(parlist, return, run_id, type = c('posterior', 'prior'), level, project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   checkmate::assert_choice(return, choices = .VALID_RETURN_TYPES)

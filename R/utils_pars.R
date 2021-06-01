@@ -29,6 +29,9 @@
   if (type == 'hazard') {
     return(.get_pars_predicted_hazard(level = level))
   }
+  if (type == 'hazard_betas') {
+    return(.get_pars_hazard_betas(level = level))
+  }
   stop('Other types not yet implemented.')
 }
 
@@ -159,4 +162,13 @@
   }
   stop(glue::glue('Predicted hazard is not available at the {level} level.'))
 }
+
+.get_pars_hazard_betas <- function(level) {
+  if (level == 'overall') {
+    return(list(smoking_exposure_betas = list(par = 'smoking_exposure_betas', trans = NULL, level = level),
+                association_betas = list(par = 'association_betas', trans = NULL, level = level)))
+  }
+  stop(glue::glue('Hazard betas are not available at the {level} level.'))
+}
+
 
