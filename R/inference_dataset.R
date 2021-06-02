@@ -100,7 +100,7 @@ fetch_dataset <- function(run_id, project = NULL, project_version_id = NULL) {
   if (name == 'biomarkers') {
     .format_data(results, numeric_fields = c('measurement_value'))
   } else if (name == 'subjects') {
-    .format_data(results, numeric_fields = c('smoking_pack_years', 'last_evaluable_assessment'))
+    .format_data(results)
   } else {
     .format_data(results)
   }
