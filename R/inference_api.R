@@ -781,21 +781,25 @@ fetch_hazard_betas <- function(run_id,
   d <- parlist %>%
     purrr::map(fetchfun) %>%
     purrr::imap_dfr(~ dplyr::mutate(.x, .variable = .y))
+  suppressWarnings({
+    subjects_data <- fetch_dataset(run_id, project_version_id = pv_id)$subjects
+  })
   if (level == 'trial_arm') {
     d <- d %>%
-      dplyr::semi_join(fetch_subjects(project_version_id = pv_id) %>%
-                         dplyr::distinct(.data$trial_arm_id),
+      dplyr::inner_join(subjects_data %>%
+                         dplyr::distinct(.data$trial_arm_id, .data$trial_arm_name, .data$trial_name),
                        by = 'trial_arm_id')
   } else if (level == 'subject') {
     d <- d %>%
-      dplyr::semi_join(fetch_subjects(project_version_id = pv_id) %>%
-                         dplyr::distinct(.data$subject_id),
-                       by = 'subject_id')
+      dplyr::inner_join(subjects_data %>%
+                          dplyr::distinct(.data$subject_id, .data$individual_id,
+                                          .data$trial_arm_id, .data$trial_arm_name, .data$trial_name),
+                        by = 'subject_id')
   } else if (level == 'study') {
     d <- d %>%
       dplyr::rename(trial_id = .data$study_id) %>%
-      dplyr::semi_join(fetch_subjects(project_version_id = pv_id) %>%
-                         dplyr::distinct(.data$trial_id),
+      dplyr::inner_join(subjects_data %>%
+                         dplyr::distinct(.data$trial_id, .data$trial_name),
                        by = 'trial_id')
   }
   d
