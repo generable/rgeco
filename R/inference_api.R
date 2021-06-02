@@ -1,21 +1,23 @@
 
 .VALID_RETURN_TYPES <- c('median', 'intervals', 'quantiles', 'draws')
 
-#' Fetch predicted biomarker values (SLD)
+#' Fetch predicted biomarker values
 #'
-#' Fetch predicted biomarker values at predefined time intervals during the follow-up window.
+#' Fetch predicted biomarker values at regular intervals during the follow-up window.
 #'
 #' Predicted biomarker values can be provided at different levels of the hierarchical model:
 #' \enumerate{
-#'   \item Per subject
-#'   \item Per trial_arm
-#'   \item Overall
+#'   \item Per subject: predicted biomarker value(s) over time, using subject-level parameters
+#'   \item Per trial_arm: predicted biomarker value(s) over time, using hyper-parameters at the trial-arm-level
+#'   \item Overall: predicted biomarker value(s) over time, using hyper-parameters defined globally for the run including any background data.
 #' }
 #'
-#' Use the `level` argument to select the desired level at which to summarize predicted values.
+#' Use the \code{level} argument to select the desired level at which to summarize predicted values.
 #'
-#' Authentication (see \code{\link{login}}) is required prior to using this function
-#' and this pulls the quantiles from the Generable API.
+#' Authentication (see \code{\link{login}}) is required prior to using this function. This
+#' function accesses information from the Generable API.
+#'
+#' There are four slightly different return formats, depending on the \code{return} argument provided. See notes for details.
 #'
 #' @note
 #' The columns returned depends on the value of the `return` argument. The default is to return median values for each \code{level} and prediction time (\code{biomarker_time}, in days).
@@ -97,15 +99,15 @@
 #'    group_modify(~ summarise_draws(.x))
 #' }
 #'
-#' @param run_id (str) [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.
-#' @param level (str) The level at which to return predicted values. One of: subject, trial_arm, or overall. Default value is per subject.
-#' @param include_noise (bool) Whether to include measurement error in the predicted summaries returned. Default: FALSE
-#' @param return (str) The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
-#' @param type (str) Whether to return posterior or prior predictions. Default: posterior
-#' @param project (str) The name of the project to which the run_id belongs.
-#' @param project_version_id (str) The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
+#' @param run_id [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.
+#' @param level The level at which to return predicted values. One of: subject, trial_arm, or overall. Default value is per subject.
+#' @param include_noise Whether to include measurement error in the predicted summaries returned. Default: FALSE
+#' @param return The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
+#' @param type Whether to return posterior or prior predictions. Default: posterior
+#' @param project The name of the project to which the run_id belongs.
+#' @param project_version_id The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
 #'
-#' @return data.frame in tidy format, with one record per parameter, run_id, and summarized level. See notes for specific details about each return type.
+#' @return A data.frame in tidy format, with one record per parameter, run_id, and summarized level. See notes for specific details about each return type.
 #' @export
 fetch_predicted_biomarkers <- function(run_id,
                                        level = c('subject', 'trial_arm', 'overall'),
@@ -124,22 +126,24 @@ fetch_predicted_biomarkers <- function(run_id,
 }
 
 
-#' Fetch predicted survival (\%) over time
+#' Fetch predicted survival curve over time
 #'
-#' Fetch predicted survival at predefined time intervals during the follow-up window.
+#' Fetch predicted survival at regular intervals during the follow-up window.
 #'
 #' Predicted survival values can be provided at different levels of the hierarchical model:
 #' \enumerate{
-#'   \item Per subject
-#'   \item Per trial_arm
-#'   \item Per study
-#'   \item Overall
+#'   \item Per subject: predict for each subject, using subject-level parameters
+#'   \item Per trial_arm: summarize survival over all subjects in a trial-arm, for each followup timepoint
+#'   \item Per study: summarize survival over all subjects in a study, for each followup timepoint
+#'   \item Overall: summarize survival over all subjects in the run, including simulated data comprising the background set
 #' }
 #'
-#' Use the `level` argument to select the desired level at which to summarize predicted values.
+#' Use the \code{level} argument to select the desired level at which to summarize predicted values.
 #'
-#' Authentication (see \code{\link{login}}) is required prior to using this function
-#' and this pulls the quantiles from the Generable API.
+#' Authentication (see \code{\link{login}}) is required prior to using this function. This
+#' function accesses information from the Generable API.
+#'
+#' There are four slightly different return formats, depending on the \code{return} argument provided. See notes for details.
 #'
 #' @note
 #' The columns returned depends on the value of the `return` argument. The default is to return median values for each \code{level} and prediction time (\code{biomarker_time}, in days).
@@ -222,14 +226,14 @@ fetch_predicted_biomarkers <- function(run_id,
 #'    group_modify(~ summarise_draws(.x))
 #' }
 #'
-#' @param run_id (str) [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.
-#' @param level (str) The level at which to return predicted values. One of: subject, trial_arm, study, or overall. Default value is per trial_arm.
-#' @param return (str) The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
-#' @param type (str) Whether to return posterior or prior predictions. Default: posterior
-#' @param project (str) The name of the project to which the run_id belongs.
-#' @param project_version_id (str) The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
+#' @param run_id [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.
+#' @param level The level at which to return predicted values. One of: subject, trial_arm, study, or overall. Default value is per trial_arm.
+#' @param return The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
+#' @param type Whether to return posterior or prior predictions. Default: posterior
+#' @param project The name of the project to which the run_id belongs.
+#' @param project_version_id The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
 #'
-#' @return data.frame in tidy format, with one record per parameter, run_id, and summarized level. See notes for specific details about each return type.
+#' @return A data.frame in tidy format, with one record per parameter, run_id, and summarized level. See notes for specific details about each return type.
 #' @export
 fetch_predicted_survival <- function(run_id,
                                        level = c('trial_arm', 'study', 'subject', 'overall'),
@@ -245,22 +249,24 @@ fetch_predicted_survival <- function(run_id,
   .fetch_pars_by_type(parlist = parlist, return = return, run_id = run_id, type = type, project_version_id = pv_id, level = level)
 }
 
-#' Fetch predicted median survival (days)
+#' Fetch predicted median survival in days
 #'
 #' Fetch predicted median survival if observed during the follow-up window.
 #'
 #' Predicted median survival can be summarized at different levels of the hierarchical model:
 #' \enumerate{
-#'   \item Per subject
-#'   \item Per trial_arm
-#'   \item Per study
-#'   \item Overall
+#'   \item Per subject: predict for each subject, using subject-level parameters
+#'   \item Per trial_arm: time to median survival after survival has been summarized over all subjects in a trial-arm, for each followup timepoint
+#'   \item Per study: time to median survival after survival has been summarized over all subjects in a study, for each followup timepoint
+#'   \item Overall: time to median survival after survival has been summarized over all subjects in the run, including simulated data comprising the background set
 #' }
 #'
-#' Use the `level` argument to select the desired level at which to summarize predicted values.
+#' Use the \code{level} argument to select the desired level at which to summarize predicted values.
 #'
-#' Authentication (see \code{\link{login}}) is required prior to using this function
-#' and this pulls the quantiles from the Generable API.
+#' Authentication (see \code{\link{login}}) is required prior to using this function. This
+#' function accesses information from the Generable API.
+#'
+#' There are four slightly different return formats, depending on the \code{return} argument provided. See notes for details.
 #'
 #' @note
 #' The columns returned depends on the value of the `return` argument. The default is to return median values for each \code{level} and prediction time (\code{biomarker_time}, in days).
@@ -330,14 +336,14 @@ fetch_predicted_survival <- function(run_id,
 #'   dplyr::summarize(mean(.value > 750))
 #' }
 #'
-#' @param run_id (str) [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.
-#' @param level (str) The level at which to return predicted values. One of: subject, trial_arm, study, or overall. Default value is per trial_arm
-#' @param return (str) The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
-#' @param type (str) Whether to return posterior or prior predictions. Default: posterior
-#' @param project (str) The name of the project to which the run_id belongs.
-#' @param project_version_id (str) The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
+#' @param run_id [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.
+#' @param level The level at which to return predicted values. One of: subject, trial_arm, study, or overall. Default value is per trial_arm
+#' @param return The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
+#' @param type Whether to return posterior or prior predictions. Default: posterior
+#' @param project The name of the project to which the run_id belongs.
+#' @param project_version_id The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
 #'
-#' @return data.frame in tidy format, with one record per parameter, run_id, and summarized level. See notes for specific details about each return type.
+#' @return A data.frame in tidy format, with one record per parameter, run_id, and summarized level. See notes for specific details about each return type.
 #' @export
 fetch_predicted_median_survival <- function(run_id,
                                      level = c('trial_arm', 'study', 'subject', 'overall'),
@@ -355,20 +361,22 @@ fetch_predicted_median_survival <- function(run_id,
 
 #' Fetch predicted hazard rate over time
 #'
-#' Fetch predicted hazard at predefined time intervals during the follow-up window.
+#' Fetch predicted hazard at regular intervals during the follow-up window.
 #'
 #' Predicted hazard values can be provided at different levels of the hierarchical model:
 #' \enumerate{
-#'   \item Per subject
-#'   \item Per trial_arm
-#'   \item Per study
-#'   \item Overall
+#'   \item Per subject: prediction for each subject, using subject-level parameters
+#'   \item Per trial_arm: summarized hazard over all subjects in a trial-arm, for each followup timepoint
+#'   \item Per study: summarized hazard over all subjects in a study, for each followup timepoint
+#'   \item Overall: summarized hazard over all subjects in the run, including simulated data comprising the background set
 #' }
 #'
-#' Use the `level` argument to select the desired level at which to summarize predicted values.
+#' Use the \code{level} argument to select the desired level at which to summarize predicted values.
 #'
-#' Authentication (see \code{\link{login}}) is required prior to using this function
-#' and this pulls the quantiles from the Generable API.
+#' Authentication (see \code{\link{login}}) is required prior to using this function. This
+#' function accesses information from the Generable API.
+#'
+#' There are four slightly different return formats, depending on the \code{return} argument provided. See notes for details.
 #'
 #' @note
 #' The columns returned depends on the value of the `return` argument. The default is to return median values for each \code{level} and prediction time (\code{biomarker_time}, in days).
@@ -451,14 +459,14 @@ fetch_predicted_median_survival <- function(run_id,
 #'    group_modify(~ summarise_draws(.x))
 #' }
 #'
-#' @param run_id (str) [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.
-#' @param level (str) The level at which to return predicted values. One of: subject, trial_arm, study, or overall. Default value is per study
-#' @param return (str) The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
-#' @param type (str) Whether to return posterior or prior predictions. Default: posterior
-#' @param project (str) The name of the project to which the run_id belongs.
-#' @param project_version_id (str) The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
+#' @param run_id [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.
+#' @param level The level at which to return predicted values. One of: subject, trial_arm, study, or overall. Default value is per study
+#' @param return The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
+#' @param type Whether to return posterior or prior predictions. Default: posterior
+#' @param project The name of the project to which the run_id belongs.
+#' @param project_version_id The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
 #'
-#' @return data.frame in tidy format, with one record per parameter, run_id, and summarized level. See notes for specific details about each return type.
+#' @return A data.frame in tidy format, with one record per parameter, run_id, and summarized level. See notes for specific details about each return type.
 #' @export
 fetch_predicted_hazard <- function(run_id,
                                    level = c('study', 'trial_arm', 'subject', 'overall'),
@@ -485,10 +493,12 @@ fetch_predicted_hazard <- function(run_id,
 #'   \item Overall
 #' }
 #'
-#' Use the `level` argument to select the desired level at which to summarize predicted values.
+#' Use the \code{level} argument to select the desired level at which to summarize predicted values.
 #'
-#' Authentication (see \code{\link{login}}) is required prior to using this function
-#' and this pulls the quantiles from the Generable API.
+#' Authentication (see \code{\link{login}}) is required prior to using this function. This
+#' function accesses information from the Generable API.
+#'
+#' There are four slightly different return formats, depending on the \code{return} argument provided. See notes for details.
 #'
 #' @note
 #' The columns returned depends on the value of the `return` argument. The default is to return median values for each \code{level} and parameter (\code{.variable}).
@@ -548,14 +558,14 @@ fetch_predicted_hazard <- function(run_id,
 #'    group_modify(~ summarise_draws(.x))
 #' }
 #'
-#' @param run_id (str) [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.
-#' @param level (str) The level at which to return predicted values. One of: subject, trial_arm, or overall. Default value is per subject.
-#' @param return (str) The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
-#' @param type (str) Whether to return posterior or prior predictions. Default: posterior
-#' @param project (str) The name of the project to which the run_id belongs.
-#' @param project_version_id (str) The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
+#' @param run_id [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.
+#' @param level The level at which to return predicted values. One of: subject, trial_arm, or overall. Default value is per subject.
+#' @param return The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
+#' @param type Whether to return posterior or prior predictions. Default: posterior
+#' @param project The name of the project to which the run_id belongs.
+#' @param project_version_id The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
 #'
-#' @return data.frame in tidy format, with one record per parameter, run_id, and summarized level. See notes for specific details about each return type.
+#' @return A data.frame in tidy format, with one record per parameter, run_id, and summarized level. See notes for specific details about each return type.
 #' @export
 fetch_biomarker_params <- function(run_id,
                                    level = c('subject', 'trial_arm', 'overall'),
@@ -571,9 +581,9 @@ fetch_biomarker_params <- function(run_id,
   .fetch_pars_by_type(parlist = parlist, return = return, run_id = run_id, type = type, project_version_id = pv_id, level = level)
 }
 
-#' Fetch inferences for association states
+#' Fetch the association states from the biomarker model
 #'
-#' Fetch inferences for association states derived from the SLD sub-model parameters from a specific model fit
+#' Fetch the association states linking the biomarker model and the survival model
 #'
 #' Inferences for association states can be provided at different levels of the hierarchical model:
 #' \enumerate{
@@ -581,10 +591,12 @@ fetch_biomarker_params <- function(run_id,
 #'   \item Per trial_arm
 #' }
 #'
-#' Use the `level` argument to select the desired level at which to summarize predicted values.
+#' Use the \code{level} argument to select the desired level at which to summarize predicted values.
 #'
-#' Authentication (see \code{\link{login}}) is required prior to using this function
-#' and this pulls the quantiles from the Generable API.
+#' Authentication (see \code{\link{login}}) is required prior to using this function. This
+#' function accesses information from the Generable API.
+#'
+#' There are four slightly different return formats, depending on the \code{return} argument provided. See notes for details.
 #'
 #' @note
 #' The columns returned depends on the value of the `return` argument. The default is to return median values for each \code{level} and parameter (\code{.variable}).
@@ -639,14 +651,14 @@ fetch_biomarker_params <- function(run_id,
 #'    group_modify(~ summarise_draws(.x))
 #' }
 #'
-#' @param run_id (str) [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.
-#' @param level (str) The level at which to return predicted values. One of: subject or trial_arm. Default value is per subject.
-#' @param return (str) The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
-#' @param type (str) Whether to return posterior or prior predictions. Default: posterior
-#' @param project (str) The name of the project to which the run_id belongs.
-#' @param project_version_id (str) The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
+#' @param run_id [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.
+#' @param level The level at which to return predicted values. One of: subject or trial_arm. Default value is per subject.
+#' @param return The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
+#' @param type Whether to return posterior or prior predictions. Default: posterior
+#' @param project The name of the project to which the run_id belongs.
+#' @param project_version_id The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
 #'
-#' @return data.frame in tidy format, with one record per parameter, run_id, and summarized level. See notes for specific details about each return type.
+#' @return A data.frame in tidy format, with one record per parameter, run_id, and summarized level. See notes for specific details about each return type.
 #' @export
 fetch_association_state <- function(run_id,
                                    level = c('subject', 'trial_arm'),
@@ -672,10 +684,12 @@ fetch_association_state <- function(run_id,
 #'   \item Overall
 #' }
 #'
-#' If/when additional levels are available, you will be able to use the `level` argument to select the desired level at which to summarize predicted values.
+#' If/when additional levels are available, you will be able to use the \code{level} argument to select the desired level at which to summarize predicted values.
 #'
-#' Authentication (see \code{\link{login}}) is required prior to using this function
-#' and this pulls the quantiles from the Generable API.
+#' Authentication (see \code{\link{login}}) is required prior to using this function. This
+#' function accesses information from the Generable API.
+#'
+#' There are four slightly different return formats, depending on the \code{return} argument provided. See notes for details.
 #'
 #' @note
 #' The columns returned depends on the value of the `return` argument. The default is to return median values for each \code{level} and parameter (\code{.variable}).
@@ -728,14 +742,14 @@ fetch_association_state <- function(run_id,
 #'    group_modify(~ summarise_draws(.x))
 #' }
 #'
-#' @param run_id (str) [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.
-#' @param level (str) The level at which to return predicted values. Only Overall level available.
-#' @param return (str) The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
-#' @param type (str) Whether to return posterior or prior predictions. Default: posterior
-#' @param project (str) The name of the project to which the run_id belongs.
-#' @param project_version_id (str) The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
+#' @param run_id [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.
+#' @param level The level at which to return predicted values. Only Overall level available.
+#' @param return The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
+#' @param type Whether to return posterior or prior predictions. Default: posterior
+#' @param project The name of the project to which the run_id belongs.
+#' @param project_version_id The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
 #'
-#' @return data.frame in tidy format, with one record per parameter, run_id, and summarized level. See notes for specific details about each return type.
+#' @return A data.frame in tidy format, with one record per parameter, run_id, and summarized level. See notes for specific details about each return type.
 #' @export
 fetch_hazard_betas <- function(run_id,
                                     level = c('overall'),

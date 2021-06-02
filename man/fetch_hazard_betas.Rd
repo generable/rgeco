@@ -14,20 +14,20 @@ fetch_hazard_betas(
 )
 }
 \arguments{
-\item{run_id}{(str) [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.}
+\item{run_id}{[required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.}
 
-\item{level}{(str) The level at which to return predicted values. Only Overall level available.}
+\item{level}{The level at which to return predicted values. Only Overall level available.}
 
-\item{return}{(str) The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median}
+\item{return}{The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median}
 
-\item{type}{(str) Whether to return posterior or prior predictions. Default: posterior}
+\item{type}{Whether to return posterior or prior predictions. Default: posterior}
 
-\item{project}{(str) The name of the project to which the run_id belongs.}
+\item{project}{The name of the project to which the run_id belongs.}
 
-\item{project_version_id}{(str) The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.}
+\item{project_version_id}{The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.}
 }
 \value{
-data.frame in tidy format, with one record per parameter, run_id, and summarized level. See notes for specific details about each return type.
+A data.frame in tidy format, with one record per parameter, run_id, and summarized level. See notes for specific details about each return type.
 }
 \description{
 Fetch inferences for hazard beta parameters - these estimate the relative hazard according to covariate or state values
@@ -38,10 +38,12 @@ Inferences for hazard are only available at a single level of the hierarchical m
   \item Overall
 }
 
-If/when additional levels are available, you will be able to use the `level` argument to select the desired level at which to summarize predicted values.
+If/when additional levels are available, you will be able to use the \code{level} argument to select the desired level at which to summarize predicted values.
 
-Authentication (see \code{\link{login}}) is required prior to using this function
-and this pulls the quantiles from the Generable API.
+Authentication (see \code{\link{login}}) is required prior to using this function. This
+function accesses information from the Generable API.
+
+There are four slightly different return formats, depending on the \code{return} argument provided. See notes for details.
 }
 \note{
 The columns returned depends on the value of the `return` argument. The default is to return median values for each \code{level} and parameter (\code{.variable}).

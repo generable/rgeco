@@ -2,7 +2,7 @@
 % Please edit documentation in R/inference_api.R
 \name{fetch_predicted_biomarkers}
 \alias{fetch_predicted_biomarkers}
-\title{Fetch predicted biomarker values (SLD)}
+\title{Fetch predicted biomarker values}
 \usage{
 fetch_predicted_biomarkers(
   run_id,
@@ -15,38 +15,40 @@ fetch_predicted_biomarkers(
 )
 }
 \arguments{
-\item{run_id}{(str) [required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.}
+\item{run_id}{[required] One or several model run_ids. See \code{\link{find_runs}} for a list of runs available.}
 
-\item{level}{(str) The level at which to return predicted values. One of: subject, trial_arm, or overall. Default value is per subject.}
+\item{level}{The level at which to return predicted values. One of: subject, trial_arm, or overall. Default value is per subject.}
 
-\item{include_noise}{(bool) Whether to include measurement error in the predicted summaries returned. Default: FALSE}
+\item{include_noise}{Whether to include measurement error in the predicted summaries returned. Default: FALSE}
 
-\item{return}{(str) The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median}
+\item{return}{The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median}
 
-\item{type}{(str) Whether to return posterior or prior predictions. Default: posterior}
+\item{type}{Whether to return posterior or prior predictions. Default: posterior}
 
-\item{project}{(str) The name of the project to which the run_id belongs.}
+\item{project}{The name of the project to which the run_id belongs.}
 
-\item{project_version_id}{(str) The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.}
+\item{project_version_id}{The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.}
 }
 \value{
-data.frame in tidy format, with one record per parameter, run_id, and summarized level. See notes for specific details about each return type.
+A data.frame in tidy format, with one record per parameter, run_id, and summarized level. See notes for specific details about each return type.
 }
 \description{
-Fetch predicted biomarker values at predefined time intervals during the follow-up window.
+Fetch predicted biomarker values at regular intervals during the follow-up window.
 }
 \details{
 Predicted biomarker values can be provided at different levels of the hierarchical model:
 \enumerate{
-  \item Per subject
-  \item Per trial_arm
-  \item Overall
+  \item Per subject: predicted biomarker value(s) over time, using subject-level parameters
+  \item Per trial_arm: predicted biomarker value(s) over time, using hyper-parameters at the trial-arm-level
+  \item Overall: predicted biomarker value(s) over time, using hyper-parameters defined globally for the run including any background data.
 }
 
-Use the `level` argument to select the desired level at which to summarize predicted values.
+Use the \code{level} argument to select the desired level at which to summarize predicted values.
 
-Authentication (see \code{\link{login}}) is required prior to using this function
-and this pulls the quantiles from the Generable API.
+Authentication (see \code{\link{login}}) is required prior to using this function. This
+function accesses information from the Generable API.
+
+There are four slightly different return formats, depending on the \code{return} argument provided. See notes for details.
 }
 \note{
 The columns returned depends on the value of the `return` argument. The default is to return median values for each \code{level} and prediction time (\code{biomarker_time}, in days).
