@@ -14,7 +14,7 @@ list_predictive_names(run_id, project = NULL, project_version_id = NULL)
 \item{project_version_id}{Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION}
 }
 \value{
-vector of predictive names for the specified run
+data.frame with name, description, and submodel for each predictive quantity exposed from the specified run
 }
 \description{
 List the predictive names from the Generable API for a specific run.
