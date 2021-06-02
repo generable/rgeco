@@ -781,9 +781,7 @@ fetch_hazard_betas <- function(run_id,
   d <- parlist %>%
     purrr::map(fetchfun) %>%
     purrr::imap_dfr(~ dplyr::mutate(.x, .variable = .y))
-  suppressWarnings({
-    subjects_data <- fetch_dataset(run_id, project_version_id = pv_id)$subjects
-  })
+  subjects_data <- fetch_dataset(run_id = run_id, project_version_id = pv_id)$subjects
   if (level == 'trial_arm') {
     d <- d %>%
       dplyr::inner_join(subjects_data %>%
