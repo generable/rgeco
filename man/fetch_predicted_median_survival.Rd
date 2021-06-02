@@ -48,7 +48,8 @@ function accesses information from the Generable API.
 
 There are four slightly different return formats, depending on the \code{return} argument provided. See notes for details.
 }
-\note{
+\section{Return format}{
+
 The columns returned depends on the value of the `return` argument. The default is to return median values for each \code{level} and prediction time (\code{biomarker_time}, in days).
 
 All return formats share a set of columns containing meta-information about the predicted quantities:
@@ -73,6 +74,7 @@ The set of columns included here will depend on the `return` argument:
   \item if \code{return == 'draws'}, a set of columns: \code{.value}, \code{.chain}, \code{.iteration}, and \code{.draw} describing the predicted quantities for each draw, chain and iteration. This data structure mimics the \code{\link[posterior:draws_df]{draws_df}} format from the \code{\link[posterior:posterior-package]{posterior}} package.
 }
 }
+
 \examples{
 \dontrun{
 library(tidybayes)

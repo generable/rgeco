@@ -19,7 +19,7 @@
 #'
 #' There are four slightly different return formats, depending on the \code{return} argument provided. See notes for details.
 #'
-#' @note
+#' @section Return format:
 #' The columns returned depends on the value of the `return` argument. The default is to return median values for each \code{level} and prediction time (\code{biomarker_time}, in days).
 #'
 #' All return formats share a set of columns containing meta-information about the predicted quantities:
@@ -145,7 +145,7 @@ fetch_predicted_biomarkers <- function(run_id,
 #'
 #' There are four slightly different return formats, depending on the \code{return} argument provided. See notes for details.
 #'
-#' @note
+#' @section Return format:
 #' The columns returned depends on the value of the `return` argument. The default is to return median values for each \code{level} and prediction time (\code{biomarker_time}, in days).
 #'
 #' All return formats share a set of columns containing meta-information about the predicted quantities:
@@ -268,7 +268,7 @@ fetch_predicted_survival <- function(run_id,
 #'
 #' There are four slightly different return formats, depending on the \code{return} argument provided. See notes for details.
 #'
-#' @note
+#' @section Return format:
 #' The columns returned depends on the value of the `return` argument. The default is to return median values for each \code{level} and prediction time (\code{biomarker_time}, in days).
 #'
 #' All return formats share a set of columns containing meta-information about the predicted quantities:
@@ -378,7 +378,7 @@ fetch_predicted_median_survival <- function(run_id,
 #'
 #' There are four slightly different return formats, depending on the \code{return} argument provided. See notes for details.
 #'
-#' @note
+#' @section Return format:
 #' The columns returned depends on the value of the `return` argument. The default is to return median values for each \code{level} and prediction time (\code{biomarker_time}, in days).
 #'
 #' All return formats share a set of columns containing meta-information about the predicted quantities:
@@ -500,7 +500,7 @@ fetch_predicted_hazard <- function(run_id,
 #'
 #' There are four slightly different return formats, depending on the \code{return} argument provided. See notes for details.
 #'
-#' @note
+#' @section Return format:
 #' The columns returned depends on the value of the `return` argument. The default is to return median values for each \code{level} and parameter (\code{.variable}).
 #'
 #' All return formats share a set of columns containing meta-information about the predicted quantities:
@@ -598,7 +598,7 @@ fetch_biomarker_params <- function(run_id,
 #'
 #' There are four slightly different return formats, depending on the \code{return} argument provided. See notes for details.
 #'
-#' @note
+#' @section Return format:
 #' The columns returned depends on the value of the `return` argument. The default is to return median values for each \code{level} and parameter (\code{.variable}).
 #'
 #' All return formats share a set of columns containing meta-information about the predicted quantities:
@@ -691,7 +691,7 @@ fetch_association_state <- function(run_id,
 #'
 #' There are four slightly different return formats, depending on the \code{return} argument provided. See notes for details.
 #'
-#' @note
+#' @section Return format:
 #' The columns returned depends on the value of the `return` argument. The default is to return median values for each \code{level} and parameter (\code{.variable}).
 #'
 #' All return formats share a set of columns containing meta-information about the predicted quantities:
