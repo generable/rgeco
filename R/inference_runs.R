@@ -51,11 +51,12 @@ list_runs <- function(project = NULL, project_version_id = NULL) {
       dplyr::rename_at(.vars = dplyr::vars(-dplyr::starts_with('run_'),
                                            -.data$dataset_id, -.data$model_id),
                        .funs = ~ stringr::str_c('run_', .x))
+    d <- d %>% dplyr::arrange(desc(.data$run_started_on))
   } else {
-    d <- tibble::tibble(run_id = character(0))
+    d <- tibble::tibble(run_id = character(0), model_id = character(0), dataset_id = character(0))
     futile.logger::flog.info('No runs returned.')
   }
-  d %>% dplyr::arrange(desc(.data$run_started_on))
+  d
 }
 
 .get_run <- function(project_version_id, run_id) {
@@ -296,35 +297,42 @@ find_runs <- function(project = NULL, project_version_id = NULL,
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
 
   # get run info
-  run_info <- list_runs(project_version_id = pv_id) %>%
+  runs <- list_runs(project_version_id = pv_id) %>%
     dplyr::left_join(list_datasets(project_version_id = pv_id),
-              by = 'dataset_id') %>%
+                     by = 'dataset_id') %>%
     dplyr::left_join(list_models(project_version_id = pv_id),
-              by = 'model_id') %>%
-    extract_subsample_info() %>%
-    tidyr::unnest_wider(.data$run_args) %>%
-    dplyr::mutate(run_started_on = lubridate::ymd_hms(.data$run_started_on),
-                  model_version = factor(.data$model_version, ordered = TRUE))
+                     by = 'model_id')
 
-  # process filters
-  if (!is.null(model_type)) {
-    run_info <- run_info %>%
-      dplyr::filter(.data$model_type %in% !!model_type)
-  }
-  if (!is.null(model_version)) {
-    run_info <- run_info %>%
-      dplyr::filter(.data$model_version %in% !!model_version)
-  }
-  if (!is.null(min_draws)) {
-    run_info <- run_info %>%
-      dplyr::filter(.data$num_draws >= !!min_draws)
-  }
+  if (nrow(runs) > 0) {
+    run_info <- runs %>%
+      extract_subsample_info() %>%
+      tidyr::unnest_wider(.data$run_args) %>%
+      dplyr::mutate(run_started_on = lubridate::ymd_hms(.data$run_started_on),
+                    model_version = factor(.data$model_version, ordered = TRUE))
 
-  # show key fields
-  return(
-    run_info %>%
-      dplyr::select(.data$run_id, .data$dataset_description, .data$sample_id,
-                    .data$model_type, .data$model_version, .data$run_started_on,
-                    !!!rlang::syms(extra_fields))) %>%
-    dplyr::arrange(.data$run_started_on)
+    # process filters
+    if (!is.null(model_type)) {
+      run_info <- run_info %>%
+        dplyr::filter(.data$model_type %in% !!model_type)
+    }
+    if (!is.null(model_version)) {
+      run_info <- run_info %>%
+        dplyr::filter(.data$model_version %in% !!model_version)
+    }
+    if (!is.null(min_draws)) {
+      run_info <- run_info %>%
+        dplyr::filter(.data$num_draws >= !!min_draws)
+    }
+
+    # show key fields
+    return(
+      run_info %>%
+        dplyr::select(.data$run_id, .data$dataset_description, .data$sample_id,
+                      .data$model_type, .data$model_version, .data$run_started_on,
+                      !!!rlang::syms(extra_fields)) %>%
+        dplyr::arrange(.data$run_started_on)
+    )
+  } else {
+    return(runs)
+  }
 }
