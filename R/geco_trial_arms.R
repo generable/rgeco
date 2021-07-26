@@ -58,6 +58,7 @@
     # unnest cohort info
     cohort_info %>%
       purrr::map(unlist, recursive = F) %>%
+      purrr::compact() %>%
       purrr::map_dfr(tibble::as_tibble_row, .id = 'trial_arm_id') %>%
       dplyr::rename_at(.vars = dplyr::vars(-.data$trial_arm_id),
                        .funs = .add_prefix, 'cohort') %>%
