@@ -44,11 +44,7 @@ fetch_labs <- function(project = NULL, project_version_id = NULL, annotate = T) 
                        .funs = ~ stringr::str_c('lab_', .x))
   })
   if (isTRUE(annotate) && nrow(d) > 0) {
-    if ('lab_params' %in% names(d) && ncol(d$lab_params) > 0) {
-      d <- dplyr::bind_cols(d, d$lab_params) %>%
-        dplyr::select(-.data$lab_params)
-    }
-    if (!'time' %in% names(d)) {
+    if ('time' %in% names(d)) {
       d <- d %>%
         dplyr::rename(trial_day = .data$time)
     }

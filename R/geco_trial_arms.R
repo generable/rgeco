@@ -54,10 +54,13 @@
                        .funs = .add_prefix, 'cohort') %>%
       dplyr::rename(id = .data$trial_arm_id) %>%
       tidyr::nest(cohort = c(dplyr::starts_with('cohort')))
+  } else if (all(n_cohorts_per_arm == 0)) {
+    tibble::tibble(id = names(cohort_info))
   } else {
     # unnest cohort info
     cohort_info %>%
       purrr::map(unlist, recursive = F) %>%
+      purrr::compact() %>%
       purrr::map_dfr(tibble::as_tibble_row, .id = 'trial_arm_id') %>%
       dplyr::rename_at(.vars = dplyr::vars(-.data$trial_arm_id),
                        .funs = .add_prefix, 'cohort') %>%
