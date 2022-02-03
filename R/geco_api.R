@@ -35,6 +35,7 @@ ENV <- new.env(parent = emptyenv())
 #' @param url_query_parameters (named list) other inputs to the query passed as GET params
 #' @importFrom glue glue_safe
 #' @importFrom httr modify_url
+#' @importFrom futile.logger flog.logger
 geco_api_url <- function(..., project = NULL, project_version_id = NULL, run_id=NULL, parameter=NULL, type=NULL,
                          url_query_parameters = NULL) {
   if (Sys.getenv('GECO_API_URL') != '') {
