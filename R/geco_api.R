@@ -12,6 +12,8 @@ TIMEVARYING <- 'data/projectversion/{project_version_id}/tvs'
 REGIMENS <- 'data/projectversion/{project_version_id}/regimens'
 PROJECTVERSIONS <- 'data/project/{project}/projectversions'
 PROJECTS <- 'data/projects'
+LESIONS <- 'data/projectversion/{project_version_id}/lesions'
+LESIONTV <- 'data/projectversion/{project_version_id}/lesiontvs'
 
 # ---- inference api endpoints ----
 IDATA <- 'inferences/projectversion/{project_version_id}/dataset/attributes'
@@ -35,6 +37,7 @@ ENV <- new.env(parent = emptyenv())
 #' @param url_query_parameters (named list) other inputs to the query passed as GET params
 #' @importFrom glue glue_safe
 #' @importFrom httr modify_url
+#' @importFrom futile.logger flog.logger
 geco_api_url <- function(..., project = NULL, project_version_id = NULL, run_id=NULL, parameter=NULL, type=NULL,
                          url_query_parameters = NULL) {
   if (Sys.getenv('GECO_API_URL') != '') {
