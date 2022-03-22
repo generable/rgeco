@@ -1,5 +1,6 @@
 
 convert_xarray_to_df <- function(resp, name = NULL) {
+  .install_xarray()
   if (length(resp$content) > 0) {
     py_dict <- reticulate::r_to_py(resp$content)
     py_dataset <- xarray$Dataset$from_dict(py_dict)

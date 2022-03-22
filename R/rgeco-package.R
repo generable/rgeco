@@ -88,6 +88,12 @@ xarray <- NULL
 }
 
 .check_python_deps <- function() {
-  xarray <<- reticulate::import("xarray", convert = FALSE, delay_load = TRUE)
+  .install_xarray()
   cli::cli_alert_success('Required Python module (xarray) loaded.')
+}
+
+.install_xarray <- function() {
+  if (is.null(xarray)) {
+    xarray <<- reticulate::import("xarray", convert = FALSE, delay_load = TRUE)
+  }
 }
