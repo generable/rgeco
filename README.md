@@ -24,7 +24,9 @@ reticulate::install_miniconda()
 reticulate::py_install('xarray')
 ```
 
-Login with your Generable credentials:
+Note: if you're having trouble installing or configuring Python for R on your system, you might try the [rminiconda](https://github.com/hafen/rminiconda) package.
+
+Now, we can login with your Generable credentials:
 
 ```r
 library(rgeco)
