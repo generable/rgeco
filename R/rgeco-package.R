@@ -68,7 +68,26 @@
 #' @name rgeco
 NULL
 
+xarray <- NULL
+
 .onLoad <- function(libname, pkgname) {
   reticulate::configure_environment(pkgname)
+  # check if Python is available
+  .check_python_installed()
+  .check_python_deps()
 }
 
+.check_python_installed <- function() {
+  a <- reticulate::py_discover_config()
+  if (is.null(a) || length(a)<1) {
+    cli::cli_alert_warning('Could not locate Python installation, which will limit ability to query from model results.')
+    cli::cli_inform('Try `reticulate::install_miniconda()`, or see https://rstudio.github.io/reticulate/reference/install_miniconda.html')
+  } else {
+    cli::cli_alert_success(glue::glue('Python installation found (Default: {a$python}).'))
+  }
+}
+
+.check_python_deps <- function() {
+  xarray <<- reticulate::import("xarray", convert = FALSE, delay_load = TRUE)
+  cli::cli_alert_success('Required Python module (xarray) loaded.')
+}
