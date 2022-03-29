@@ -33,7 +33,8 @@ Imports:
     forcats,
     table1,
     reticulate,
-    boot
+    boot,
+    cli
 Suggests: 
     testthat,
     knitr,

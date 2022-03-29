@@ -77,6 +77,7 @@ xarray <- NULL
   .check_python_deps()
 }
 
+#' @import cli
 .check_python_installed <- function() {
   a <- reticulate::py_discover_config()
   if (is.null(a) || length(a)<1) {
