@@ -1,13 +1,9 @@
-.onLoad <- function(libname, pkgname) {
-  reticulate::configure_environment(pkgname)
-}
-
 
 convert_xarray_to_df <- function(resp, name = NULL) {
-  xr <- reticulate::import('xarray', convert = FALSE)
+  .install_xarray()
   if (length(resp$content) > 0) {
     py_dict <- reticulate::r_to_py(resp$content)
-    py_dataset <- xr$Dataset$from_dict(py_dict)
+    py_dataset <- xarray$Dataset$from_dict(py_dict)
     py_df <- py_dataset$to_dataframe()$reset_index()
     df <- reticulate::py_to_r(py_df)
     # unlist list-columns that are just scalars
