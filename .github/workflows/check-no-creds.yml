@@ -43,7 +43,7 @@ jobs:
         id: setup-r
         with:
           r-version: ${{ matrix.config.r }}
-          Ncpus: '2L'
+          Ncpus: '1L'
           use-public-rspm: true
 
       - uses: r-lib/actions/setup-pandoc@v2
@@ -78,12 +78,6 @@ jobs:
           done < <(Rscript -e "writeLines(remotes::system_requirements('$ID-$VERSION_ID'))")
       - name: Install Package + deps
         run: remotes::install_local(dependencies = TRUE, force = TRUE)
-
-      - name: Install Miniconda
-        run: reticulate::install_miniconda()
-
-      - name: Install xarray
-        run: reticulate::py_install('xarray')
 
       - name: Install rcmdcheck
         run: remotes::install_cran("rcmdcheck")
