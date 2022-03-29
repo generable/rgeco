@@ -76,6 +76,19 @@ jobs:
           remotes::install_cran("rcmdcheck")
         shell: Rscript {0}
 
+      - name: Install Miniconda
+        run: |
+          Rscript -e "remotes::install_github('rstudio/reticulate')"
+          Rscript -e "reticulate::install_miniconda()"
+      - if: runner.os == 'macOS'
+        run: echo "options(reticulate.conda_binary = reticulate:::miniconda_conda())" >> .Rprofile
+
+      - name: Install xarray
+        run: |
+          Rscript -e "reticulate::conda_create('r-reticulate')"
+          Rscript -e "remotes::install_local()"
+          Rscript -e "reticulate::py_install('xarray')"
+
       - name: Check
         env:
           _R_CHECK_CRAN_INCOMING_REMOTE_: false
