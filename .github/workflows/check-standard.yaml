@@ -10,7 +10,7 @@ on:
       - main
       - master
 
-name: R-CMD-check-no-creds
+name: R-CMD-check
 
 defaults:
   run:
