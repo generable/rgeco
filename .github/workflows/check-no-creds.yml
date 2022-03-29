@@ -10,7 +10,11 @@ on:
       - main
       - master
 
-name: R-CMD-check
+name: R-CMD-check-no-creds
+
+defaults:
+  run:
+    shell: Rscript {0}
 
 jobs:
   R-CMD-check-no-creds:
