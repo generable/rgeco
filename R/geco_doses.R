@@ -56,7 +56,7 @@ fetch_doses <- function(project = NULL, project_version_id = NULL) {
 }
 
 .format_hours <- function(trial_day, time_str) {
-  checkmate::assert_integerish(trial_day)
+  checkmate::assert_number(trial_day)
   checkmate::assert_character(time_str, pattern = '\\d{2}\\:\\d{2}\\:\\d{2}', len = length(trial_day))
   day_hours <- trial_day * 24
   time_str <- dplyr::if_else(is.na(time_str),
