@@ -22,3 +22,9 @@ sample_groups <- function(d, n, ..., replace = F) {
                        dplyr::distinct() %>%
                        dplyr::sample_n(size = n, replace = replace))
 }
+
+##' @importFrom futile.logger flog.logger
+##' @name flog.logger
+##' @rdname flog.logger
+##' @export
+NULL
