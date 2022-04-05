@@ -24,7 +24,8 @@
 #' @importFrom rlang !!
 #' @return data.frame of lesion-level biomarkers data for the project specified
 #' @export
-fetch_lesion_biomarkers <- function(project = NULL, project_version_id = NULL, annotate = T, measurement_name = NULL, where = list()) {
+fetch_lesion_biomarkers <- function(project = NULL, project_version_id = NULL, annotate = T, measurement_name = NULL, ...) {
+  where <- rlang::list2(...)
   where <- .check_format(where, alert = T)
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   biomarkers <- .fetch_timevarying_lesion_data(project_version_id = pv_id, annotate = annotate, measurement_name = measurement_name, where = where)
@@ -70,7 +71,8 @@ fetch_lesion_biomarkers <- function(project = NULL, project_version_id = NULL, a
 #' @importFrom rlang !!
 #' @return data.frame of lesions data for the project specified
 #' @export
-fetch_lesions <- function(project = NULL, project_version_id = NULL, annotate = T, where = list()) {
+fetch_lesions <- function(project = NULL, project_version_id = NULL, annotate = T, ...) {
+  where <- rlang::list2(...)
   where <- .check_format(where, alert = T)
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   lesions <- .fetch_lesion_data(project_version_id = pv_id, annotate = annotate, where = where)

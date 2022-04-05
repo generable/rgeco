@@ -19,9 +19,11 @@
 #' @param project_version_id Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION
 #' @return data.frame of dosing information
 #' @export
-fetch_doses <- function(project = NULL, project_version_id = NULL) {
+fetch_doses <- function(project = NULL, project_version_id = NULL, ...) {
+  where <- rlang::list2(...)
+  where <- .check_format(where, alert = T)
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
-  doses <- .fetch_dose_data(project_version_id = pv_id)
+  doses <- .fetch_dose_data(project_version_id = pv_id, where = where)
   if (nrow(doses) == 0 && !is.null(project)) {
     futile.logger::flog.info(glue::glue('No dosing information available for this version of project {project} data.'))
   } else if (nrow(doses) == 0) {
@@ -31,9 +33,10 @@ fetch_doses <- function(project = NULL, project_version_id = NULL) {
 }
 
 #' @importFrom magrittr %>%
-.fetch_dose_data <- function(project = NULL, project_version_id = NULL) {
+.fetch_dose_data <- function(project = NULL, project_version_id = NULL, where = list()) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
-  doses <- geco_api(DOSE, project_version_id = pv_id)
+  filters <- .prepare_filter(where, endpoint = 'DOSE')
+  doses <- geco_api(DOSE, project_version_id = pv_id, url_query_parameters = filters)
   d <- as_dataframe.geco_api_data(doses, flatten_names = c('drug', 'params'))
   suppressWarnings({
     d <- d %>%
@@ -52,7 +55,7 @@ fetch_doses <- function(project = NULL, project_version_id = NULL) {
                     cycle = factor(stringr::str_c('Cycle ', .data$cycle_num)),
                     cycle = forcats::fct_reorder(.data$cycle, .data$cycle_num))
   }
-  d
+  .apply_filters(d, where)
 }
 
 .format_hours <- function(trial_day, time_str) {

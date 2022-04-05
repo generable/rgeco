@@ -26,13 +26,14 @@
 #' @importFrom rlang !!
 #' @return data.frame of biomarkers data for the project specified
 #' @export
-fetch_biomarkers <- function(project = NULL, project_version_id = NULL, measurement_name = NULL, annotate = T, annotate_doses = T, where = list()) {
+fetch_biomarkers <- function(project = NULL, project_version_id = NULL, measurement_name = NULL, annotate = T, annotate_doses = T, ...) {
+  where <- rlang::list2(...)
   where <- .check_format(where, alert = T)
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   biomarkers <- .fetch_timevarying_data(project_version_id = pv_id, annotate = annotate, measurement_name = measurement_name, where = where)
   if (isTRUE(annotate_doses)) {
     # try to annotate with dose data, if available
-    dose_data <- try(fetch_doses(project_version_id = pv_id, where = where), silent = T)
+    dose_data <- try(.fetch_dose_data(project_version_id = pv_id, where = where), silent = T)
     if (!inherits(dose_data, 'try-error') && !is.null(dose_data) && nrow(dose_data) > 0) {
       biomarkers <- prep_pkpd_data(biomarkers_data = biomarkers, dose_data = dose_data, pd_measure = NULL, pk_measure = NULL)
     }

@@ -28,7 +28,8 @@
 #' @param annotate if `TRUE`, annotate subject data with dose data. Default is `TRUE`.
 #' @return data.frame of subject-level data, including information about the trial and trial_arms
 #' @export
-fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type = NULL, annotate = T, where = c()) {
+fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type = NULL, annotate = T, ...) {
+  where <- rlang::list2(...)
   where <- .check_format(where, alert = T)
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   trials <- .fetch_trials_data(project_version_id = pv_id, where = where)
@@ -43,7 +44,7 @@ fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type
   active_filter <- .update_filter(active_filter, trial_arm_id = unique(trial_arms$trial_arm_id))
   s <- .fetch_subjects_data(project_version_id = pv_id, where = active_filter)
   if (!is.null(event_type)) {
-    events <- fetch_events(project_version_id = pv_id, event_type = event_type, where = active_filter) %>%
+    events <- .fetch_events_data(project_version_id = pv_id, event_type = event_type, where = active_filter) %>%
       pivot_events_wider()
     s <- s %>%
       dplyr::left_join(events, by = 'subject_id')
@@ -70,7 +71,7 @@ fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type
   s
 }
 
-.fetch_subjects_data <- function(project = NULL, project_version_id = NULL, where = c()) {
+.fetch_subjects_data <- function(project = NULL, project_version_id = NULL, where = list()) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   filter <- .prepare_filter(where, endpoint = 'SUBJECTS')
   subjects <- geco_api(SUBJECTS, project_version_id = pv_id, url_query_parameters = filter)

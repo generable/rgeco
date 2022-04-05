@@ -21,7 +21,8 @@
 #'                   NULL is unfiltered. Default is NULL.
 #' @return data.frame with one record per subject and event type
 #' @export
-fetch_events <- function(project = NULL, project_version_id = NULL, event_type = NULL, where = list()) {
+fetch_events <- function(project = NULL, project_version_id = NULL, event_type = NULL, ...) {
+  where <- rlang::list2(...)
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   if (!is.null(event_type)) {
     where <- .update_filter(where, event_type = event_type)
