@@ -72,6 +72,10 @@
     c('trial_id', 'trial_arm_id', 'subject_id', 'event_type')
   } else if (endpoint == 'TIMEVARYING') {
     c('trial_id', 'trial_arm_id', 'subject_id', 'measurement_name')
+  } else if (endpoint == 'LESIONS') {
+    c('trial_id', 'trial_arm_id', 'subject_id')
+  } else if (endpoint == 'LESIONTV') {
+    c('trial_id', 'trial_arm_id', 'subject_id', 'lesion_id', 'measurement_name')
   } else {
     c()
   }
