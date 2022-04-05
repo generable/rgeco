@@ -20,6 +20,8 @@
 #' @param measurement_name Vector of measurement names to return. `NULL` returns all measurements. Default
 #'        is `NULL`.
 #' @param annotate whether to format response data & merge with lesion-level characteristics (default: TRUE)
+#' @param ... Optional filters applied to lesion_biomarkers data, provided as name-value pairs to limit returned values.
+#'      Example: trial_id = unique(subjects$trial_id)
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!
 #' @return data.frame of lesion-level biomarkers data for the project specified
@@ -67,6 +69,8 @@ fetch_lesion_biomarkers <- function(project = NULL, project_version_id = NULL, a
 #' @param project Project name. If NULL, defaults to value of environment variable GECO_API_PROJECT
 #' @param project_version_id Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION
 #' @param annotate whether to format response data
+#' @param ... Optional filters applied to lesions data, provided as name-value pairs to limit returned values.
+#'      Example: trial_id = unique(subjects$trial_id)
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!
 #' @return data.frame of lesions data for the project specified

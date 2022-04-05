@@ -26,6 +26,8 @@
 #' @param event_type If this argument is provided, event data that matches this event type will be
 #'                   joined into the return data.frame. Default is NULL (no event data).
 #' @param annotate if `TRUE`, annotate subject data with dose data. Default is `TRUE`.
+#' @param ... Optional filters applied to subjects data, provided as name-value pairs where names are fields and values contain a subset of valid values
+#'      Example: trial_name = c('trial-A', 'trial-N'), performance_status = c(0,1)
 #' @return data.frame of subject-level data, including information about the trial and trial_arms
 #' @export
 fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type = NULL, annotate = T, ...) {
@@ -44,7 +46,8 @@ fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type
   active_filter <- .update_filter(active_filter, trial_arm_id = unique(trial_arms$trial_arm_id))
   s <- .fetch_subjects_data(project_version_id = pv_id, where = active_filter)
   if (!is.null(event_type)) {
-    events <- .fetch_events_data(project_version_id = pv_id, event_type = event_type, where = active_filter) %>%
+    active_filter <- .update_filter(active_filter, event_type = event_type)
+    events <- .fetch_events_data(project_version_id = pv_id, where = active_filter) %>%
       pivot_events_wider()
     s <- s %>%
       dplyr::left_join(events, by = 'subject_id')

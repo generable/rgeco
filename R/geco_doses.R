@@ -17,6 +17,8 @@
 #'
 #' @param project Project name. If NULL, defaults to value of environment variable GECO_API_PROJECT
 #' @param project_version_id Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION
+#' @param ... Optional filters applied to dose data, provided as name-value pairs to limit returned values.
+#'      Example: trial_id = unique(subjects$trial_id)
 #' @return data.frame of dosing information
 #' @export
 fetch_doses <- function(project = NULL, project_version_id = NULL, ...) {

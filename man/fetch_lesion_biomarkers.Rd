@@ -8,7 +8,8 @@ fetch_lesion_biomarkers(
   project = NULL,
   project_version_id = NULL,
   annotate = T,
-  measurement_name = NULL
+  measurement_name = NULL,
+  ...
 )
 }
 \arguments{
@@ -20,6 +21,9 @@ fetch_lesion_biomarkers(
 
 \item{measurement_name}{Vector of measurement names to return. `NULL` returns all measurements. Default
 is `NULL`.}
+
+\item{...}{Optional filters applied to lesion_biomarkers data, provided as name-value pairs to limit returned values.
+Example: trial_id = unique(subjects$trial_id)}
 }
 \value{
 data.frame of lesion-level biomarkers data for the project specified

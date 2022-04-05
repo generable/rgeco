@@ -19,6 +19,8 @@
 #' @param project_version_id Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION
 #' @param event_type Limits the event_types to the names provided. Example: "overall_survival".
 #'                   NULL is unfiltered. Default is NULL.
+#' @param ... Optional filters applied to events data, provided as name-value pairs to limit returned values.
+#'      Example: trial_id = unique(subjects$trial_id)
 #' @return data.frame with one record per subject and event type
 #' @export
 fetch_events <- function(project = NULL, project_version_id = NULL, event_type = NULL, ...) {

@@ -11,6 +11,7 @@ geco_api_url(
   run_id = NULL,
   parameter = NULL,
   type = NULL,
+  filters = NULL,
   url_query_parameters = NULL
 )
 }
@@ -26,6 +27,8 @@ geco_api_url(
 \item{parameter}{(str) the parameter, if used by the URL path}
 
 \item{type}{(str) the type as either prior or posterior, if used by the URL path}
+
+\item{filters}{(str) formatted filters, for endpoints that use this in the URL path}
 
 \item{url_query_parameters}{(named list) other inputs to the query passed as GET params}
 }

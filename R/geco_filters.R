@@ -13,7 +13,16 @@
   data
 }
 
+
+.prepare_filter_for_draws <- function(filter) {
+  filter %>%
+    .format_filter_for_api('inferences')
+}
+
 .prepare_filter <- function(filter, endpoint) {
+  if (endpoint == 'draws') {
+    return(.prepare_filter_for_draws(filter))
+  }
   supported_keys <- .get_supported_keys(endpoint)
   modified_filter <- .subset_filter_keys(filter, supported_keys)
   modified_filter %>%
@@ -46,10 +55,17 @@
   updated_filter
 }
 
-.format_filter_for_api <- function(filter, type = 'data') {
+.format_filter_for_api <- function(filter, type = c('data', 'inferences')) {
+  type <- match.arg(type, several.ok = F)
   filter <- .check_format(filter)
   filter <- filter %>%
-      purrr::map(stringr::str_c, collapse = ',')
+    purrr::map(stringr::str_c, collapse = ',')
+  if (type == 'inferences') {
+      filter <- filter %>%
+      purrr::imap(~ stringr::str_c(.y, .x, sep = '=')) %>%
+      stringr::str_c(collapse = ';')
+  }
+  filter
 }
 
 .subset_filter_keys <- function(user_filter, supported_keys) {

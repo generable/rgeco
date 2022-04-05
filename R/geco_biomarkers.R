@@ -22,6 +22,8 @@
 #' @param annotate if `TRUE`, annotate biomarker data with dose data. Default is `TRUE`.
 #' @param annotate_doses if `TRUE`, annotate biomarker data with timing of dose administrations.
 #'                       Default is `TRUE`.
+#' @param ... Optional filters applied to biomarkers data, provided as name-value pairs to limit returned values.
+#'      Example: trial_id = unique(subjects$trial_id)
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!
 #' @return data.frame of biomarkers data for the project specified

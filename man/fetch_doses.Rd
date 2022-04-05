@@ -4,12 +4,15 @@
 \alias{fetch_doses}
 \title{Fetch dosing data from the Generable API}
 \usage{
-fetch_doses(project = NULL, project_version_id = NULL)
+fetch_doses(project = NULL, project_version_id = NULL, ...)
 }
 \arguments{
 \item{project}{Project name. If NULL, defaults to value of environment variable GECO_API_PROJECT}
 
 \item{project_version_id}{Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION}
+
+\item{...}{Optional filters applied to dose data, provided as name-value pairs to limit returned values.
+Example: trial_id = unique(subjects$trial_id)}
 }
 \value{
 data.frame of dosing information
