@@ -26,18 +26,13 @@
 #' @importFrom rlang !!
 #' @return data.frame of biomarkers data for the project specified
 #' @export
-fetch_biomarkers <- function(project = NULL, project_version_id = NULL, measurement_name = NULL, annotate = T, annotate_doses = T) {
+fetch_biomarkers <- function(project = NULL, project_version_id = NULL, measurement_name = NULL, annotate = T, annotate_doses = T, where = list()) {
+  where <- .check_format(where, alert = T)
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
-  biomarkers <- .fetch_timevarying_data(project_version_id = pv_id, annotate = annotate, measurement_name = measurement_name)
-  if (!is.null(measurement_name)) {
-    biomarkers <- biomarkers %>%
-      dplyr::filter(measurement_name %in% !!measurement_name)
-  } else {
-    biomarkers
-  }
+  biomarkers <- .fetch_timevarying_data(project_version_id = pv_id, annotate = annotate, measurement_name = measurement_name, where = where)
   if (isTRUE(annotate_doses)) {
     # try to annotate with dose data, if available
-    dose_data <- try(fetch_doses(project_version_id = pv_id), silent = T)
+    dose_data <- try(fetch_doses(project_version_id = pv_id, where = where), silent = T)
     if (!inherits(dose_data, 'try-error') && !is.null(dose_data) && nrow(dose_data) > 0) {
       biomarkers <- prep_pkpd_data(biomarkers_data = biomarkers, dose_data = dose_data, pd_measure = NULL, pk_measure = NULL)
     }
@@ -51,14 +46,16 @@ fetch_biomarkers <- function(project = NULL, project_version_id = NULL, measurem
 }
 
 #' @importFrom magrittr %>%
-.fetch_timevarying_data <- function(project = NULL, project_version_id = NULL, annotate = T, measurement_name = NULL) {
+.fetch_timevarying_data <- function(project = NULL, project_version_id = NULL, annotate = T, measurement_name = NULL, where = list()) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   if (!is.null(measurement_name)) {
-    measurement_names <- stringr::str_c(measurement_name, collapse = ',')
-    biomarkers <- geco_api(TIMEVARYING, project_version_id = pv_id, query = list(measurement_name = measurement_names))
-  } else {
-    biomarkers <- geco_api(TIMEVARYING, project_version_id = pv_id)
+    where <- .update_filter(where, measurement_name = measurement_name)
   }
+  filters <- .prepare_filter(where, endpoint = 'TIMEVARYING')
+  if (length(names(where))>length(names(filters))) {
+    cli::cli_alert_info(glue::glue('Not all filters applied will operate server-side. The most efficient queries will filter on {glue::glue_collapse(.get_supported_keys("TIMEVARYING"), sep=", ", last = ", or ")}'))
+  }
+  biomarkers <- geco_api(TIMEVARYING, project_version_id = pv_id, url_query_parameters = filters)
   b <- as_dataframe.geco_api_data(biomarkers, flatten_names = 'params')
   if (nrow(b) > 0 && 'params' %in% names(b) && isTRUE(annotate)) {
     b <- b %>% tidyr::unnest_wider(.data$params)
@@ -78,7 +75,7 @@ fetch_biomarkers <- function(project = NULL, project_version_id = NULL, measurem
         dplyr::mutate(hours = .format_hours(.data$trial_day, .data$time))
     }
   }
-  b
+  .apply_filters(b, where)
 }
 
 #' List distinct biomarker measurement names for a project

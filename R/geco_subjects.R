@@ -28,18 +28,27 @@
 #' @param annotate if `TRUE`, annotate subject data with dose data. Default is `TRUE`.
 #' @return data.frame of subject-level data, including information about the trial and trial_arms
 #' @export
-fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type = NULL, annotate = T) {
+fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type = NULL, annotate = T, where = c()) {
+  where <- .check_format(where, alert = T)
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
-  s <- .fetch_subjects_data(project_version_id = pv_id)
+  trials <- .fetch_trials_data(project_version_id = pv_id, where = where)
+  if (nrow(trials) == 0) {
+    return(tibble::tibble())
+  }
+  active_filter <- .update_filter(where, trial_id = unique(trials$trial_id))
+  trial_arms <- .fetch_trial_arms_data(project_version_id = pv_id, where = active_filter)
+  if (nrow(trial_arms) == 0) {
+    return(tibble::tibble())
+  }
+  active_filter <- .update_filter(active_filter, trial_arm_id = unique(trial_arms$trial_arm_id))
+  s <- .fetch_subjects_data(project_version_id = pv_id, where = active_filter)
   if (!is.null(event_type)) {
-    events <- fetch_events(project_version_id = pv_id, event_type = event_type) %>%
+    events <- fetch_events(project_version_id = pv_id, event_type = event_type, where = active_filter) %>%
       pivot_events_wider()
     s <- s %>%
       dplyr::left_join(events, by = 'subject_id')
   }
   if (nrow(s) > 0) {
-    trial_arms <- .fetch_trial_arms_data(project_version_id = pv_id)
-    trials <- .fetch_trials_data(project_version_id = pv_id)
     s <- s %>%
       dplyr::left_join(trial_arms,
                        by = c('trial_arm_id'), suffix = c('', '_trial_arm')) %>%
@@ -61,16 +70,17 @@ fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type
   s
 }
 
-.fetch_subjects_data <- function(project = NULL, project_version_id = NULL) {
+.fetch_subjects_data <- function(project = NULL, project_version_id = NULL, where = c()) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
-  subjects <- geco_api(SUBJECTS, project_version_id = pv_id)
+  filter <- .prepare_filter(where, endpoint = 'SUBJECTS')
+  subjects <- geco_api(SUBJECTS, project_version_id = pv_id, url_query_parameters = filter)
   s <- as_dataframe.geco_api_data(subjects, flatten_names = 'params')
   suppressWarnings({
     s <- s %>%
       dplyr::rename_at(.vars = dplyr::vars(dplyr::one_of('created_at', 'params', 'id')),
                        .funs = ~ stringr::str_c('subject_', .x))
   })
-  s
+  .apply_filters(s, where)
 }
 
 .annotate_subjects_data <- function(s) {
