@@ -179,7 +179,7 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
 #' @export
 fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_id = NULL, type = c('posterior', 'prior'), quiet = FALSE, ...) {
   filters <- rlang::list2(...)
-  filters <- .check_format(filter, alert = T)
+  filters <- .check_format(filters, alert = T)
   type <- match.arg(type, several.ok = F)
   checkmate::assert_character(parameter, unique = TRUE)
   checkmate::assert_character(run_id, unique = TRUE)
