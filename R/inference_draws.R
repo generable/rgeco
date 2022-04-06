@@ -94,13 +94,13 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
     dplyr::pull(.data$name)
   filters <- .prepare_filter(where, endpoint = 'draws')
   if (parameter %in% parameter_names) {
-    if (length(filters)>1) {
+    if (filters != '') {
       draws <- geco_api(FIDRAWS, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type, filters=filters)
     } else {
       draws <- geco_api(IDRAWS, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
     }
   } else {
-    if (length(filters)>1) {
+    if (filters != '') {
       draws <- geco_api(FIPDRAWS, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type, filters=filters)
     } else {
       draws <- geco_api(IPDRAWS, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
@@ -210,13 +210,13 @@ fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_i
     dplyr::pull(.data$name)
   filters <- .prepare_filter(where, endpoint = 'draws')
   if (parameter %in% parameter_names) {
-    if (length(filters)>1) {
+    if (filters != '') {
       quantiles <- geco_api(FITILES, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type, filters = filters)
     } else {
       quantiles <- geco_api(ITILES, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
     }
   } else {
-    if (length(filters)>1) {
+    if (filters != '') {
       quantiles <- geco_api(FIPTILES, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type, filters=filters)
     } else {
       quantiles <- geco_api(IPTILES, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
