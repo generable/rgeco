@@ -210,13 +210,13 @@ fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_i
     dplyr::pull(.data$name)
   filters <- .prepare_filter(where, endpoint = 'draws')
   if (parameter %in% parameter_names) {
-    if (length(filters)>0) {
+    if (length(filters)>1) {
       quantiles <- geco_api(FITILES, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type, filters = filters)
     } else {
       quantiles <- geco_api(ITILES, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
     }
   } else {
-    if (length(filters)>0) {
+    if (length(filters)>1) {
       quantiles <- geco_api(FIPTILES, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type, filters=filters)
     } else {
       quantiles <- geco_api(IPTILES, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
