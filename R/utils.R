@@ -23,8 +23,15 @@ sample_groups <- function(d, n, ..., replace = F) {
                        dplyr::sample_n(size = n, replace = replace))
 }
 
-##' @importFrom futile.logger flog.logger
-##' @name flog.logger
-##' @rdname flog.logger
-##' @export
+#' Re-exports
+#'
+#' These objects are imported from other packages
+#'
+#' @name re-exports
 NULL
+
+#' @rdname re-exports
+#' @importFrom futile.logger flog.logger
+#' @name flog.logger
+#' @export
+futile.logger::flog.logger
