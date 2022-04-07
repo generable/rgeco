@@ -116,7 +116,7 @@ geco_api <- function(path, ..., method = c('GET', 'POST'), project = NULL, proje
   parsed <- try(RJSONIO::fromJSON(httr::content(resp, "text", encoding = 'UTF-8'), simplify = FALSE), silent = T)
 
   if (inherits(parsed, 'try-error')) {
-    stop(glue::glue('Unable to connect to the API: [{stringr::str_replace_all(parsed, "[\r\n]" , "")}]. Did you provide the right project_version_id?'),
+    stop(glue::glue('Unable to connect to the API: [{stringr::str_replace_all(parsed, "[\r\n]" , "")}].'),
          call. = FALSE)
   }
   if (httr::http_error(resp)) {
