@@ -5,9 +5,6 @@
 \alias{re-exports}
 \alias{flog.logger}
 \title{Re-exports}
-\description{
-These objects are imported from other packages
-}
 \keyword{internal}
 \description{
 These objects are imported from other packages. Follow the links
