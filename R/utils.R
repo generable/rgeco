@@ -25,8 +25,6 @@ sample_groups <- function(d, n, ..., replace = F) {
 
 #' Re-exports
 #'
-#' These objects are imported from other packages
-#'
 #' @name re-exports
 NULL
 
