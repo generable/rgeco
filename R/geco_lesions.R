@@ -20,13 +20,17 @@
 #' @param measurement_name Vector of measurement names to return. `NULL` returns all measurements. Default
 #'        is `NULL`.
 #' @param annotate whether to format response data & merge with lesion-level characteristics (default: TRUE)
+#' @param ... Optional filters applied to lesion_biomarkers data, provided as name-value pairs to limit returned values.
+#'      Example: trial_id = unique(subjects$trial_id)
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!
 #' @return data.frame of lesion-level biomarkers data for the project specified
 #' @export
-fetch_lesion_biomarkers <- function(project = NULL, project_version_id = NULL, annotate = T, measurement_name = NULL) {
+fetch_lesion_biomarkers <- function(project = NULL, project_version_id = NULL, annotate = T, measurement_name = NULL, ...) {
+  where <- rlang::list2(...)
+  where <- .check_format(where, alert = T)
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
-  biomarkers <- .fetch_timevarying_lesion_data(project_version_id = pv_id, annotate = annotate, measurement_name = measurement_name)
+  biomarkers <- .fetch_timevarying_lesion_data(project_version_id = pv_id, annotate = annotate, measurement_name = measurement_name, where = where)
   if (!is.null(measurement_name)) {
     biomarkers <- biomarkers %>%
       dplyr::filter(measurement_name %in% !!measurement_name)
@@ -34,7 +38,7 @@ fetch_lesion_biomarkers <- function(project = NULL, project_version_id = NULL, a
     biomarkers
   }
   if (isTRUE(annotate) && nrow(biomarkers)>0) {
-    lesions <- .fetch_lesion_data(project_version_id = pv_id, annotate = annotate)
+    lesions <- .fetch_lesion_data(project_version_id = pv_id, annotate = annotate, where = where)
     biomarkers <- biomarkers %>%
       dplyr::left_join(lesions, by = 'lesion_id')
   }
@@ -65,13 +69,17 @@ fetch_lesion_biomarkers <- function(project = NULL, project_version_id = NULL, a
 #' @param project Project name. If NULL, defaults to value of environment variable GECO_API_PROJECT
 #' @param project_version_id Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION
 #' @param annotate whether to format response data
+#' @param ... Optional filters applied to lesions data, provided as name-value pairs to limit returned values.
+#'      Example: trial_id = unique(subjects$trial_id)
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!
 #' @return data.frame of lesions data for the project specified
 #' @export
-fetch_lesions <- function(project = NULL, project_version_id = NULL, annotate = T) {
+fetch_lesions <- function(project = NULL, project_version_id = NULL, annotate = T, ...) {
+  where <- rlang::list2(...)
+  where <- .check_format(where, alert = T)
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
-  lesions <- .fetch_lesion_data(project_version_id = pv_id, annotate = annotate)
+  lesions <- .fetch_lesion_data(project_version_id = pv_id, annotate = annotate, where = where)
   if (nrow(lesions) == 0 && !is.null(project)) {
     futile.logger::flog.info(glue::glue('No lesions available for this version of project {project} data.'))
   } else if (nrow(lesions) == 0) {
@@ -81,9 +89,10 @@ fetch_lesions <- function(project = NULL, project_version_id = NULL, annotate = 
 }
 
 #' @importFrom magrittr %>%
-.fetch_lesion_data <- function(project = NULL, project_version_id = NULL, annotate = T) {
+.fetch_lesion_data <- function(project = NULL, project_version_id = NULL, annotate = T, where = list()) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
-  lesions <- geco_api(LESIONS, project_version_id = pv_id)
+  filters <- .prepare_filter(where, endpoint = 'LESIONS')
+  lesions <- geco_api(LESIONS, project_version_id = pv_id, url_query_parameters = filters)
   d <- as_dataframe.geco_api_data(lesions, flatten_names = 'params')
   if (nrow(d) > 0 && 'params' %in% names(d) && isTRUE(annotate)) {
     d <- d %>% tidyr::unnest_wider(.data$params)
@@ -93,18 +102,17 @@ fetch_lesions <- function(project = NULL, project_version_id = NULL, annotate = 
       dplyr::rename_at(.vars = dplyr::vars(dplyr::one_of(c('created_at', 'id', 'label'))),
                        .funs = ~ stringr::str_c('lesion_', .x))
   })
-  d
+  .apply_filters(d, where)
 }
 
 #' @importFrom magrittr %>%
-.fetch_timevarying_lesion_data <- function(project = NULL, project_version_id = NULL, annotate = T, measurement_name = NULL) {
+.fetch_timevarying_lesion_data <- function(project = NULL, project_version_id = NULL, annotate = T, measurement_name = NULL, where = list()) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   if (!is.null(measurement_name)) {
-    measurement_names <- stringr::str_c(measurement_name, collapse = ',')
-    biomarkers <- geco_api(LESIONTV, project_version_id = pv_id, query = list(measurement_name = measurement_names))
-  } else {
-    biomarkers <- geco_api(LESIONTV, project_version_id = pv_id)
+    where <- .update_filter(where, measurement_name = measurement_name)
   }
+  filters <- .prepare_filter(where, 'LESIONTV')
+  biomarkers <- geco_api(LESIONTV, project_version_id = pv_id, url_query_parameters = filters)
   b <- as_dataframe.geco_api_data(biomarkers, flatten_names = 'params')
   if (nrow(b) > 0 && 'params' %in% names(b) && isTRUE(annotate)) {
     b <- b %>% tidyr::unnest_wider(.data$params)
@@ -124,7 +132,7 @@ fetch_lesions <- function(project = NULL, project_version_id = NULL, annotate = 
         dplyr::mutate(hours = .format_hours(.data$trial_day, .data$time))
     }
   }
-  b
+  .apply_filters(b, where)
 }
 
 

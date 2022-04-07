@@ -8,7 +8,8 @@ fetch_subjects(
   project = NULL,
   project_version_id = NULL,
   event_type = NULL,
-  annotate = T
+  annotate = T,
+  ...
 )
 }
 \arguments{
@@ -20,6 +21,9 @@ fetch_subjects(
 joined into the return data.frame. Default is NULL (no event data).}
 
 \item{annotate}{if `TRUE`, annotate subject data with dose data. Default is `TRUE`.}
+
+\item{...}{Optional filters applied to subjects data, provided as name-value pairs where names are fields and values contain a subset of valid values
+Example: trial_name = c('trial-A', 'trial-N'), performance_status = c(0,1)}
 }
 \value{
 data.frame of subject-level data, including information about the trial and trial_arms

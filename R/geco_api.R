@@ -21,9 +21,13 @@ IMODELS <- 'inferences/projectversion/{project_version_id}/models'
 IRUNS <- 'inferences/projectversion/{project_version_id}/runs'
 IRUNDATA <- 'inferences/projectversion/{project_version_id}/run/{run_id}/dataset'
 IDRAWS <- 'inferences/projectversion/{project_version_id}/run/{run_id}/draws/{type}/{parameter}'
+FIDRAWS <- 'inferences/projectversion/{project_version_id}/run/{run_id}/draws/{type}/{parameter}/{filters}'
 IPDRAWS <- 'inferences/projectversion/{project_version_id}/run/{run_id}/draws/{type}/{parameter}/predictive'
+FIPDRAWS <- 'inferences/projectversion/{project_version_id}/run/{run_id}/draws/{type}/{parameter}/predictive/{filters}'
 ITILES <- 'inferences/projectversion/{project_version_id}/run/{run_id}/quantiles/{type}/{parameter}'
+FITILES <- 'inferences/projectversion/{project_version_id}/run/{run_id}/quantiles/{type}/{parameter}/{filters}'
 IPTILES <- 'inferences/projectversion/{project_version_id}/run/{run_id}/quantiles/{type}/{parameter}/predictive'
+FIPTILES <- 'inferences/projectversion/{project_version_id}/run/{run_id}/quantiles/{type}/{parameter}/predictive/{filters}'
 ENV <- new.env(parent = emptyenv())
 
 #' Formatted URL for api endpoints
@@ -34,11 +38,12 @@ ENV <- new.env(parent = emptyenv())
 #' @param run_id (str) the run_id, if used by the URL path
 #' @param parameter (str) the parameter, if used by the URL path
 #' @param type (str) the type as either prior or posterior, if used by the URL path
+#' @param filters (str) formatted filters, for endpoints that use this in the URL path
 #' @param url_query_parameters (named list) other inputs to the query passed as GET params
 #' @importFrom glue glue_safe
 #' @importFrom httr modify_url
 #' @importFrom futile.logger flog.logger
-geco_api_url <- function(..., project = NULL, project_version_id = NULL, run_id=NULL, parameter=NULL, type=NULL,
+geco_api_url <- function(..., project = NULL, project_version_id = NULL, run_id=NULL, parameter=NULL, type=NULL, filters=NULL,
                          url_query_parameters = NULL) {
   if (Sys.getenv('GECO_API_URL') != '') {
     futile.logger::flog.debug(glue::glue('Default Geco API URL overridden via GECO_API_URL environment variable ({Sys.getenv("GECO_API_URL")})'))
@@ -91,8 +96,8 @@ get_auth <- function() {
 
 #' @import httr
 #' @importFrom RJSONIO fromJSON
-geco_api <- function(path, ..., method = c('GET', 'POST'), project = NULL, project_version_id = NULL, run_id=NULL, type=NULL, parameter=NULL, url_query_parameters=NULL) {
-  url <- geco_api_url(path, project = project, project_version_id = project_version_id, run_id=run_id, type=type, parameter=parameter, url_query_parameters=url_query_parameters)
+geco_api <- function(path, ..., method = c('GET', 'POST'), project = NULL, project_version_id = NULL, run_id=NULL, type=NULL, parameter=NULL, filters=NULL, url_query_parameters=NULL) {
+  url <- geco_api_url(path, project = project, project_version_id = project_version_id, run_id=run_id, type=type, parameter=parameter, filters=filters, url_query_parameters=url_query_parameters)
 
   ua <- httr::user_agent("https://github.com/generable/rgeco")
 

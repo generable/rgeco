@@ -109,8 +109,8 @@ fetch_dataset <- function(run_id, project = NULL, project_version_id = NULL) {
 .discover_numeric_fields <- function(results) {
   contains_numeric <- results %>%
     purrr::transpose() %>%
-    purrr::map_depth(2, is.numeric) %>%
-    purrr::map_lgl(~ any(unlist(.x)))
+    purrr::map_depth(2, ~ is.na(.x) | is.numeric(.)) %>%
+    purrr::map_lgl(~ all(unlist(.x)))
   names(contains_numeric)[contains_numeric]
 }
 

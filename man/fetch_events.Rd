@@ -4,7 +4,7 @@
 \alias{fetch_events}
 \title{Fetch event data from the Generable API}
 \usage{
-fetch_events(project = NULL, project_version_id = NULL, event_type = NULL)
+fetch_events(project = NULL, project_version_id = NULL, event_type = NULL, ...)
 }
 \arguments{
 \item{project}{Project name. If NULL, defaults to value of environment variable GECO_API_PROJECT}
@@ -13,6 +13,9 @@ fetch_events(project = NULL, project_version_id = NULL, event_type = NULL)
 
 \item{event_type}{Limits the event_types to the names provided. Example: "overall_survival".
 NULL is unfiltered. Default is NULL.}
+
+\item{...}{Optional filters applied to events data, provided as name-value pairs to limit returned values.
+Example: trial_id = unique(subjects$trial_id)}
 }
 \value{
 data.frame with one record per subject and event type
