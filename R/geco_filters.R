@@ -55,6 +55,35 @@
   updated_filter
 }
 
+.get_longest_element <- function(filter) {
+  max_length <- filter %>%
+    purrr::map_int(length) %>%
+    max()
+  filter %>%
+    purrr::keep(~ length(.x) == max_length)
+}
+
+.split_filter_helper <- function(filter, split_by, max_length = 10) {
+  constant_filter <- filter
+  constant_filter[[split_by]] <- NULL
+
+  variable_filter <- filter[split_by] %>%
+    # split longest filter into parts of size <= max_length
+    purrr::map(~ split(.x, ceiling(seq_along(.x)/max_length))) %>%
+    purrr::transpose() %>%
+    # each part should also apply the other filters
+    purrr::map(list_modify, !!!constant_filter)
+}
+
+.split_filter <- function(filter, max_length = 50) {
+  if (length(filter) > 1) {
+    longest_element <- .get_longest_element(filter)
+    .split_filter_helper(filter, split_by = names(longest_element), max_length=max_length)
+  } else {
+    list(filter)
+  }
+}
+
 .format_filter_for_api <- function(filter, type = c('data', 'inferences')) {
   type <- match.arg(type, several.ok = F)
   filter <- .check_format(filter)

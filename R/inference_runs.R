@@ -116,6 +116,11 @@ list_parameter_names <- function(run_id, project = NULL, project_version_id = NU
 
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   run <- .get_run(project_version_id = pv_id, run_id = run_id)
+  if (nrow(run) == 0) {
+    msg <- glue::glue('Provided run id: {run_id} was not found in project version {pv_id}.')
+    futile.logger::flog.error(msg)
+    stop(msg)
+  }
   parameters <- sort(unlist((run %>% dplyr::pull(.data$run_quantiles))[[1]]$parameter_names))
   parameter_data <- tibble::tibble(name = parameters) %>%
     dplyr::left_join(tibble::tibble(name = names(.PAR_DESCRIPTIONS), description = .PAR_DESCRIPTIONS),
@@ -242,6 +247,11 @@ list_parameter_names <- function(run_id, project = NULL, project_version_id = NU
 list_predictive_names <- function(run_id, project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   run <- .get_run(project_version_id = pv_id, run_id = run_id)
+  if (nrow(run) == 0) {
+    msg <- glue::glue('Provided run id: {run_id} was not found in project version {pv_id}.')
+    futile.logger::flog.error(msg)
+    stop(msg)
+  }
   parameters <- sort(unlist((run %>% dplyr::pull(.data$run_quantiles))[[1]]$predictive_names))
   parameter_data <- tibble::tibble(name = parameters) %>%
     dplyr::left_join(tibble::tibble(name = names(.PAR_DESCRIPTIONS), description = .PAR_DESCRIPTIONS),

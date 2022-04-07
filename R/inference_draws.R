@@ -86,9 +86,17 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
                                                     ))
 }
 
-.fetch_draws_per_parameter_run <- function(run_id, parameter, project_version_id, type, pb = NULL, quiet = FALSE, where = list()) {
+.fetch_draws_per_parameter_run <- function(run_id, parameter, project_version_id, type, pb = NULL, quiet = FALSE, where = list(), split = TRUE) {
   if (is.null(pb) && interactive() && isFALSE(quiet)) {
     futile.logger::flog.info(glue::glue('Fetching draws for {parameter} from run {run_id}.'))
+  }
+  if (isTRUE(split)) {
+    split_filter <- .split_filter(where)
+    results <- split_filter %>%
+      purrr::map_dfr(~ .fetch_draws_per_parameter_run(run_id = run_id, parameter = parameter, project_version_id = project_version_id,
+                                                      type = type, pb = pb, quiet=TRUE, where = .x, split = FALSE)
+      )
+    return(results)
   }
   parameter_names <- list_parameter_names(run_id = run_id, project_version_id = project_version_id, include_raw = TRUE) %>%
     dplyr::pull(.data$name)
@@ -202,9 +210,17 @@ fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_i
                                                     pb=pb, quiet=quiet, where = filters))
 }
 
-.fetch_quantiles_per_parameter_run <- function(run_id, parameter, project_version_id, type, pb = NULL, quiet = FALSE, where = list()) {
+.fetch_quantiles_per_parameter_run <- function(run_id, parameter, project_version_id, type, pb = NULL, quiet = FALSE, where = list(), split = TRUE) {
   if (is.null(pb) && interactive() && isFALSE(quiet)) {
     futile.logger::flog.info(glue::glue('Querying {type} quantiles of {parameter} from run {run_id}.'))
+  }
+  if (isTRUE(split)) {
+    split_filter <- .split_filter(where)
+    results <- split_filter %>%
+      purrr::map_dfr(~ .fetch_quantiles_per_parameter_run(run_id = run_id, parameter = parameter, project_version_id = project_version_id,
+                                                          type = type, pb = pb, quiet=TRUE, where = .x, split = FALSE)
+      )
+    return(results)
   }
   parameter_names = list_parameter_names(run_id = run_id, project_version_id = project_version_id, include_raw = TRUE) %>%
     dplyr::pull(.data$name)
