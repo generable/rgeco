@@ -76,7 +76,7 @@
 }
 
 .split_filter <- function(filter, max_length = 50) {
-  if (length(filter) > 1) {
+  if (length(filter) > 0) {
     longest_element <- .get_longest_element(filter)
     .split_filter_helper(filter, split_by = names(longest_element), max_length=max_length)
   } else {
