@@ -36,6 +36,68 @@
 }
 
 
+.format_filters <- function(type,
+                            level,
+                            project_version_id,
+                            filters,
+                            return,
+                            limits) {
+  checkmate::assert_choice(type, choices = .VALID_PARAMETER_TYPES, null.ok = FALSE)
+  checkmate::assert_choice(level, choices = .VALID_PARAMETER_LEVELS, null.ok = FALSE)
+  # format filters on content
+  if (level == 'trial_arm') {
+    f = .get_filters_for_trial_arm(filters, project_version_id)
+  }
+  else if (level == 'subject') {
+    f = .get_filters_for_subject(filters, project_version_id)
+  }
+  else if (level == 'trial') {
+    f = .get_filters_for_trial(filters, project_version_id)
+  }
+  else if (level == 'overall') {
+    f = .get_filters_for_overall(filters, project_version_id)
+  } else {
+    stop('Other levels not yet implemented.')
+  }
+  # format filters on draws/quantiles/etc
+  if (return == 'draws') {
+    l = list(draw = limits$draws, chain = limits$chains)
+  } else if (return == 'quantiles') {
+    l = list(quantile = limits$quantiles)
+  } else if (return == 'median') {
+    l = list(quantile = 0.5)
+  } else if (return == 'intervals') {
+    if (!all(limits$interval %in% c(0.5, 0.8, 0.9))) {
+      futile.logger::flog.warn('Only 50, 80, 90% intervals are currently supported. Others will be dropped.')
+    }
+    quantiles = purrr::map(limits$interval, .quantile_from_width) %>% unlist()
+    l = list(quantile = c(quantiles, 0.5))
+  }
+  purrr::list_modify(f, !!!l) %>% purrr::compact()
+}
+
+.get_filters_for_trial_arm <- function(filters, project_version_id) {
+  filters <- purrr::compact(filters)
+  s <- fetch_subjects(project_version_id=project_version_id, .dots = filters)
+  return(list(trial_arm = unique(s$trial_arm_id)))
+}
+
+.get_filters_for_subject <- function(filters, project_version_id) {
+  filters <- purrr::compact(filters)
+  s <- fetch_subjects(project_version_id=project_version_id, .dots = filters)
+  return(list(subject = unique(s$subject_id)))
+}
+
+.get_filters_for_trial <- function(filters, project_version_id) {
+  filters <- purrr::compact(filters)
+  s <- fetch_subjects(project_version_id=project_version_id, .dots = filters)
+  return(list(trial = unique(s$trial_id)))
+}
+
+.get_filters_for_overall <- function(filters, project_version_id) {
+  return(list())
+}
+
 .get_pars_predicted_biomarker <- function(level, include_noise) {
   if (is.null(include_noise)) {
     stop('include_noise cannot be NULL.')

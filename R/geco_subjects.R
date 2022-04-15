@@ -28,10 +28,12 @@
 #' @param annotate if `TRUE`, annotate subject data with dose data. Default is `TRUE`.
 #' @param ... Optional filters applied to subjects data, provided as name-value pairs where names are fields and values contain a subset of valid values
 #'      Example: trial_name = c('trial-A', 'trial-N'), performance_status = c(0,1)
+#' @param .dots Alternate method of passing filters as a named list, rather than in ...
 #' @return data.frame of subject-level data, including information about the trial and trial_arms
 #' @export
-fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type = NULL, annotate = T, ...) {
-  where <- rlang::list2(...)
+fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type = NULL, annotate = T, .dots = list(), ...) {
+  extra_dots <- rlang::list2(...)
+  where <- purrr::list_modify(.dots, !!!extra_dots)
   where <- .check_format(where, alert = T)
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   trials <- .fetch_trials_data(project_version_id = pv_id, where = where)

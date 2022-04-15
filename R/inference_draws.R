@@ -59,8 +59,9 @@
 #' @importFrom rlang !!!
 #' @export
 fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = NULL, type = c('posterior', 'prior'), quiet = FALSE,
-                        ...) {
-  filters <- rlang::list2(...)
+                        .dots = list(), ...) {
+  extra_dots <- rlang::list2(...)
+  filters <- purrr::list_modify(.dots, !!!extra_dots)
   filters <- .check_format(filters, alert = TRUE)
   type <- match.arg(type, several.ok = F)
   checkmate::assert_character(parameter, unique = TRUE)
@@ -185,9 +186,11 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
 #' @importFrom rlang !!! list2
 #' @import checkmate
 #' @export
-fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_id = NULL, type = c('posterior', 'prior'), quiet = FALSE, ...) {
-  filters <- rlang::list2(...)
-  filters <- .check_format(filters, alert = T)
+fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_id = NULL, type = c('posterior', 'prior'), quiet = FALSE,
+                            .dots = list(), ...) {
+  extra_dots <- rlang::list2(...)
+  filters <- purrr::list_modify(.dots, !!!extra_dots)
+  filters <- .check_format(filters, alert = TRUE)
   type <- match.arg(type, several.ok = F)
   checkmate::assert_character(parameter, unique = TRUE)
   checkmate::assert_character(run_id, unique = TRUE)

@@ -70,6 +70,11 @@ convert_draws_to_df <- function(resp, name = NULL) {
                    quantile == 0.5 ~ NA_real_)
 }
 
+.quantile_from_width <- function(width) {
+  quantiles <- c(0.5 - width/2, 0.5 + width/2)
+  round(quantiles, digits = 2)
+}
+
 #' Format a long summary of parameter quantiles (one record per run, parameter, and quantile) into a wide format (one record per run, parameter, and interval-width)
 #'
 #' @note
