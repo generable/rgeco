@@ -70,8 +70,7 @@
 #'
 #'
 #' # ---- Plot predicted SLD by trial-arm over time ----
-#' d <- fetch_predicted_biomarkers(run_id, level = 'trial_arm', return = 'intervals') %>%
-#'      inner_join(fetch_subjects() %>% distinct(trial_arm_id, trial_arm_name))
+#' d <- fetch_predicted_biomarkers(run_id, level = 'trial_arm', return = 'intervals', trial_name = c('trial-A'))
 #'
 #' ggplot(d, aes(x = biomarker_time, y = .value, ymin = .lower, ymax = .upper, group = .width,
 #'    fill = trial_arm_name, colour = trial_arm_name)) +
@@ -104,6 +103,15 @@
 #' @param include_noise Whether to include measurement error in the predicted summaries returned. Default: FALSE
 #' @param return The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
 #' @param type Whether to return posterior or prior predictions. Default: posterior
+#' @param subject_id If provided, limit results to this set of subject_id(s). This is a unique UUID identifying a subject in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param individual_id If provided, limit results to this set of individual_id(s). This typically corresponds to the patient identifier in the original database, which may not be unique across trials and projects.
+#' @param trial_arm_name If provided, limit results to this set of trial_arm_name(s). See \code{\link{fetch_subjects}} for a listing of trial_arm_name(s) for your project.
+#' @param trial_name If provided, limit results to this set of trial_name(s). See \code{\link{fetch_subjects}} for a listing of trial_name(s) for your project.
+#' @param trial_id If provided, limit results to this set of trial_id(s). This is a unique UUID for each trial in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param chains If provided, limit returned draws to the set of chains listed. Note that chains are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param draws If provided, limit returned draws to the set of draw indices listed. Note that draws are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param quantiles If provided, limit returned quantiles to the set of values listed. Only some quantiles are pre-computed, and inputs requested which are not available will be ignored. This filter only applies to the \code{quantiles} return type, and will be ignored for other return types.
+#' @param intervals If provided, limit returned interval widths to the set of values listed. Only 0.5, 0.8, 0.9 widths are currently, and inputs requested which are not available will be ignored. This filter only applies to the \code{intervals} return type, and will be ignored for other return types.
 #' @param project The name of the project to which the run_id belongs.
 #' @param project_version_id The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
 #'
@@ -244,6 +252,15 @@ fetch_predicted_biomarkers <- function(run_id,
 #' @param level The level at which to return predicted values. One of: subject, trial_arm, study, or overall. Default value is per trial_arm.
 #' @param return The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
 #' @param type Whether to return posterior or prior predictions. Default: posterior
+#' @param subject_id If provided, limit results to this set of subject_id(s). This is a unique UUID identifying a subject in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param individual_id If provided, limit results to this set of individual_id(s). This typically corresponds to the patient identifier in the original database, which may not be unique across trials and projects.
+#' @param trial_arm_name If provided, limit results to this set of trial_arm_name(s). See \code{\link{fetch_subjects}} for a listing of trial_arm_name(s) for your project.
+#' @param trial_name If provided, limit results to this set of trial_name(s). See \code{\link{fetch_subjects}} for a listing of trial_name(s) for your project.
+#' @param trial_id If provided, limit results to this set of trial_id(s). This is a unique UUID for each trial in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param chains If provided, limit returned draws to the set of chains listed. Note that chains are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param draws If provided, limit returned draws to the set of draw indices listed. Note that draws are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param quantiles If provided, limit returned quantiles to the set of values listed. Only some quantiles are pre-computed, and inputs requested which are not available will be ignored. This filter only applies to the \code{quantiles} return type, and will be ignored for other return types.
+#' @param intervals If provided, limit returned interval widths to the set of values listed. Only 0.5, 0.8, 0.9 widths are currently, and inputs requested which are not available will be ignored. This filter only applies to the \code{intervals} return type, and will be ignored for other return types.
 #' @param project The name of the project to which the run_id belongs.
 #' @param project_version_id The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
 #'
@@ -366,6 +383,15 @@ fetch_predicted_survival <- function(run_id,
 #' @param level The level at which to return predicted values. One of: subject, trial_arm, study, or overall. Default value is per trial_arm
 #' @param return The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
 #' @param type Whether to return posterior or prior predictions. Default: posterior
+#' @param subject_id If provided, limit results to this set of subject_id(s). This is a unique UUID identifying a subject in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param individual_id If provided, limit results to this set of individual_id(s). This typically corresponds to the patient identifier in the original database, which may not be unique across trials and projects.
+#' @param trial_arm_name If provided, limit results to this set of trial_arm_name(s). See \code{\link{fetch_subjects}} for a listing of trial_arm_name(s) for your project.
+#' @param trial_name If provided, limit results to this set of trial_name(s). See \code{\link{fetch_subjects}} for a listing of trial_name(s) for your project.
+#' @param trial_id If provided, limit results to this set of trial_id(s). This is a unique UUID for each trial in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param chains If provided, limit returned draws to the set of chains listed. Note that chains are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param draws If provided, limit returned draws to the set of draw indices listed. Note that draws are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param quantiles If provided, limit returned quantiles to the set of values listed. Only some quantiles are pre-computed, and inputs requested which are not available will be ignored. This filter only applies to the \code{quantiles} return type, and will be ignored for other return types.
+#' @param intervals If provided, limit returned interval widths to the set of values listed. Only 0.5, 0.8, 0.9 widths are currently, and inputs requested which are not available will be ignored. This filter only applies to the \code{intervals} return type, and will be ignored for other return types.
 #' @param project The name of the project to which the run_id belongs.
 #' @param project_version_id The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
 #'
@@ -501,6 +527,15 @@ fetch_predicted_median_survival <- function(run_id,
 #' @param level The level at which to return predicted values. One of: subject, trial_arm, study, or overall. Default value is per study
 #' @param return The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
 #' @param type Whether to return posterior or prior predictions. Default: posterior
+#' @param subject_id If provided, limit results to this set of subject_id(s). This is a unique UUID identifying a subject in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param individual_id If provided, limit results to this set of individual_id(s). This typically corresponds to the patient identifier in the original database, which may not be unique across trials and projects.
+#' @param trial_arm_name If provided, limit results to this set of trial_arm_name(s). See \code{\link{fetch_subjects}} for a listing of trial_arm_name(s) for your project.
+#' @param trial_name If provided, limit results to this set of trial_name(s). See \code{\link{fetch_subjects}} for a listing of trial_name(s) for your project.
+#' @param trial_id If provided, limit results to this set of trial_id(s). This is a unique UUID for each trial in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param chains If provided, limit returned draws to the set of chains listed. Note that chains are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param draws If provided, limit returned draws to the set of draw indices listed. Note that draws are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param quantiles If provided, limit returned quantiles to the set of values listed. Only some quantiles are pre-computed, and inputs requested which are not available will be ignored. This filter only applies to the \code{quantiles} return type, and will be ignored for other return types.
+#' @param intervals If provided, limit returned interval widths to the set of values listed. Only 0.5, 0.8, 0.9 widths are currently, and inputs requested which are not available will be ignored. This filter only applies to the \code{intervals} return type, and will be ignored for other return types.
 #' @param project The name of the project to which the run_id belongs.
 #' @param project_version_id The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
 #'
@@ -612,6 +647,15 @@ fetch_predicted_hazard <- function(run_id,
 #' @param level The level at which to return predicted values. One of: subject, trial_arm, or overall. Default value is per subject.
 #' @param return The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
 #' @param type Whether to return posterior or prior predictions. Default: posterior
+#' @param subject_id If provided, limit results to this set of subject_id(s). This is a unique UUID identifying a subject in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param individual_id If provided, limit results to this set of individual_id(s). This typically corresponds to the patient identifier in the original database, which may not be unique across trials and projects.
+#' @param trial_arm_name If provided, limit results to this set of trial_arm_name(s). See \code{\link{fetch_subjects}} for a listing of trial_arm_name(s) for your project.
+#' @param trial_name If provided, limit results to this set of trial_name(s). See \code{\link{fetch_subjects}} for a listing of trial_name(s) for your project.
+#' @param trial_id If provided, limit results to this set of trial_id(s). This is a unique UUID for each trial in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param chains If provided, limit returned draws to the set of chains listed. Note that chains are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param draws If provided, limit returned draws to the set of draw indices listed. Note that draws are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param quantiles If provided, limit returned quantiles to the set of values listed. Only some quantiles are pre-computed, and inputs requested which are not available will be ignored. This filter only applies to the \code{quantiles} return type, and will be ignored for other return types.
+#' @param intervals If provided, limit returned interval widths to the set of values listed. Only 0.5, 0.8, 0.9 widths are currently, and inputs requested which are not available will be ignored. This filter only applies to the \code{intervals} return type, and will be ignored for other return types.
 #' @param project The name of the project to which the run_id belongs.
 #' @param project_version_id The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
 #'
@@ -717,6 +761,15 @@ fetch_biomarker_params <- function(run_id,
 #' @param level The level at which to return predicted values. One of: subject or trial_arm. Default value is per subject.
 #' @param return The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
 #' @param type Whether to return posterior or prior predictions. Default: posterior
+#' @param subject_id If provided, limit results to this set of subject_id(s). This is a unique UUID identifying a subject in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param individual_id If provided, limit results to this set of individual_id(s). This typically corresponds to the patient identifier in the original database, which may not be unique across trials and projects.
+#' @param trial_arm_name If provided, limit results to this set of trial_arm_name(s). See \code{\link{fetch_subjects}} for a listing of trial_arm_name(s) for your project.
+#' @param trial_name If provided, limit results to this set of trial_name(s). See \code{\link{fetch_subjects}} for a listing of trial_name(s) for your project.
+#' @param trial_id If provided, limit results to this set of trial_id(s). This is a unique UUID for each trial in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param chains If provided, limit returned draws to the set of chains listed. Note that chains are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param draws If provided, limit returned draws to the set of draw indices listed. Note that draws are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param quantiles If provided, limit returned quantiles to the set of values listed. Only some quantiles are pre-computed, and inputs requested which are not available will be ignored. This filter only applies to the \code{quantiles} return type, and will be ignored for other return types.
+#' @param intervals If provided, limit returned interval widths to the set of values listed. Only 0.5, 0.8, 0.9 widths are currently, and inputs requested which are not available will be ignored. This filter only applies to the \code{intervals} return type, and will be ignored for other return types.
 #' @param project The name of the project to which the run_id belongs.
 #' @param project_version_id The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
 #'
@@ -820,6 +873,10 @@ fetch_association_state <- function(run_id,
 #' @param level The level at which to return predicted values. Only Overall level available.
 #' @param return The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
 #' @param type Whether to return posterior or prior predictions. Default: posterior
+#' @param chains If provided, limit returned draws to the set of chains listed. Note that chains are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param draws If provided, limit returned draws to the set of draw indices listed. Note that draws are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param quantiles If provided, limit returned quantiles to the set of values listed. Only some quantiles are pre-computed, and inputs requested which are not available will be ignored. This filter only applies to the \code{quantiles} return type, and will be ignored for other return types.
+#' @param intervals If provided, limit returned interval widths to the set of values listed. Only 0.5, 0.8, 0.9 widths are currently, and inputs requested which are not available will be ignored. This filter only applies to the \code{intervals} return type, and will be ignored for other return types.
 #' @param project The name of the project to which the run_id belongs.
 #' @param project_version_id The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
 #'
