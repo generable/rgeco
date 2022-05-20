@@ -46,6 +46,10 @@
 #' @param type (str) Type of quantile to return, either posterior or prior. Default is `posterior`. To access
 #'             prior quantiles, set this to `prior`.
 #' @param quiet (bool) if TRUE, suppress informative messages
+#' @param ... (lists) advanced feature used to limit draws returned.
+#'     Example: draws = c(0:10), chains = 0 to limit to first chain, 10 draws. Filters are applied server-side so they use 0-indexing.
+#'     Example: trial_arm = unique(subjects$trial_arm_id) to limit draws to a set of trial arms, for a parameter estimated per trial arm
+#'     However, use of this feature requires that one be familiar with both the dimensions of a particular parameter and their names server-side.
 #' @return `data.frame` of draws in long format with `.chain`, `.iteration`, `.variable`, `.value`, and
 #'         `.draw`.
 #'
@@ -54,7 +58,10 @@
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!!
 #' @export
-fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = NULL, type = c('posterior', 'prior'), quiet = FALSE) {
+fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = NULL, type = c('posterior', 'prior'), quiet = FALSE,
+                        ...) {
+  filters <- rlang::list2(...)
+  filters <- .check_format(filters, alert = TRUE)
   type <- match.arg(type, several.ok = F)
   checkmate::assert_character(parameter, unique = TRUE)
   checkmate::assert_character(run_id, unique = TRUE)
@@ -74,19 +81,38 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
                                                     project_version_id=pv_id,
                                                     type=type,
                                                     pb=pb,
-                                                    quiet=quiet))
+                                                    quiet=quiet,
+                                                    where=filters
+                                                    ))
 }
 
-.fetch_draws_per_parameter_run <- function(run_id, parameter, project_version_id, type, pb = NULL, quiet = FALSE) {
+.fetch_draws_per_parameter_run <- function(run_id, parameter, project_version_id, type, pb = NULL, quiet = FALSE, where = list(), split = TRUE) {
   if (is.null(pb) && interactive() && isFALSE(quiet)) {
     futile.logger::flog.info(glue::glue('Fetching draws for {parameter} from run {run_id}.'))
   }
+  if (isTRUE(split)) {
+    split_filter <- .split_filter(where)
+    results <- split_filter %>%
+      purrr::map_dfr(~ .fetch_draws_per_parameter_run(run_id = run_id, parameter = parameter, project_version_id = project_version_id,
+                                                      type = type, pb = pb, quiet=TRUE, where = .x, split = FALSE)
+      )
+    return(results)
+  }
   parameter_names <- list_parameter_names(run_id = run_id, project_version_id = project_version_id, include_raw = TRUE) %>%
     dplyr::pull(.data$name)
+  filters <- .prepare_filter(where, endpoint = 'draws')
   if (parameter %in% parameter_names) {
-    draws <- geco_api(IDRAWS, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
+    if (filters != '') {
+      draws <- geco_api(FIDRAWS, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type, filters=filters)
+    } else {
+      draws <- geco_api(IDRAWS, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
+    }
   } else {
-    draws <- geco_api(IPDRAWS, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
+    if (filters != '') {
+      draws <- geco_api(FIPDRAWS, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type, filters=filters)
+    } else {
+      draws <- geco_api(IPDRAWS, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
+    }
   }
   if (!is.null(pb)) {
     pb$tick()$print()
@@ -146,16 +172,22 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
 #' @param type (str) Type of quantile to return, either posterior or prior. Default is `posterior`. To access
 #'             prior quantiles, set this to `prior`.
 #' @param quiet (bool) if TRUE, suppress informative messages
+#' @param ... (lists) advanced feature used to limit quantiles returned.
+#'     Example: quantile = c(0.5) to limit results to the median, rather than return all quantiles.
+#'     Example: trial_arm = unique(subjects$trial_arm_id) to limit quantiles to a set of trial arms, for a parameter estimated per trial arm
+#'     However, use of this feature requires that one be familiar with both the dimensions for a particular parameter and their names server-side.
 #' @return `data.frame` of quantiles in long format with `quantile`, `.variable`, and `.value` columns
 #'         for the 0.05, 0.10, 0.25, 0.50, 0.75, 0.90, and 0.95 quantile probabilities.
 #'
 #' @seealso  \code{\link{fetch_draws}}, \code{\link{list_parameter_names}}, \code{\link{list_predictive_names}}, \code{\link{format_quantiles_as_widths}}
 #'
 #' @importFrom magrittr %>%
-#' @importFrom rlang !!!
+#' @importFrom rlang !!! list2
 #' @import checkmate
 #' @export
-fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_id = NULL, type = c('posterior', 'prior'), quiet = FALSE) {
+fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_id = NULL, type = c('posterior', 'prior'), quiet = FALSE, ...) {
+  filters <- rlang::list2(...)
+  filters <- .check_format(filters, alert = T)
   type <- match.arg(type, several.ok = F)
   checkmate::assert_character(parameter, unique = TRUE)
   checkmate::assert_character(run_id, unique = TRUE)
@@ -175,19 +207,36 @@ fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_i
     purrr::map_dfr(~ .fetch_quantiles_per_parameter_run(run_id = .x[[1]], parameter = .x[[2]],
                                                     project_version_id=pv_id,
                                                     type=type,
-                                                    pb=pb, quiet=quiet))
+                                                    pb=pb, quiet=quiet, where = filters))
 }
 
-.fetch_quantiles_per_parameter_run <- function(run_id, parameter, project_version_id, type, pb = NULL, quiet = FALSE) {
+.fetch_quantiles_per_parameter_run <- function(run_id, parameter, project_version_id, type, pb = NULL, quiet = FALSE, where = list(), split = TRUE) {
   if (is.null(pb) && interactive() && isFALSE(quiet)) {
     futile.logger::flog.info(glue::glue('Querying {type} quantiles of {parameter} from run {run_id}.'))
   }
+  if (isTRUE(split)) {
+    split_filter <- .split_filter(where)
+    results <- split_filter %>%
+      purrr::map_dfr(~ .fetch_quantiles_per_parameter_run(run_id = run_id, parameter = parameter, project_version_id = project_version_id,
+                                                          type = type, pb = pb, quiet=TRUE, where = .x, split = FALSE)
+      )
+    return(results)
+  }
   parameter_names = list_parameter_names(run_id = run_id, project_version_id = project_version_id, include_raw = TRUE) %>%
     dplyr::pull(.data$name)
+  filters <- .prepare_filter(where, endpoint = 'draws')
   if (parameter %in% parameter_names) {
-    quantiles <- geco_api(ITILES, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
+    if (filters != '') {
+      quantiles <- geco_api(FITILES, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type, filters = filters)
+    } else {
+      quantiles <- geco_api(ITILES, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
+    }
   } else {
-    quantiles <- geco_api(IPTILES, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
+    if (filters != '') {
+      quantiles <- geco_api(FIPTILES, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type, filters=filters)
+    } else {
+      quantiles <- geco_api(IPTILES, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
+    }
   }
   if (!is.null(pb)) {
     pb$tick()$print()

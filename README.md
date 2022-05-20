@@ -1,4 +1,5 @@
 # rgeco
+
 R client package for access to Generable compute (Geco) API. The API gives you access to the same data, inferences, and analytical summaries displayed in the application.
 
 You must have a user account with Generable to use this package. See https://generable.com for more info or to request a demo.
@@ -12,12 +13,27 @@ library(remotes)
 remotes::install_github('generable/rgeco')
 ```
 
-Login with your Generable credentials:
+This package requires that Python be installed on your system, along with a Python library (`xarray`).
+
+You can install these from R using [reticulate](https://rstudio.github.io/reticulate/):
+
+For example:
+
+```r
+reticulate::install_miniconda()
+reticulate::py_install('xarray')
+```
+
+Note: if you're having trouble installing or configuring Python for R on your system, you might try the [rminiconda](https://github.com/hafen/rminiconda) package.
+
+Now, we can login with your Generable credentials:
 
 ```r
 library(rgeco)
 rgeco::login(user = 'user@email.com', password = 'yourpassword')
 ```
+
+You can also save credentials in environment variables (`GECO_API_USER` and `GECO_API_PASSWORD`) for more reusable scripts.
 
 List projects available:
 

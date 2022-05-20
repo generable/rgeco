@@ -10,7 +10,8 @@ fetch_draws(
   project = NULL,
   project_version_id = NULL,
   type = c("posterior", "prior"),
-  quiet = FALSE
+  quiet = FALSE,
+  ...
 )
 }
 \arguments{
@@ -27,6 +28,11 @@ See \code{\link{list_parameter_names}} and \code{\link{list_predictive_names}}.}
 prior quantiles, set this to `prior`.}
 
 \item{quiet}{(bool) if TRUE, suppress informative messages}
+
+\item{...}{(lists) advanced feature used to limit draws returned.
+Example: draws = c(0:10), chains = 0 to limit to first chain, 10 draws. Filters are applied server-side so they use 0-indexing.
+Example: trial_arm = unique(subjects$trial_arm_id) to limit draws to a set of trial arms, for a parameter estimated per trial arm
+However, use of this feature requires that one be familiar with both the dimensions of a particular parameter and their names server-side.}
 }
 \value{
 `data.frame` of draws in long format with `.chain`, `.iteration`, `.variable`, `.value`, and

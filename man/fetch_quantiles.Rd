@@ -10,7 +10,8 @@ fetch_quantiles(
   project = NULL,
   project_version_id = NULL,
   type = c("posterior", "prior"),
-  quiet = FALSE
+  quiet = FALSE,
+  ...
 )
 }
 \arguments{
@@ -27,6 +28,11 @@ See \code{\link{list_parameter_names}} and \code{\link{list_predictive_names}}.}
 prior quantiles, set this to `prior`.}
 
 \item{quiet}{(bool) if TRUE, suppress informative messages}
+
+\item{...}{(lists) advanced feature used to limit quantiles returned.
+Example: quantile = c(0.5) to limit results to the median, rather than return all quantiles.
+Example: trial_arm = unique(subjects$trial_arm_id) to limit quantiles to a set of trial arms, for a parameter estimated per trial arm
+However, use of this feature requires that one be familiar with both the dimensions for a particular parameter and their names server-side.}
 }
 \value{
 `data.frame` of quantiles in long format with `quantile`, `.variable`, and `.value` columns

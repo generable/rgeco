@@ -9,7 +9,8 @@ fetch_biomarkers(
   project_version_id = NULL,
   measurement_name = NULL,
   annotate = T,
-  annotate_doses = T
+  annotate_doses = T,
+  ...
 )
 }
 \arguments{
@@ -24,6 +25,9 @@ is `NULL`.}
 
 \item{annotate_doses}{if `TRUE`, annotate biomarker data with timing of dose administrations.
 Default is `TRUE`.}
+
+\item{...}{Optional filters applied to biomarkers data, provided as name-value pairs to limit returned values.
+Example: trial_id = unique(subjects$trial_id)}
 }
 \value{
 data.frame of biomarkers data for the project specified

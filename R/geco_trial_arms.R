@@ -1,7 +1,8 @@
 #' @importFrom magrittr %>%
-.fetch_trial_arms_data <- function(project = NULL, project_version_id = NULL) {
+.fetch_trial_arms_data <- function(project = NULL, project_version_id = NULL, where = c()) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
-  trial_arms <- geco_api(TRIALARMS, project_version_id = pv_id)
+  filters <- .prepare_filter(where, endpoint = 'TRIALARMS')
+  trial_arms <- geco_api(TRIALARMS, project_version_id = pv_id, url_query_parameters = filters)
   if (httr::http_error(trial_arms$response)) {
     ta <- as_dataframe.geco_api_data(trial_arms, flatten_names = c('params', 'regimen'))
   } else {
@@ -36,7 +37,7 @@
       dplyr::rename_at(.vars = dplyr::vars(-dplyr::starts_with('trial_arm_'), -.data$trial_id),
                        .funs = ~ stringr::str_c('trial_arm_', .x))
   })
-  ta
+  .apply_filters(ta, filter = where)
 }
 
 .prepare_cohort_df <- function(trial_arms_content) {

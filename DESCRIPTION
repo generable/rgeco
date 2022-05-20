@@ -1,7 +1,7 @@
 Package: rgeco
 Type: Package
 Title: R package for accessing the Generable API
-Version: 0.0.4.9000
+Version: 0.0.5
 Author: Generable Inc
 Maintainer: Jacqueline Buros <jacqueline.buros@generable.com>
 Description: The Generable API is a HTTP REST API that provides access to data and inferences. The rgeco package provides convenient access to the information in the API in an R-friendly format.
@@ -33,7 +33,8 @@ Imports:
     forcats,
     table1,
     reticulate,
-    boot
+    boot,
+    cli
 Suggests: 
     testthat,
     knitr,
@@ -42,5 +43,5 @@ Suggests:
     scales,
     tidyverse,
     utils
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 VignetteBuilder: knitr
