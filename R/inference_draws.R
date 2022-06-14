@@ -94,8 +94,11 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
     split_filter <- .split_filter(where)
     results <- split_filter %>%
       purrr::map_dfr(~ .fetch_draws_per_parameter_run(run_id = run_id, parameter = parameter, project_version_id = project_version_id,
-                                                      type = type, pb = pb, quiet=TRUE, where = .x, split = FALSE)
+                                                      type = type, pb = NULL, quiet=TRUE, where = .x, split = FALSE)
       )
+    if (!is.null(pb)) {
+      pb$tick()$print()
+    }
     return(results)
   }
   parameter_names <- list_parameter_names(run_id = run_id, project_version_id = project_version_id, include_raw = TRUE) %>%
@@ -113,9 +116,6 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
     } else {
       draws <- geco_api(IPDRAWS, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
     }
-  }
-  if (!is.null(pb)) {
-    pb$tick()$print()
   }
   d <- convert_draws_to_df(draws, name = parameter) %>%
     dplyr::mutate(run_id = run_id)
@@ -218,8 +218,11 @@ fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_i
     split_filter <- .split_filter(where)
     results <- split_filter %>%
       purrr::map_dfr(~ .fetch_quantiles_per_parameter_run(run_id = run_id, parameter = parameter, project_version_id = project_version_id,
-                                                          type = type, pb = pb, quiet=TRUE, where = .x, split = FALSE)
+                                                          type = type, pb = NULL, quiet=TRUE, where = .x, split = FALSE)
       )
+    if (!is.null(pb)) {
+      pb$tick()$print()
+    }
     return(results)
   }
   parameter_names = list_parameter_names(run_id = run_id, project_version_id = project_version_id, include_raw = TRUE) %>%
@@ -238,10 +241,11 @@ fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_i
       quantiles <- geco_api(IPTILES, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
     }
   }
-  if (!is.null(pb)) {
-    pb$tick()$print()
-  }
   q <- convert_xarray_to_df(quantiles, name = parameter) %>%
-    dplyr::mutate(run_id = run_id) %>%
-    dplyr::arrange(.data$quantile)
+    dplyr::mutate(run_id = run_id)
+  if (nrow(q) > 0) {
+    q <- q %>%
+      dplyr::arrange(.data$quantile)
+  }
+  q
 }
