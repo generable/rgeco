@@ -72,7 +72,7 @@
     purrr::map(~ split(.x, ceiling(seq_along(.x)/max_length))) %>%
     purrr::transpose() %>%
     # each part should also apply the other filters
-    purrr::map(list_modify, !!!constant_filter)
+    purrr::map(purrr::list_modify, !!!constant_filter)
 }
 
 .split_filter <- function(filter, max_length = 50) {
