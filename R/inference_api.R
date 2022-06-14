@@ -70,8 +70,7 @@
 #'
 #'
 #' # ---- Plot predicted SLD by trial-arm over time ----
-#' d <- fetch_predicted_biomarkers(run_id, level = 'trial_arm', return = 'intervals') %>%
-#'      inner_join(fetch_subjects() %>% distinct(trial_arm_id, trial_arm_name))
+#' d <- fetch_predicted_biomarkers(run_id, level = 'trial_arm', return = 'intervals', trial_name = c('trial-A'))
 #'
 #' ggplot(d, aes(x = biomarker_time, y = .value, ymin = .lower, ymax = .upper, group = .width,
 #'    fill = trial_arm_name, colour = trial_arm_name)) +
@@ -104,6 +103,15 @@
 #' @param include_noise Whether to include measurement error in the predicted summaries returned. Default: FALSE
 #' @param return The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
 #' @param type Whether to return posterior or prior predictions. Default: posterior
+#' @param subject_id If provided, limit results to this set of subject_id(s). This is a unique UUID identifying a subject in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param individual_id If provided, limit results to this set of individual_id(s). This typically corresponds to the patient identifier in the original database, which may not be unique across trials and projects.
+#' @param trial_arm_name If provided, limit results to this set of trial_arm_name(s). See \code{\link{fetch_subjects}} for a listing of trial_arm_name(s) for your project.
+#' @param trial_name If provided, limit results to this set of trial_name(s). See \code{\link{fetch_subjects}} for a listing of trial_name(s) for your project.
+#' @param trial_id If provided, limit results to this set of trial_id(s). This is a unique UUID for each trial in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param chains If provided, limit returned draws to the set of chains listed. Note that chains are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param draws If provided, limit returned draws to the set of draw indices listed. Note that draws are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param quantiles If provided, limit returned quantiles to the set of values listed. Only some quantiles are pre-computed, and inputs requested which are not available will be ignored. This filter only applies to the \code{quantiles} return type, and will be ignored for other return types.
+#' @param intervals If provided, limit returned interval widths to the set of values listed. Only 0.5, 0.8, 0.9 widths are currently, and inputs requested which are not available will be ignored. This filter only applies to the \code{intervals} return type, and will be ignored for other return types.
 #' @param project The name of the project to which the run_id belongs.
 #' @param project_version_id The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
 #'
@@ -114,15 +122,29 @@ fetch_predicted_biomarkers <- function(run_id,
                                        include_noise = FALSE,
                                        return = c('median', 'quantiles', 'intervals', 'draws'),
                                        type = c('posterior', 'prior'),
-                                       project = NULL, project_version_id = NULL) {
+                                       subject_id = NULL,
+                                       individual_id = NULL,
+                                       trial_arm_name = NULL,
+                                       trial_name = NULL,
+                                       trial_id = NULL,
+                                       chains = NULL,
+                                       draws = NULL,
+                                       quantiles = NULL,
+                                       intervals = c(0.5, 0.8, 0.9),
+                                       project = NULL,
+                                       project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   level <- match.arg(level)
   include_noise <- checkmate::assert_logical(include_noise, len = 1, null.ok = FALSE)
   return <- match.arg(return)
   type <- match.arg(type)
+  pred <- 'biomarker'
 
-  parlist <- .get_pars_by_type(type = 'biomarker', level = level, include_noise = include_noise, project_version_id = pv_id)
-  .fetch_pars_by_type(parlist = parlist, return = return, run_id = run_id, type = type, project_version_id = pv_id, level = level)
+  parlist <- .get_pars_by_type(type = pred, level = level, include_noise = include_noise, project_version_id = pv_id)
+  filters <- .format_filters(type = pred, level = level, return = return, project_version_id = pv_id,
+                             filters = dplyr::lst(subject_id, individual_id, trial_arm_name, trial_name, trial_id),
+                             limits = dplyr::lst(chains, draws, quantiles, intervals))
+  .fetch_pars_by_type(parlist = parlist, return = return, run_id = run_id, type = type, project_version_id = pv_id, level = level, filters=filters)
 }
 
 
@@ -230,6 +252,15 @@ fetch_predicted_biomarkers <- function(run_id,
 #' @param level The level at which to return predicted values. One of: subject, trial_arm, study, or overall. Default value is per trial_arm.
 #' @param return The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
 #' @param type Whether to return posterior or prior predictions. Default: posterior
+#' @param subject_id If provided, limit results to this set of subject_id(s). This is a unique UUID identifying a subject in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param individual_id If provided, limit results to this set of individual_id(s). This typically corresponds to the patient identifier in the original database, which may not be unique across trials and projects.
+#' @param trial_arm_name If provided, limit results to this set of trial_arm_name(s). See \code{\link{fetch_subjects}} for a listing of trial_arm_name(s) for your project.
+#' @param trial_name If provided, limit results to this set of trial_name(s). See \code{\link{fetch_subjects}} for a listing of trial_name(s) for your project.
+#' @param trial_id If provided, limit results to this set of trial_id(s). This is a unique UUID for each trial in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param chains If provided, limit returned draws to the set of chains listed. Note that chains are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param draws If provided, limit returned draws to the set of draw indices listed. Note that draws are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param quantiles If provided, limit returned quantiles to the set of values listed. Only some quantiles are pre-computed, and inputs requested which are not available will be ignored. This filter only applies to the \code{quantiles} return type, and will be ignored for other return types.
+#' @param intervals If provided, limit returned interval widths to the set of values listed. Only 0.5, 0.8, 0.9 widths are currently, and inputs requested which are not available will be ignored. This filter only applies to the \code{intervals} return type, and will be ignored for other return types.
 #' @param project The name of the project to which the run_id belongs.
 #' @param project_version_id The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
 #'
@@ -239,14 +270,26 @@ fetch_predicted_survival <- function(run_id,
                                        level = c('trial_arm', 'study', 'subject', 'overall'),
                                        return = c('median', 'quantiles', 'intervals', 'draws'),
                                        type = c('posterior', 'prior'),
-                                       project = NULL, project_version_id = NULL) {
+                                     subject_id = NULL,
+                                     individual_id = NULL,
+                                     trial_arm_name = NULL,
+                                     trial_name = NULL,
+                                     trial_id = NULL,
+                                     chains = NULL,
+                                     draws = NULL,
+                                     quantiles = NULL,
+                                     intervals = c(0.5, 0.8, 0.9),
+                                     project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   level <- match.arg(level)
   return <- match.arg(return)
   type <- match.arg(type)
 
   parlist <- .get_pars_by_type(type = 'survival', level = level, project_version_id = pv_id)
-  .fetch_pars_by_type(parlist = parlist, return = return, run_id = run_id, type = type, project_version_id = pv_id, level = level)
+  filters <- .format_filters(type = 'survival', level = level, return = return, project_version_id = pv_id,
+                             filters = dplyr::lst(subject_id, individual_id, trial_arm_name, trial_name, trial_id),
+                             limits = dplyr::lst(chains, draws, quantiles, intervals))
+  .fetch_pars_by_type(parlist = parlist, return = return, run_id = run_id, type = type, project_version_id = pv_id, level = level, filters=filters)
 }
 
 #' Fetch predicted median survival in days
@@ -340,6 +383,15 @@ fetch_predicted_survival <- function(run_id,
 #' @param level The level at which to return predicted values. One of: subject, trial_arm, study, or overall. Default value is per trial_arm
 #' @param return The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
 #' @param type Whether to return posterior or prior predictions. Default: posterior
+#' @param subject_id If provided, limit results to this set of subject_id(s). This is a unique UUID identifying a subject in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param individual_id If provided, limit results to this set of individual_id(s). This typically corresponds to the patient identifier in the original database, which may not be unique across trials and projects.
+#' @param trial_arm_name If provided, limit results to this set of trial_arm_name(s). See \code{\link{fetch_subjects}} for a listing of trial_arm_name(s) for your project.
+#' @param trial_name If provided, limit results to this set of trial_name(s). See \code{\link{fetch_subjects}} for a listing of trial_name(s) for your project.
+#' @param trial_id If provided, limit results to this set of trial_id(s). This is a unique UUID for each trial in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param chains If provided, limit returned draws to the set of chains listed. Note that chains are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param draws If provided, limit returned draws to the set of draw indices listed. Note that draws are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param quantiles If provided, limit returned quantiles to the set of values listed. Only some quantiles are pre-computed, and inputs requested which are not available will be ignored. This filter only applies to the \code{quantiles} return type, and will be ignored for other return types.
+#' @param intervals If provided, limit returned interval widths to the set of values listed. Only 0.5, 0.8, 0.9 widths are currently, and inputs requested which are not available will be ignored. This filter only applies to the \code{intervals} return type, and will be ignored for other return types.
 #' @param project The name of the project to which the run_id belongs.
 #' @param project_version_id The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
 #'
@@ -349,6 +401,15 @@ fetch_predicted_median_survival <- function(run_id,
                                      level = c('trial_arm', 'study', 'subject', 'overall'),
                                      return = c('median', 'quantiles', 'intervals', 'draws'),
                                      type = c('posterior', 'prior'),
+                                     subject_id = NULL,
+                                     individual_id = NULL,
+                                     trial_arm_name = NULL,
+                                     trial_name = NULL,
+                                     trial_id = NULL,
+                                     chains = NULL,
+                                     draws = NULL,
+                                     quantiles = NULL,
+                                     intervals = c(0.5, 0.8, 0.9),
                                      project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   level <- match.arg(level)
@@ -356,7 +417,10 @@ fetch_predicted_median_survival <- function(run_id,
   type <- match.arg(type)
 
   parlist <- .get_pars_by_type(type = 'median_survival', level = level, project_version_id = pv_id)
-  d <- .fetch_pars_by_type(parlist = parlist, return = return, run_id = run_id, type = type, project_version_id = pv_id, level = level)
+  filters <- .format_filters(type = 'median_survival', level = level, return = return, project_version_id = pv_id,
+                             filters = dplyr::lst(subject_id, individual_id, trial_arm_name, trial_name, trial_id),
+                             limits = dplyr::lst(chains, draws, quantiles, intervals))
+  d <- .fetch_pars_by_type(parlist = parlist, return = return, run_id = run_id, type = type, project_version_id = pv_id, level = level, filters=filters)
 }
 
 #' Fetch predicted hazard rate over time
@@ -463,6 +527,15 @@ fetch_predicted_median_survival <- function(run_id,
 #' @param level The level at which to return predicted values. One of: subject, trial_arm, study, or overall. Default value is per study
 #' @param return The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
 #' @param type Whether to return posterior or prior predictions. Default: posterior
+#' @param subject_id If provided, limit results to this set of subject_id(s). This is a unique UUID identifying a subject in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param individual_id If provided, limit results to this set of individual_id(s). This typically corresponds to the patient identifier in the original database, which may not be unique across trials and projects.
+#' @param trial_arm_name If provided, limit results to this set of trial_arm_name(s). See \code{\link{fetch_subjects}} for a listing of trial_arm_name(s) for your project.
+#' @param trial_name If provided, limit results to this set of trial_name(s). See \code{\link{fetch_subjects}} for a listing of trial_name(s) for your project.
+#' @param trial_id If provided, limit results to this set of trial_id(s). This is a unique UUID for each trial in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param chains If provided, limit returned draws to the set of chains listed. Note that chains are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param draws If provided, limit returned draws to the set of draw indices listed. Note that draws are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param quantiles If provided, limit returned quantiles to the set of values listed. Only some quantiles are pre-computed, and inputs requested which are not available will be ignored. This filter only applies to the \code{quantiles} return type, and will be ignored for other return types.
+#' @param intervals If provided, limit returned interval widths to the set of values listed. Only 0.5, 0.8, 0.9 widths are currently, and inputs requested which are not available will be ignored. This filter only applies to the \code{intervals} return type, and will be ignored for other return types.
 #' @param project The name of the project to which the run_id belongs.
 #' @param project_version_id The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
 #'
@@ -472,6 +545,15 @@ fetch_predicted_hazard <- function(run_id,
                                    level = c('study', 'trial_arm', 'subject', 'overall'),
                                    return = c('median', 'quantiles', 'intervals', 'draws'),
                                    type = c('posterior', 'prior'),
+                                   subject_id = NULL,
+                                   individual_id = NULL,
+                                   trial_arm_name = NULL,
+                                   trial_name = NULL,
+                                   trial_id = NULL,
+                                   chains = NULL,
+                                   draws = NULL,
+                                   quantiles = NULL,
+                                   intervals = c(0.5, 0.8, 0.9),
                                    project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   level <- match.arg(level)
@@ -479,7 +561,10 @@ fetch_predicted_hazard <- function(run_id,
   type <- match.arg(type)
 
   parlist <- .get_pars_by_type(type = 'hazard', level = level, project_version_id = pv_id)
-  .fetch_pars_by_type(parlist = parlist, return = return, run_id = run_id, type = type, project_version_id = pv_id, level = level)
+  filters <- .format_filters(type = 'hazard', level = level, return = return, project_version_id = pv_id,
+                             filters = dplyr::lst(subject_id, individual_id, trial_arm_name, trial_name, trial_id),
+                             limits = dplyr::lst(chains, draws, quantiles, intervals))
+  .fetch_pars_by_type(parlist = parlist, return = return, run_id = run_id, type = type, project_version_id = pv_id, level = level, filters = filters)
 }
 
 #' Fetch biomarker sub-model parameters (f, kg, ks)
@@ -562,6 +647,15 @@ fetch_predicted_hazard <- function(run_id,
 #' @param level The level at which to return predicted values. One of: subject, trial_arm, or overall. Default value is per subject.
 #' @param return The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
 #' @param type Whether to return posterior or prior predictions. Default: posterior
+#' @param subject_id If provided, limit results to this set of subject_id(s). This is a unique UUID identifying a subject in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param individual_id If provided, limit results to this set of individual_id(s). This typically corresponds to the patient identifier in the original database, which may not be unique across trials and projects.
+#' @param trial_arm_name If provided, limit results to this set of trial_arm_name(s). See \code{\link{fetch_subjects}} for a listing of trial_arm_name(s) for your project.
+#' @param trial_name If provided, limit results to this set of trial_name(s). See \code{\link{fetch_subjects}} for a listing of trial_name(s) for your project.
+#' @param trial_id If provided, limit results to this set of trial_id(s). This is a unique UUID for each trial in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param chains If provided, limit returned draws to the set of chains listed. Note that chains are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param draws If provided, limit returned draws to the set of draw indices listed. Note that draws are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param quantiles If provided, limit returned quantiles to the set of values listed. Only some quantiles are pre-computed, and inputs requested which are not available will be ignored. This filter only applies to the \code{quantiles} return type, and will be ignored for other return types.
+#' @param intervals If provided, limit returned interval widths to the set of values listed. Only 0.5, 0.8, 0.9 widths are currently, and inputs requested which are not available will be ignored. This filter only applies to the \code{intervals} return type, and will be ignored for other return types.
 #' @param project The name of the project to which the run_id belongs.
 #' @param project_version_id The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
 #'
@@ -571,6 +665,15 @@ fetch_biomarker_params <- function(run_id,
                                    level = c('subject', 'trial_arm', 'overall'),
                                    return = c('median', 'quantiles', 'intervals', 'draws'),
                                    type = c('posterior', 'prior'),
+                                   subject_id = NULL,
+                                   individual_id = NULL,
+                                   trial_arm_name = NULL,
+                                   trial_name = NULL,
+                                   trial_id = NULL,
+                                   chains = NULL,
+                                   draws = NULL,
+                                   quantiles = NULL,
+                                   intervals = c(0.5, 0.8, 0.9),
                                    project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   level <- match.arg(level)
@@ -578,7 +681,10 @@ fetch_biomarker_params <- function(run_id,
   type <- match.arg(type)
 
   parlist <- .get_pars_by_type(type = 'biomarker_params', level = level, project_version_id = pv_id)
-  .fetch_pars_by_type(parlist = parlist, return = return, run_id = run_id, type = type, project_version_id = pv_id, level = level)
+  filters <- .format_filters(type = 'biomarker_params', level = level, return = return, project_version_id = pv_id,
+                             filters = dplyr::lst(subject_id, individual_id, trial_arm_name, trial_name, trial_id),
+                             limits = dplyr::lst(chains, draws, quantiles, intervals))
+  .fetch_pars_by_type(parlist = parlist, return = return, run_id = run_id, type = type, project_version_id = pv_id, level = level, filters=filters)
 }
 
 #' Fetch the association states from the biomarker model
@@ -655,6 +761,15 @@ fetch_biomarker_params <- function(run_id,
 #' @param level The level at which to return predicted values. One of: subject or trial_arm. Default value is per subject.
 #' @param return The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
 #' @param type Whether to return posterior or prior predictions. Default: posterior
+#' @param subject_id If provided, limit results to this set of subject_id(s). This is a unique UUID identifying a subject in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param individual_id If provided, limit results to this set of individual_id(s). This typically corresponds to the patient identifier in the original database, which may not be unique across trials and projects.
+#' @param trial_arm_name If provided, limit results to this set of trial_arm_name(s). See \code{\link{fetch_subjects}} for a listing of trial_arm_name(s) for your project.
+#' @param trial_name If provided, limit results to this set of trial_name(s). See \code{\link{fetch_subjects}} for a listing of trial_name(s) for your project.
+#' @param trial_id If provided, limit results to this set of trial_id(s). This is a unique UUID for each trial in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.
+#' @param chains If provided, limit returned draws to the set of chains listed. Note that chains are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param draws If provided, limit returned draws to the set of draw indices listed. Note that draws are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param quantiles If provided, limit returned quantiles to the set of values listed. Only some quantiles are pre-computed, and inputs requested which are not available will be ignored. This filter only applies to the \code{quantiles} return type, and will be ignored for other return types.
+#' @param intervals If provided, limit returned interval widths to the set of values listed. Only 0.5, 0.8, 0.9 widths are currently, and inputs requested which are not available will be ignored. This filter only applies to the \code{intervals} return type, and will be ignored for other return types.
 #' @param project The name of the project to which the run_id belongs.
 #' @param project_version_id The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
 #'
@@ -664,6 +779,15 @@ fetch_association_state <- function(run_id,
                                    level = c('subject', 'trial_arm'),
                                    return = c('median', 'quantiles', 'intervals', 'draws'),
                                    type = c('posterior', 'prior'),
+                                   subject_id = NULL,
+                                   individual_id = NULL,
+                                   trial_arm_name = NULL,
+                                   trial_name = NULL,
+                                   trial_id = NULL,
+                                   chains = NULL,
+                                   draws = NULL,
+                                   quantiles = NULL,
+                                   intervals = c(0.5, 0.8, 0.9),
                                    project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   level <- match.arg(level)
@@ -671,7 +795,10 @@ fetch_association_state <- function(run_id,
   type <- match.arg(type)
 
   parlist <- .get_pars_by_type(type = 'association_state', level = level, project_version_id = pv_id)
-  .fetch_pars_by_type(parlist = parlist, return = return, run_id = run_id, type = type, project_version_id = pv_id, level = level)
+  filters <- .format_filters(type = 'association_state', level = level, return = return, project_version_id = pv_id,
+                             filters = dplyr::lst(subject_id, individual_id, trial_arm_name, trial_name, trial_id),
+                             limits = dplyr::lst(chains, draws, quantiles, intervals))
+  .fetch_pars_by_type(parlist = parlist, return = return, run_id = run_id, type = type, project_version_id = pv_id, level = level, filters = filters)
 }
 
 
@@ -746,6 +873,10 @@ fetch_association_state <- function(run_id,
 #' @param level The level at which to return predicted values. Only Overall level available.
 #' @param return The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median
 #' @param type Whether to return posterior or prior predictions. Default: posterior
+#' @param chains If provided, limit returned draws to the set of chains listed. Note that chains are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param draws If provided, limit returned draws to the set of draw indices listed. Note that draws are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.
+#' @param quantiles If provided, limit returned quantiles to the set of values listed. Only some quantiles are pre-computed, and inputs requested which are not available will be ignored. This filter only applies to the \code{quantiles} return type, and will be ignored for other return types.
+#' @param intervals If provided, limit returned interval widths to the set of values listed. Only 0.5, 0.8, 0.9 widths are currently, and inputs requested which are not available will be ignored. This filter only applies to the \code{intervals} return type, and will be ignored for other return types.
 #' @param project The name of the project to which the run_id belongs.
 #' @param project_version_id The specific project_version_id to which the run_id belongs. Defaults to the most recent project_version_id if none provided.
 #'
@@ -755,20 +886,27 @@ fetch_hazard_betas <- function(run_id,
                                     level = c('overall'),
                                     return = c('median', 'quantiles', 'intervals', 'draws'),
                                     type = c('posterior', 'prior'),
-                                    project = NULL, project_version_id = NULL) {
+                               chains = NULL,
+                               draws = NULL,
+                               quantiles = NULL,
+                               intervals = c(0.5, 0.8, 0.9),
+                               project = NULL, project_version_id = NULL) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   level <- match.arg(level)
   return <- match.arg(return)
   type <- match.arg(type)
 
   parlist <- .get_pars_by_type(type = 'hazard_betas', level = level, project_version_id = pv_id)
-  .fetch_pars_by_type(parlist = parlist, return = return, run_id = run_id, type = type, project_version_id = pv_id, level = level) %>%
+  filters <- .format_filters(type = 'biomarker_params', level = level, return = return, project_version_id = pv_id,
+                             filters = list(),
+                             limits = dplyr::lst(chains, draws, quantiles, intervals))
+  .fetch_pars_by_type(parlist = parlist, return = return, run_id = run_id, type = type, project_version_id = pv_id, level = level, filters = filters) %>%
     tidyr::gather('beta_category', 'beta_value', .data$smoking_exposure, .data$association_state) %>%
     dplyr::filter(!is.na(.data$beta_value))
 }
 
 
-.fetch_pars_by_type <- function(parlist, return, run_id, type = c('posterior', 'prior'), level, project = NULL, project_version_id = NULL) {
+.fetch_pars_by_type <- function(parlist, return, run_id, type = c('posterior', 'prior'), level, project = NULL, project_version_id = NULL, filters = list()) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   checkmate::assert_choice(return, choices = .VALID_RETURN_TYPES)
   type = match.arg(type, several.ok = FALSE)
@@ -791,7 +929,7 @@ fetch_hazard_betas <- function(run_id,
   }
   futile.logger::flog.info(glue::glue('Fetching {type} {label} of {glue::glue_collapse(names(parlist), sep = ", ", last = ", and ")} at the {level} level from {length(run_id)} model runs.'))
 
-  fetchfun <- purrr::lift_dl(fun, type = type, run_id = run_id, project_version_id = pv_id)
+  fetchfun <- purrr::lift_dl(fun, type = type, run_id = run_id, project_version_id = pv_id, filters = filters)
   d <- parlist %>%
     purrr::map(fetchfun) %>%
     purrr::imap_dfr(~ dplyr::mutate(.x, .variable = .y))
@@ -817,8 +955,8 @@ fetch_hazard_betas <- function(run_id,
   d
 }
 
-.fetch_par_base <- function(par, trans, level, run_id, project_version_id, type, fetch_fun) {
-  d <- fetch_fun(parameter = par, project_version_id = project_version_id, type = type, run_id = run_id, quiet = TRUE)
+.fetch_par_base <- function(par, trans, level, run_id, project_version_id, type, fetch_fun, filters) {
+  d <- fetch_fun(parameter = par, project_version_id = project_version_id, type = type, run_id = run_id, quiet = TRUE, .dots = filters)
   if (!is.null(trans)) {
     d <- d %>%
       dplyr::mutate(.value = trans(.data$.value))
@@ -828,24 +966,25 @@ fetch_hazard_betas <- function(run_id,
     dplyr::mutate(.level = !!level)
 }
 
-.fetch_par_quantiles <- function(par, trans, level, run_id, project_version_id, type) {
+.fetch_par_quantiles <- function(par, trans, level, run_id, project_version_id, type, filters) {
   .fetch_par_base(par = par, trans = trans, run_id = run_id, project_version_id = project_version_id, type = type, level = level,
-                  fetch_fun = fetch_quantiles)
+                  fetch_fun = fetch_quantiles, filters)
 }
 
-.fetch_par_draws <- function(par, trans, level, run_id, project_version_id, type) {
-  .fetch_par_base(par = par, trans = trans, run_id = run_id, project_version_id = project_version_id, type = type, level = level,
-                  fetch_fun = fetch_draws)
+.fetch_par_draws <- function(par, trans, level, run_id, project_version_id, type, filters) {
+  .fetch_par_base(par = par, trans = trans, run_id = run_id, project_version_id = project_version_id,
+                  type = type, level = level,
+                  fetch_fun = fetch_draws, filters = filters)
 }
 
-.fetch_par_intervals <- function(par, trans, level, run_id, project_version_id, type) {
-  .fetch_par_quantiles(par = par, trans = trans, run_id = run_id, project_version_id = project_version_id, type = type, level = level) %>%
+.fetch_par_intervals <- function(par, trans, level, run_id, project_version_id, type, filters) {
+  .fetch_par_quantiles(par = par, trans = trans, run_id = run_id, project_version_id = project_version_id,
+                       type = type, level = level, filters = filters) %>%
     format_quantiles_as_widths()
 }
 
-.fetch_par_median <- function(par, trans, level, run_id, project_version_id, type) {
-  .fetch_par_quantiles(par = par, trans = trans, run_id = run_id, project_version_id = project_version_id, type = type, level = level) %>%
-    dplyr::filter(.data$quantile == 0.5) %>%
+.fetch_par_median <- function(par, trans, level, run_id, project_version_id, type, filters) {
+  .fetch_par_quantiles(par = par, trans = trans, run_id = run_id, project_version_id = project_version_id, type = type, level = level, filters=filters) %>%
     dplyr::select(-.data$quantile) %>%
     dplyr::mutate(.point = 'median')
 }

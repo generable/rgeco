@@ -11,6 +11,7 @@ fetch_draws(
   project_version_id = NULL,
   type = c("posterior", "prior"),
   quiet = FALSE,
+  .dots = list(),
   ...
 )
 }

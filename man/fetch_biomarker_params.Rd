@@ -9,6 +9,15 @@ fetch_biomarker_params(
   level = c("subject", "trial_arm", "overall"),
   return = c("median", "quantiles", "intervals", "draws"),
   type = c("posterior", "prior"),
+  subject_id = NULL,
+  individual_id = NULL,
+  trial_arm_name = NULL,
+  trial_name = NULL,
+  trial_id = NULL,
+  chains = NULL,
+  draws = NULL,
+  quantiles = NULL,
+  intervals = c(0.5, 0.8, 0.9),
   project = NULL,
   project_version_id = NULL
 )
@@ -21,6 +30,24 @@ fetch_biomarker_params(
 \item{return}{The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median}
 
 \item{type}{Whether to return posterior or prior predictions. Default: posterior}
+
+\item{subject_id}{If provided, limit results to this set of subject_id(s). This is a unique UUID identifying a subject in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.}
+
+\item{individual_id}{If provided, limit results to this set of individual_id(s). This typically corresponds to the patient identifier in the original database, which may not be unique across trials and projects.}
+
+\item{trial_arm_name}{If provided, limit results to this set of trial_arm_name(s). See \code{\link{fetch_subjects}} for a listing of trial_arm_name(s) for your project.}
+
+\item{trial_name}{If provided, limit results to this set of trial_name(s). See \code{\link{fetch_subjects}} for a listing of trial_name(s) for your project.}
+
+\item{trial_id}{If provided, limit results to this set of trial_id(s). This is a unique UUID for each trial in the Geco Database. See \code{\link{fetch_subjects}} for a listing of subject_ids for your project.}
+
+\item{chains}{If provided, limit returned draws to the set of chains listed. Note that chains are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.}
+
+\item{draws}{If provided, limit returned draws to the set of draw indices listed. Note that draws are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.}
+
+\item{quantiles}{If provided, limit returned quantiles to the set of values listed. Only some quantiles are pre-computed, and inputs requested which are not available will be ignored. This filter only applies to the \code{quantiles} return type, and will be ignored for other return types.}
+
+\item{intervals}{If provided, limit returned interval widths to the set of values listed. Only 0.5, 0.8, 0.9 widths are currently, and inputs requested which are not available will be ignored. This filter only applies to the \code{intervals} return type, and will be ignored for other return types.}
 
 \item{project}{The name of the project to which the run_id belongs.}
 
