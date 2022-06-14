@@ -1,50 +1,55 @@
 
 convert_xarray_to_df <- function(resp, name = NULL) {
   .install_xarray()
-  if (length(resp$content) > 0) {
-    py_dict <- reticulate::r_to_py(resp$content)
-    py_dataset <- xarray$Dataset$from_dict(py_dict)
-    py_df <- py_dataset$to_dataframe()$reset_index()
-    df <- reticulate::py_to_r(py_df)
-    # unlist list-columns that are just scalars
-    if (!is.null(name)) {
-      quo_name = rlang::sym(name)
-      df <- df %>%
-        tidyr::pivot_longer(c(quo_name), names_to = '.variable', values_to = '.value')
-      df <- df %>%
-        dplyr::mutate(length_values = purrr::map_int(.data$.value, length)) %>%
-        dplyr::filter(.data$length_values == 1) %>%
-        dplyr::select(-.data$length_values) %>%
-        dplyr::mutate_if(rlang::is_list, unlist)
-    }
-    if (any(stringr::str_detect(names(df), pattern = '^subject\\.'))) {
-      df <- df %>%
-        dplyr::select(-dplyr::starts_with('subject.'))
-    }
-    if (any(stringr::str_detect(names(df), pattern = '^trial_arm\\.[^\\d]+'))) {
-      names <- names(df)[stringr::str_detect(names(df), pattern = '^trial_arm\\.[^\\d]+')]
-      df <- df %>%
-        dplyr::select(-dplyr::one_of(names))
-    }
-    if ('trial_arm.1' %in% names(df)) {
-      df <- df %>%
-        dplyr::rename(control_arm_id = .data$`trial_arm.1`)
-    }
-    if ('trial_arm' %in% names(df)) {
-      df <- df %>%
-        dplyr::rename(trial_arm_id = .data$trial_arm)
-    }
-    if ('subject' %in% names(df)) {
-      df <- df %>%
-        dplyr::rename(subject_id = .data$subject)
-    }
-    if ('study' %in% names(df)) {
-      df <- df %>%
-        dplyr::rename(study_id = .data$study)
-    }
-  } else {
+  if (length(resp$content) == 0) {
     futile.logger::flog.info('No draws returned.')
     df <- tibble::tibble()
+  } else {
+    py_dict <- reticulate::r_to_py(resp$content)
+    if (length(py_dict$data_vars) == 0) {
+      futile.logger::flog.info('No draws returned.')
+      df <- tibble::tibble()
+    } else {
+      py_dataset <- xarray$Dataset$from_dict(py_dict)
+      py_df <- py_dataset$to_dataframe()$reset_index()
+      df <- reticulate::py_to_r(py_df)
+      # unlist list-columns that are just scalars
+      if (!is.null(name)) {
+        quo_name = rlang::sym(name)
+        df <- df %>%
+          tidyr::pivot_longer(c(quo_name), names_to = '.variable', values_to = '.value')
+        df <- df %>%
+          dplyr::mutate(length_values = purrr::map_int(.data$.value, length)) %>%
+          dplyr::filter(.data$length_values == 1) %>%
+          dplyr::select(-.data$length_values) %>%
+          dplyr::mutate_if(rlang::is_list, unlist)
+      }
+      if (any(stringr::str_detect(names(df), pattern = '^subject\\.'))) {
+        df <- df %>%
+          dplyr::select(-dplyr::starts_with('subject.'))
+      }
+      if (any(stringr::str_detect(names(df), pattern = '^trial_arm\\.[^\\d]+'))) {
+        names <- names(df)[stringr::str_detect(names(df), pattern = '^trial_arm\\.[^\\d]+')]
+        df <- df %>%
+          dplyr::select(-dplyr::one_of(names))
+      }
+      if ('trial_arm.1' %in% names(df)) {
+        df <- df %>%
+          dplyr::rename(control_arm_id = .data$`trial_arm.1`)
+      }
+      if ('trial_arm' %in% names(df)) {
+        df <- df %>%
+          dplyr::rename(trial_arm_id = .data$trial_arm)
+      }
+      if ('subject' %in% names(df)) {
+        df <- df %>%
+          dplyr::rename(subject_id = .data$subject)
+      }
+      if ('study' %in% names(df)) {
+        df <- df %>%
+          dplyr::rename(study_id = .data$study)
+      }
+    }
   }
   df
 }
