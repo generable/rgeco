@@ -54,7 +54,11 @@ pivot_events_wider <- function(.d) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
   filter <- .prepare_filter(where, endpoint = 'EVENTS')
   events <- geco_api(EVENTS, project_version_id = pv_id, url_query_parameters = filter)
-  d <- as_dataframe.geco_api_data(events, flatten_names = c())
+  d <- as_dataframe.geco_api_data(events, flatten_names = c('params'))
+  if ('params' %in% names(d)) {
+    d <- d %>%
+      tidyr::unnest_wider(.data$params)
+  }
   suppressWarnings({
     d <- d %>%
       dplyr::rename_at(.vars = dplyr::vars(dplyr::one_of(c('created_at', 'params', 'name', 'phase', 'internal_id', 'id', 'trial_day'))),
