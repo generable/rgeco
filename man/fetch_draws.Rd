@@ -30,6 +30,8 @@ prior quantiles, set this to `prior`.}
 
 \item{quiet}{(bool) if TRUE, suppress informative messages}
 
+\item{.dots}{(lists) advanced feature used to limit draws returned (alternate version of providing ...)}
+
 \item{...}{(lists) advanced feature used to limit draws returned.
 Example: draws = c(0:10), chains = 0 to limit to first chain, 10 draws. Filters are applied server-side so they use 0-indexing.
 Example: trial_arm = unique(subjects$trial_arm_id) to limit draws to a set of trial arms, for a parameter estimated per trial arm

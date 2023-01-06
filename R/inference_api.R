@@ -91,7 +91,8 @@
 #' # ---- summarize sampling quality ----
 #'
 #' library(posterior)
-#' d <- fetch_predicted_biomarkers(run_id, level = 'overall', return = 'draws')
+#' d <- fetch_predicted_biomarkers(run_id, level = 'overall',
+#'                                 return = 'draws')
 #'
 #' d %>% spread(.variable, .value) %>%
 #'    group_by(.level, biomarker_time, .type, run_id) %>%
