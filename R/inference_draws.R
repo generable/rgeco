@@ -46,6 +46,7 @@
 #' @param type (str) Type of quantile to return, either posterior or prior. Default is `posterior`. To access
 #'             prior quantiles, set this to `prior`.
 #' @param quiet (bool) if TRUE, suppress informative messages
+#' @param .dots (lists) advanced feature used to limit draws returned (alternate version of providing ...)
 #' @param ... (lists) advanced feature used to limit draws returned.
 #'     Example: draws = c(0:10), chains = 0 to limit to first chain, 10 draws. Filters are applied server-side so they use 0-indexing.
 #'     Example: trial_arm = unique(subjects$trial_arm_id) to limit draws to a set of trial arms, for a parameter estimated per trial arm
@@ -173,7 +174,8 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
 #' @param type (str) Type of quantile to return, either posterior or prior. Default is `posterior`. To access
 #'             prior quantiles, set this to `prior`.
 #' @param quiet (bool) if TRUE, suppress informative messages
-#' @param ... (lists) advanced feature used to limit quantiles returned.
+#' @param .dots (lists) advanced feature used to filter quantiles returned (alternate version of providing ...)
+#' @param ... (lists) advanced feature used to filter quantiles returned.
 #'     Example: quantile = c(0.5) to limit results to the median, rather than return all quantiles.
 #'     Example: trial_arm = unique(subjects$trial_arm_id) to limit quantiles to a set of trial arms, for a parameter estimated per trial arm
 #'     However, use of this feature requires that one be familiar with both the dimensions for a particular parameter and their names server-side.
