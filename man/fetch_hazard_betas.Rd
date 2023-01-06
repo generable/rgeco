@@ -9,6 +9,10 @@ fetch_hazard_betas(
   level = c("overall"),
   return = c("median", "quantiles", "intervals", "draws"),
   type = c("posterior", "prior"),
+  chains = NULL,
+  draws = NULL,
+  quantiles = NULL,
+  intervals = c(0.5, 0.8, 0.9),
   project = NULL,
   project_version_id = NULL
 )
@@ -21,6 +25,14 @@ fetch_hazard_betas(
 \item{return}{The type of summary to return. One of: median, quantiles, intervals, or draws. Default: median}
 
 \item{type}{Whether to return posterior or prior predictions. Default: posterior}
+
+\item{chains}{If provided, limit returned draws to the set of chains listed. Note that chains are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.}
+
+\item{draws}{If provided, limit returned draws to the set of draw indices listed. Note that draws are 0-indexed on the server. This filter only applies to the \code{draws} return type, and will be ignored for other return types.}
+
+\item{quantiles}{If provided, limit returned quantiles to the set of values listed. Only some quantiles are pre-computed, and inputs requested which are not available will be ignored. This filter only applies to the \code{quantiles} return type, and will be ignored for other return types.}
+
+\item{intervals}{If provided, limit returned interval widths to the set of values listed. Only 0.5, 0.8, 0.9 widths are currently, and inputs requested which are not available will be ignored. This filter only applies to the \code{intervals} return type, and will be ignored for other return types.}
 
 \item{project}{The name of the project to which the run_id belongs.}
 

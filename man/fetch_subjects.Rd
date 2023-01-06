@@ -9,6 +9,7 @@ fetch_subjects(
   project_version_id = NULL,
   event_type = NULL,
   annotate = T,
+  .dots = list(),
   ...
 )
 }
@@ -21,6 +22,8 @@ fetch_subjects(
 joined into the return data.frame. Default is NULL (no event data).}
 
 \item{annotate}{if `TRUE`, annotate subject data with dose data. Default is `TRUE`.}
+
+\item{.dots}{Alternate method of passing filters as a named list, rather than in ...}
 
 \item{...}{Optional filters applied to subjects data, provided as name-value pairs where names are fields and values contain a subset of valid values
 Example: trial_name = c('trial-A', 'trial-N'), performance_status = c(0,1)}

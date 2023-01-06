@@ -46,6 +46,7 @@
 #' @param type (str) Type of quantile to return, either posterior or prior. Default is `posterior`. To access
 #'             prior quantiles, set this to `prior`.
 #' @param quiet (bool) if TRUE, suppress informative messages
+#' @param .dots (lists) advanced feature used to limit draws returned (alternate version of providing ...)
 #' @param ... (lists) advanced feature used to limit draws returned.
 #'     Example: draws = c(0:10), chains = 0 to limit to first chain, 10 draws. Filters are applied server-side so they use 0-indexing.
 #'     Example: trial_arm = unique(subjects$trial_arm_id) to limit draws to a set of trial arms, for a parameter estimated per trial arm
@@ -59,8 +60,9 @@
 #' @importFrom rlang !!!
 #' @export
 fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = NULL, type = c('posterior', 'prior'), quiet = FALSE,
-                        ...) {
-  filters <- rlang::list2(...)
+                        .dots = list(), ...) {
+  extra_dots <- rlang::list2(...)
+  filters <- purrr::list_modify(.dots, !!!extra_dots)
   filters <- .check_format(filters, alert = TRUE)
   type <- match.arg(type, several.ok = F)
   checkmate::assert_character(parameter, unique = TRUE)
@@ -94,8 +96,11 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
     split_filter <- .split_filter(where)
     results <- split_filter %>%
       purrr::map_dfr(~ .fetch_draws_per_parameter_run(run_id = run_id, parameter = parameter, project_version_id = project_version_id,
-                                                      type = type, pb = pb, quiet=TRUE, where = .x, split = FALSE)
+                                                      type = type, pb = NULL, quiet=TRUE, where = .x, split = FALSE)
       )
+    if (!is.null(pb)) {
+      pb$tick()$print()
+    }
     return(results)
   }
   parameter_names <- list_parameter_names(run_id = run_id, project_version_id = project_version_id, include_raw = TRUE) %>%
@@ -113,9 +118,6 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
     } else {
       draws <- geco_api(IPDRAWS, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
     }
-  }
-  if (!is.null(pb)) {
-    pb$tick()$print()
   }
   d <- convert_draws_to_df(draws, name = parameter) %>%
     dplyr::mutate(run_id = run_id)
@@ -172,7 +174,8 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
 #' @param type (str) Type of quantile to return, either posterior or prior. Default is `posterior`. To access
 #'             prior quantiles, set this to `prior`.
 #' @param quiet (bool) if TRUE, suppress informative messages
-#' @param ... (lists) advanced feature used to limit quantiles returned.
+#' @param .dots (lists) advanced feature used to filter quantiles returned (alternate version of providing ...)
+#' @param ... (lists) advanced feature used to filter quantiles returned.
 #'     Example: quantile = c(0.5) to limit results to the median, rather than return all quantiles.
 #'     Example: trial_arm = unique(subjects$trial_arm_id) to limit quantiles to a set of trial arms, for a parameter estimated per trial arm
 #'     However, use of this feature requires that one be familiar with both the dimensions for a particular parameter and their names server-side.
@@ -185,9 +188,11 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
 #' @importFrom rlang !!! list2
 #' @import checkmate
 #' @export
-fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_id = NULL, type = c('posterior', 'prior'), quiet = FALSE, ...) {
-  filters <- rlang::list2(...)
-  filters <- .check_format(filters, alert = T)
+fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_id = NULL, type = c('posterior', 'prior'), quiet = FALSE,
+                            .dots = list(), ...) {
+  extra_dots <- rlang::list2(...)
+  filters <- purrr::list_modify(.dots, !!!extra_dots)
+  filters <- .check_format(filters, alert = TRUE)
   type <- match.arg(type, several.ok = F)
   checkmate::assert_character(parameter, unique = TRUE)
   checkmate::assert_character(run_id, unique = TRUE)
@@ -218,8 +223,11 @@ fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_i
     split_filter <- .split_filter(where)
     results <- split_filter %>%
       purrr::map_dfr(~ .fetch_quantiles_per_parameter_run(run_id = run_id, parameter = parameter, project_version_id = project_version_id,
-                                                          type = type, pb = pb, quiet=TRUE, where = .x, split = FALSE)
+                                                          type = type, pb = NULL, quiet=TRUE, where = .x, split = FALSE)
       )
+    if (!is.null(pb)) {
+      pb$tick()$print()
+    }
     return(results)
   }
   parameter_names = list_parameter_names(run_id = run_id, project_version_id = project_version_id, include_raw = TRUE) %>%
@@ -238,10 +246,11 @@ fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_i
       quantiles <- geco_api(IPTILES, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type)
     }
   }
-  if (!is.null(pb)) {
-    pb$tick()$print()
-  }
   q <- convert_xarray_to_df(quantiles, name = parameter) %>%
-    dplyr::mutate(run_id = run_id) %>%
-    dplyr::arrange(.data$quantile)
+    dplyr::mutate(run_id = run_id)
+  if (nrow(q) > 0) {
+    q <- q %>%
+      dplyr::arrange(.data$quantile)
+  }
+  q
 }

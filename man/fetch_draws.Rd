@@ -11,6 +11,7 @@ fetch_draws(
   project_version_id = NULL,
   type = c("posterior", "prior"),
   quiet = FALSE,
+  .dots = list(),
   ...
 )
 }
@@ -28,6 +29,8 @@ See \code{\link{list_parameter_names}} and \code{\link{list_predictive_names}}.}
 prior quantiles, set this to `prior`.}
 
 \item{quiet}{(bool) if TRUE, suppress informative messages}
+
+\item{.dots}{(lists) advanced feature used to limit draws returned (alternate version of providing ...)}
 
 \item{...}{(lists) advanced feature used to limit draws returned.
 Example: draws = c(0:10), chains = 0 to limit to first chain, 10 draws. Filters are applied server-side so they use 0-indexing.
