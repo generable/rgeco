@@ -62,7 +62,7 @@ fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type
                        by = c('trial_id'), suffix = c('', '_trial'))
     if ('subject_params' %in% names(s)) {
       s <- s %>%
-        tidyr::unnest_wider(.data$subject_params)
+        tidyr::unnest_wider(.data$subject_params, names_repair = 'universal')
     }
     if (isTRUE(annotate)) {
       s <- .annotate_subjects_data(s)
