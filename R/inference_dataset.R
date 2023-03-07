@@ -117,6 +117,7 @@ fetch_dataset <- function(run_id, project = NULL, project_version_id = NULL) {
 .format_data <- function(results, numeric_fields = c()) {
   numeric_fields <- c(numeric_fields, .discover_numeric_fields(results))
   results <- results %>%
+    purrr::map(purrr::compact) %>%
     purrr::map(tibble::as_tibble)
   if (length(numeric_fields) > 0)
     results <- results %>%
