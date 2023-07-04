@@ -93,10 +93,18 @@ fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type
   if (all(c('age_min', 'age_max') %in% names(s))) {
     s <- s %>%
       dplyr::mutate(age = (.data$age_min + .data$age_max) / 2)
+  } else if ('age_min' %in% names(s)) {
+    s <- s %>%
+      dplyr::mutate(age = .data$age_min)
   }
   if ('performance' %in% names(s)) {
-    s <- s %>%
-      dplyr::mutate(performance = factor(.data$performance, levels = c('fully_active', 'restricted_activity', 'self-care_only'), ordered = T))
+    if (all(unique(s$performance) %in% c('fully_active', 'restricted_activity', 'self-care_only'))) {
+      s <- s %>%
+        dplyr::mutate(performance = factor(.data$performance, levels = c('fully_active', 'restricted_activity', 'self-care_only'), ordered = T))
+    } else if (all(is.na(as.integer(s$performance)) == is.na(s$performance))) {
+      s <- s %>%
+        dplyr::mutate(performance = as.integer(.data$performance))
+    }
   }
   if ('baseline_weight_min' %in% names(s)) {
     s <- s %>%
