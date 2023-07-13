@@ -105,7 +105,7 @@ fetch_draws <- function(parameter, run_id, project = NULL, project_version_id = 
   }
   parameter_names <- list_parameter_names(run_id = run_id, project_version_id = project_version_id, include_raw = TRUE) %>%
     dplyr::pull(.data$name)
-  filters <- .prepare_filter(where, endpoint = 'draws')
+  filters <- URLencode(.prepare_filter(where, endpoint = 'draws'))
   if (parameter %in% parameter_names) {
     if (filters != '') {
       draws <- geco_api(FIDRAWS, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type, filters=filters)
@@ -232,7 +232,7 @@ fetch_quantiles <- function(parameter, run_id, project = NULL, project_version_i
   }
   parameter_names = list_parameter_names(run_id = run_id, project_version_id = project_version_id, include_raw = TRUE) %>%
     dplyr::pull(.data$name)
-  filters <- .prepare_filter(where, endpoint = 'draws')
+  filters <- URLencode(.prepare_filter(where, endpoint = 'draws'))
   if (parameter %in% parameter_names) {
     if (filters != '') {
       quantiles <- geco_api(FITILES, project_version_id = project_version_id, run_id=run_id, parameter=parameter, type=type, filters = filters)
