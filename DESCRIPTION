@@ -34,7 +34,8 @@ Imports:
     table1,
     reticulate,
     boot,
-    cli
+    cli,
+    httpcache
 Suggests: 
     testthat,
     knitr,
