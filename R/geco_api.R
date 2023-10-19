@@ -145,31 +145,39 @@ configure <- function(user, password, host) {
   }
 }
 
-#' List saved credentials
+#' List saved configurations
 #' @param host Host identifier, defaults to 'geco'
 #' @export
-list_credentials <- function(host='geco') {
+list_configs <- function(host='geco') {
   service <- .get_keyring_service(host)
   key_list(service)
 }
 
-#' Drop saved credentials
-#' Warning! this will remove all saved credentials from the host.
+#' Drop saved configurations
+#' Warning! this will remove all saved configurations from the host.
 #' @param host Host identifier, defaults to 'geco'
+#' @param user Optional username, provided as a string.
+#' @seealso [list_configs()]
 #' @export
-drop_credentials <- function(user, host='geco') {
+drop_configs <- function(user, host='geco') {
   service <- .get_keyring_service(host)
   keys <- key_list(service)
   if (!missing(user)) {
     keys <- keys %>%
       filter(username == !!user)
   }
-  cli::cli_alert_warning('This will drop _ALL_ saved credentials listed.')
-  keys
-  if (askYesNo("Do you want to drop these credentials from your keyring?")) {
-    keys %>%
-      pull(username) %>%
-      walk(~ key_delete(service=service, username = .))
+  if (nrow(keys) == 0) {
+    cli::cli_alert_info('No keys found.')
+  } else {
+    cli::cli_alert_warning('This will drop _ALL_ saved configs listed.')
+    print(keys)
+    confirm <- askYesNo("Do you want to drop these configs from your keyring?",
+                        default = FALSE)
+    if (!is.na(confirm) && isTRUE(confirm)) {
+      keys %>%
+        pull(username) %>%
+        walk(~ key_delete(service=service, username = .))
+    }
   }
 }
 
