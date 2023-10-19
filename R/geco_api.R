@@ -56,6 +56,20 @@ geco_api_url <- function(..., project = NULL, project_version_id = NULL, run_id=
   glue::glue_safe(url)
 }
 
+#' Never cache certain endpoints
+.clean_cache <- function() {
+  nocache_endpoints <- c(
+    LOGIN,
+    PROJECTVERSIONS,
+    PROJECTS,
+    IDATA,
+    IMODELS,
+    IRUNS
+  )
+  nocache_endpoints |>
+    purrr::walk(httpcache::dropOnly)
+}
+
 #' Log in to the Generable API
 #'
 #' This function logs the user into the Generable API.
@@ -74,7 +88,7 @@ geco_api_url <- function(..., project = NULL, project_version_id = NULL, run_id=
 #' @export
 login <- function(user, password, host) {
   url <- .get_url(host)
-  if (missing(password)) {
+  if (missing(password) || missing(user)) {
     # get credentials from keyring
     creds <- .get_credentials(host = host, user = user)
     user = creds[1]
@@ -113,7 +127,7 @@ configure <- function(user, password, host) {
     }
   }
   cli::cli_inform('Attempting to log in ...')
-  res <- tryCatch(login(user=user, password = password))
+  res <- tryCatch(login(user=user, password = password, host=host))
   if (inherits(res, 'try-error')) {
     cli::cli_alert_warning('Failed to authenticate.')
   } else {
@@ -126,9 +140,47 @@ configure <- function(user, password, host) {
       cli::cli_inform('Populating credentials in environment variables.')
       Sys.setenv('GECO_API_USER'=user)
       Sys.setenv('GECO_API_PASSWORD'=password)
+      Sys.setenv('GECO_API_URL'=url)
     }
   }
 }
+
+#' List saved configurations
+#' @param host Host identifier, defaults to 'geco'
+#' @export
+list_configs <- function(host='geco') {
+  service <- .get_keyring_service(host)
+  key_list(service)
+}
+
+#' Drop saved configurations
+#' Warning! this will remove all saved configurations from the host.
+#' @param host Host identifier, defaults to 'geco'
+#' @param user Optional username, provided as a string.
+#' @seealso [list_configs()]
+#' @export
+drop_configs <- function(user, host='geco') {
+  service <- .get_keyring_service(host)
+  keys <- key_list(service)
+  if (!missing(user)) {
+    keys <- keys %>%
+      filter(username == !!user)
+  }
+  if (nrow(keys) == 0) {
+    cli::cli_alert_info('No keys found.')
+  } else {
+    cli::cli_alert_warning('This will drop _ALL_ saved configs listed.')
+    print(keys)
+    confirm <- askYesNo("Do you want to drop these configs from your keyring?",
+                        default = FALSE)
+    if (!is.na(confirm) && isTRUE(confirm)) {
+      keys %>%
+        pull(username) %>%
+        walk(~ key_delete(service=service, username = .))
+    }
+  }
+}
+
 
 .get_keyring_service <- function(host) {
   url <- .get_url(host)
@@ -175,6 +227,7 @@ configure <- function(user, password, host) {
   return(c(user, password))
 }
 
+#' @importFrom httr add_headers
 get_auth <- function() {
   if (!exists(envir = ENV, '.GECO_AUTH')) {
     futile.logger::flog.error('Not logged in. Use `login(user, password)` to login.')
@@ -183,13 +236,14 @@ get_auth <- function() {
   httr::add_headers(.headers = unlist(ENV$.GECO_AUTH))
 }
 
-#' @import httr
+#' @importFrom httr user_agent http_error content status_code
 #' @importFrom httpcache GET POST
 #' @importFrom RJSONIO fromJSON
 geco_api <- function(path, ..., method = c('GET', 'POST'), project = NULL, project_version_id = NULL, run_id=NULL, type=NULL, parameter=NULL, filters=NULL, url_query_parameters=NULL) {
   url <- geco_api_url(path, project = project, project_version_id = project_version_id, run_id=run_id, type=type, parameter=parameter, filters=filters, url_query_parameters=url_query_parameters)
 
   ua <- httr::user_agent("https://github.com/generable/rgeco")
+  .clean_cache()
 
   method <- match.arg(method, several.ok = FALSE)
   if (method == 'GET')
@@ -201,6 +255,7 @@ geco_api <- function(path, ..., method = c('GET', 'POST'), project = NULL, proje
   #}
   if (inherits(resp, 'try-error')) {
     stop(glue::glue("Error connecting to API: {url} {print(resp)}"))
+    httpcache::dropOnly(url)
   }
 
   parsed <- try(RJSONIO::fromJSON(httr::content(resp, "text", encoding = 'UTF-8'), simplify = FALSE), silent = T)
