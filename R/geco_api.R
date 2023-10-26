@@ -89,10 +89,15 @@ geco_api_url <- function(..., project = NULL, project_version_id = NULL, run_id=
 login <- function(user, password, host) {
   url <- .get_url(host)
   if (missing(password) || missing(user)) {
-    # get credentials from keyring
-    creds <- .get_credentials(host = host, user = user)
-    user = creds[1]
-    password = creds[2]
+    if (!is.null(Sys.getenv('GECO_API_NO_KEYRING', unset = NULL))) {
+      user <- Sys.getenv('GECO_API_USER')
+      password <- Sys.getenv('GECO_API_PASSWORD')
+    } else {
+      # get credentials from keyring
+      creds <- .get_credentials(host = host, user = user)
+      user = creds[1]
+      password = creds[2]
+    }
   }
   if (is.null(user)) {
     cli::cli_inform('Note: credential storage has changed; please run `configure()` to migrate to the new storage.')
