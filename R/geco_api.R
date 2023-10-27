@@ -89,7 +89,8 @@ geco_api_url <- function(..., project = NULL, project_version_id = NULL, run_id=
 login <- function(user, password, host) {
   url <- .get_url(host)
   if (missing(password) || missing(user)) {
-    if (!is.null(Sys.getenv('GECO_API_NO_KEYRING', unset = NULL))) {
+    use_keyring <- Sys.getenv('GECO_API_NO_KEYRING') == ""
+    if (!use_keyring) {
       user <- Sys.getenv('GECO_API_USER')
       password <- Sys.getenv('GECO_API_PASSWORD')
     } else {
@@ -127,8 +128,9 @@ configure <- function(user, password, host) {
   if (missing(password)) {
     cli::cli_inform('Reading password from environment variable: GECO_API_PASSWORD')
     password <- Sys.getenv('GECO_API_PASSWORD', unset = '')
+    cli::cli_inform('GECO_API_PASSWORD not found. Prompting you for your geco password.')
     if (password == '' && interactive()) {
-      password <- rstudioapi::askForPassword()
+      password <- rstudioapi::askForPassword(prompt = 'Please enter your geco password.')
     }
   }
   cli::cli_inform('Attempting to log in ...')

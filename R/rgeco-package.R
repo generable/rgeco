@@ -75,6 +75,17 @@ xarray <- NULL
   # check if Python is available
   .check_python_installed()
   .check_python_deps()
+  .check_keyring_setup()
+}
+
+#' @import cli
+#' @importFrom keyring backend_file
+.check_keyring_setup <- function() {
+  use_keyring <- Sys.getenv('GECO_API_NO_KEYRING') == ""
+  if (use_keyring && keyring::has_keyring_support()) {
+    cli::cli_inform('This package uses `keyring` to store passwords on your local system securely.')
+    cli::cli_alert_success('Keyring supported.')
+  }
 }
 
 #' @import cli
