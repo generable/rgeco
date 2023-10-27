@@ -182,8 +182,8 @@ drop_configs <- function(user, host='geco') {
                         default = FALSE)
     if (!is.na(confirm) && isTRUE(confirm)) {
       keys %>%
-        pull(username) %>%
-        walk(~ key_delete(service=service, username = .))
+        dplyr::pull(username) %>%
+        purrr::walk(~ keyring::key_delete(service=service, username = .))
     }
   }
 }
