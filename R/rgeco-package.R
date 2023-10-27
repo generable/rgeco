@@ -75,7 +75,6 @@ xarray <- NULL
   # check if Python is available
   .check_python_installed()
   .check_python_deps()
-  .check_keyring_setup()
 }
 
 #' @import cli
