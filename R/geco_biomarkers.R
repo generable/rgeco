@@ -61,7 +61,7 @@ fetch_biomarkers <- function(project = NULL, project_version_id = NULL, measurem
   biomarkers <- geco_api(TIMEVARYING, project_version_id = pv_id, url_query_parameters = filters)
   b <- as_dataframe.geco_api_data(biomarkers, flatten_names = 'params')
   if (nrow(b) > 0 && 'params' %in% names(b) && isTRUE(annotate)) {
-    b <- b %>% tidyr::unnest_wider(.data$params)
+    b <- b %>% tidyr::unnest_wider(.data$params, names_repair = 'universal')
   }
   suppressWarnings({
     b <- b %>%
