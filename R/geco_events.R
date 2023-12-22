@@ -57,7 +57,7 @@ pivot_events_wider <- function(.d) {
   d <- as_dataframe.geco_api_data(events, flatten_names = c('params'))
   if ('params' %in% names(d)) {
     d <- d %>%
-      tidyr::unnest_wider(.data$params)
+      tidyr::unnest_wider(.data$params, names_repair = 'universal')
   }
   suppressWarnings({
     d <- d %>%
