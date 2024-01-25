@@ -66,7 +66,6 @@
 #'
 #' @docType package
 #' @name rgeco
-NULL
 
 xarray <- NULL
 

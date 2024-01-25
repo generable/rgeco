@@ -18,6 +18,8 @@ fetch_pkpd <- function(project = NULL, project_version_id = NULL, pd_measure = N
   pkpd <- prep_pkpd_data(biomarkers_data = b, dose_data = d, pd_measure = pd_measure, pk_measure = pk_measure)
 }
 
+.datatable.aware = TRUE
+
 #' Merge and annotate pkpd biomarkers data with dosing data
 #' returns a data.frame suitable for plotting and analysis.
 #' @param biomarkers_data data.frame containing biomarkers data
@@ -25,7 +27,7 @@ fetch_pkpd <- function(project = NULL, project_version_id = NULL, pd_measure = N
 #' @param pk_measure measurement_name of PK measurement (defaults to 'conc', NULL indicates no PK marker)
 #' @param pd_measure measurement_name of PD measurement (defaults to NULL - no PD marker)
 #' @return data.frame containing merged biomarker & dose data for the PK & PD parameter selected, with columns annotating cycles, time since last SDA, and measurement type.
-#' @import data.table
+#' @importFrom data.table setkeyv data.table
 #' @export
 prep_pkpd_data <- function(biomarkers_data, dose_data, pd_measure = NULL, pk_measure = NULL) {
   if (nrow(dose_data) == 0) {
@@ -46,7 +48,6 @@ prep_pkpd_data <- function(biomarkers_data, dose_data, pd_measure = NULL, pk_mea
     dplyr::mutate(hours = .data$dose_start_hours) %>%
     data.table::data.table()
   biomarkersDT <- data.table::data.table(biomarkers_data)
-  .datatable.aware = TRUE
   data.table::setkeyv(biomarkersDT, c('subject_id', 'hours'))
   data.table::setkeyv(dosesDT, c('subject_id', 'hours'))
   # for each PK measurement, identify the dose immediately preceding it
