@@ -34,7 +34,8 @@ Imports:
     table1,
     reticulate,
     boot,
-    cli
+    cli,
+    data.table
 Suggests: 
     testthat,
     knitr,
@@ -43,5 +44,5 @@ Suggests:
     scales,
     tidyverse,
     utils
-RoxygenNote: 7.2.0
+RoxygenNote: 7.3.1
 VignetteBuilder: knitr
