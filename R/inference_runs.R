@@ -130,6 +130,7 @@ list_parameter_names <- function(run_id, project = NULL, project_version_id = NU
                   submodel = dplyr::case_when(stringr::str_detect(.data$name, pattern = 'kg')
                                               | stringr::str_detect(.data$name, pattern = 'ks')
                                               | stringr::str_detect(.data$name, pattern = 'f')
+                                              | stringr::str_detect(.data$name, pattern = '^d')
                                               | stringr::str_detect(.data$name, pattern = 'sld') ~ 'biomarker',
                                               stringr::str_detect(.data$name, pattern = 'association') ~ 'association',
                                               stringr::str_detect(.data$name, pattern = 'hazard')
@@ -156,6 +157,7 @@ list_parameter_names <- function(run_id, project = NULL, project_version_id = NU
   kg="kg per subject (kg = growth rate among resistant cells)",
   ks="ks per subject (ks = shrinkage rate among susceptible cells",
   f="f per subject (f = portion of cells that are drug-susceptible)",
+  d="d per subject (d = delay time to start of regrowth via kg)",
   bas_sld="subject-specific estimated SLD at time 0",
   association_states="derived quantities for association structure",
   sld_trial_arm_betas="SLD parameter offsets per trial arm",

@@ -4,7 +4,7 @@
 \alias{login}
 \title{Log in to the Generable API}
 \usage{
-login(user, password)
+login(user, password, host)
 }
 \arguments{
 \item{user}{User email address. If not provided, will read the `GECO_API_USER` environment variable.}

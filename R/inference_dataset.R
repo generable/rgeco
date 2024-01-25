@@ -100,7 +100,7 @@ fetch_dataset <- function(run_id, project = NULL, project_version_id = NULL) {
   if (name == 'biomarkers') {
     .format_data(results, numeric_fields = c('measurement_value'))
   } else if (name == 'subjects') {
-    .format_data(results)
+    .format_data(results, character_fields = c('ecog'))
   } else {
     .format_data(results)
   }
@@ -114,13 +114,17 @@ fetch_dataset <- function(run_id, project = NULL, project_version_id = NULL) {
   names(contains_numeric)[contains_numeric]
 }
 
-.format_data <- function(results, numeric_fields = c()) {
+.format_data <- function(results, numeric_fields = c(), character_fields = c()) {
   numeric_fields <- c(numeric_fields, .discover_numeric_fields(results))
   results <- results %>%
+    purrr::map(purrr::compact) %>%
     purrr::map(tibble::as_tibble)
   if (length(numeric_fields) > 0)
     results <- results %>%
     purrr::map(dplyr::mutate_at, .vars = dplyr::vars(dplyr::one_of(numeric_fields)), .funs = as.double)
+  if (length(character_fields) > 0)
+    results <- results %>%
+    purrr::map(dplyr::mutate_at, .vars = dplyr::vars(dplyr::one_of(character_fields)), .funs = as.character)
   dplyr::bind_rows(results)
 }
 

@@ -77,6 +77,16 @@ xarray <- NULL
 }
 
 #' @import cli
+#' @importFrom keyring backend_file
+.check_keyring_setup <- function() {
+  use_keyring <- Sys.getenv('GECO_API_NO_KEYRING') == ""
+  if (use_keyring && keyring::has_keyring_support()) {
+    cli::cli_inform('This package uses `keyring` to store passwords on your local system securely.')
+    cli::cli_alert_success('Keyring supported.')
+  }
+}
+
+#' @import cli
 .check_python_installed <- function() {
   a <- reticulate::py_discover_config()
   if (is.null(a) || length(a)<1) {

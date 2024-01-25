@@ -49,6 +49,10 @@ convert_xarray_to_df <- function(resp, name = NULL) {
         df <- df %>%
           dplyr::rename(study_id = .data$study)
       }
+      if ('measurement' %in% names(df)) {
+        df <- df %>%
+          dplyr::rename(measurement_id = .data$measurement)
+      }
     }
   }
   df

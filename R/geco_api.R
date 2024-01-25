@@ -56,6 +56,20 @@ geco_api_url <- function(..., project = NULL, project_version_id = NULL, run_id=
   glue::glue_safe(url)
 }
 
+#' Never cache certain endpoints
+.clean_cache <- function() {
+  nocache_endpoints <- c(
+    LOGIN,
+    PROJECTVERSIONS,
+    PROJECTS,
+    IDATA,
+    IMODELS,
+    IRUNS
+  )
+  nocache_endpoints |>
+    purrr::walk(httpcache::dropOnly)
+}
+
 #' Log in to the Generable API
 #'
 #' This function logs the user into the Generable API.
@@ -72,12 +86,22 @@ geco_api_url <- function(..., project = NULL, project_version_id = NULL, run_id=
 #' @param password User password. If not provided, will read the `GECO_API_PASSWORD` environment variable.
 #' @return The OAuth 2.0 Bearer Token for the Generable API
 #' @export
-login <- function(user, password) {
-  if (missing(user)) {
-    user <- Sys.getenv('GECO_API_USER')
+login <- function(user, password, host) {
+  url <- .get_url(host)
+  if (missing(password) || missing(user)) {
+    use_keyring <- Sys.getenv('GECO_API_NO_KEYRING') == ""
+    if (!use_keyring) {
+      user <- Sys.getenv('GECO_API_USER')
+      password <- Sys.getenv('GECO_API_PASSWORD')
+    } else {
+      # get credentials from keyring
+      creds <- .get_credentials(host = host, user = user)
+      user = creds[1]
+      password = creds[2]
+    }
   }
-  if (missing(password)) {
-    password <- Sys.getenv('GECO_API_PASSWORD')
+  if (is.null(user)) {
+    cli::cli_inform('Note: credential storage has changed; please run `configure()` to migrate to the new storage.')
   }
   body <- list(email = user, password = password)
   resp <- geco_api(LOGIN, body = body, encode = 'json', method = 'POST')
@@ -85,7 +109,132 @@ login <- function(user, password) {
   invisible(resp$content)
 }
 
+#' Configure Geco credentials, saving in keyring
+#' @param user Geco user name (email address). Defaults to GECO_API_USER environment variable
+#' @param password Geco password (will prompt if not provided). Defaults to GECO_API_PASSWORD environment variable
+#' @param host (optional) alternate host for API, only used for testing
+#' @import keyring
+#' @export
+configure <- function(user, password, host) {
+  cli::cli_inform('Configuring credentials for Geco API')
+  url <- .get_url(host)
+  if (missing(user)) {
+    cli::cli_inform('Reading username from environment variable: GECO_API_USER')
+    user <- Sys.getenv('GECO_API_USER', unset = '')
+    if (user == '') {
+      stop('Username not provided.')
+    }
+  }
+  if (missing(password)) {
+    cli::cli_inform('Reading password from environment variable: GECO_API_PASSWORD')
+    password <- Sys.getenv('GECO_API_PASSWORD', unset = '')
+    cli::cli_inform('GECO_API_PASSWORD not found. Prompting you for your geco password.')
+    if (password == '' && interactive()) {
+      password <- rstudioapi::askForPassword(prompt = 'Please enter your geco password.')
+    }
+  }
+  cli::cli_inform('Attempting to log in ...')
+  res <- tryCatch(login(user=user, password = password, host=host))
+  if (inherits(res, 'try-error')) {
+    cli::cli_alert_warning('Failed to authenticate.')
+  } else {
+    cli::cli_alert_success('Success!')
+    if (keyring::has_keyring_support() && interactive() && askYesNo("Do you want to save credentials in your keyring?")) {
+      keyring::key_set_with_value(service = .get_keyring_service(),
+                                  username = user, password = password)
+      cli::cli_alert_success('Credentials saved.')
+    } else {
+      cli::cli_inform('Populating credentials in environment variables.')
+      Sys.setenv('GECO_API_USER'=user)
+      Sys.setenv('GECO_API_PASSWORD'=password)
+      Sys.setenv('GECO_API_URL'=url)
+    }
+  }
+}
 
+#' List saved configurations
+#' @param host Host identifier, defaults to 'geco'
+#' @export
+list_configs <- function(host='geco') {
+  service <- .get_keyring_service(host)
+  key_list(service)
+}
+
+#' Drop saved configurations
+#' Warning! this will remove all saved configurations from the host.
+#' @param host Host identifier, defaults to 'geco'
+#' @param user Optional username, provided as a string.
+#' @seealso [list_configs()]
+#' @export
+drop_configs <- function(user, host='geco') {
+  service <- .get_keyring_service(host)
+  keys <- key_list(service)
+  if (!missing(user)) {
+    keys <- keys %>%
+      filter(username == !!user)
+  }
+  if (nrow(keys) == 0) {
+    cli::cli_alert_info('No keys found.')
+  } else {
+    cli::cli_alert_warning('This will drop _ALL_ saved configs listed.')
+    print(keys)
+    confirm <- askYesNo("Do you want to drop these configs from your keyring?",
+                        default = FALSE)
+    if (!is.na(confirm) && isTRUE(confirm)) {
+      keys %>%
+        dplyr::pull(username) %>%
+        purrr::walk(~ keyring::key_delete(service=service, username = .))
+    }
+  }
+}
+
+
+.get_keyring_service <- function(host) {
+  url <- .get_url(host)
+  stringr::str_c('R-GECO_API', url, sep = '-')
+}
+.get_url <- function(host) {
+  if (missing(host)) {
+    url <- Sys.getenv('GECO_API_URL', unset = 'https://geco.generable.com')
+  } else {
+    url <- glue::glue('https://{host}.generable.com')
+    Sys.setenv('GECO_API_URL' = url)
+  }
+  url
+}
+
+# returns vector as username, password
+.get_credentials <- function(host, user) {
+  if (!keyring::has_keyring_support()) {
+    if (missing(user)) {
+      user <- Sys.getenv('GECO_API_USER')
+    }
+    password <- Sys.getenv('GECO_API_PASSWORD')
+    return(c(user, password))
+  }
+  # get user & reconcile with keychain
+  service <- .get_keyring_service(host)
+  keys <- key_list(service)
+  if (missing(user)) {
+    if (nrow(keys) == 1) {
+      user <- unique(keys$username)
+    } else {
+      user <- Sys.getenv('GECO_API_USER', unset = 'null')
+      if (is.null(user)) {
+        stop("Multiple users configured; please set default user with GECO_API_USER environment variable")
+      }
+    }
+  } else if (user %in% keys$username) {
+    Sys.setenv('GECO_API_USER' = user)
+  } else {
+    stop('User does not exist in keyring; please run `configure()`')
+  }
+  # get password
+  password <- key_get(service, username = user)
+  return(c(user, password))
+}
+
+#' @importFrom httr add_headers
 get_auth <- function() {
   if (!exists(envir = ENV, '.GECO_AUTH')) {
     futile.logger::flog.error('Not logged in. Use `login(user, password)` to login.')
@@ -94,23 +243,26 @@ get_auth <- function() {
   httr::add_headers(.headers = unlist(ENV$.GECO_AUTH))
 }
 
-#' @import httr
+#' @importFrom httr user_agent http_error content status_code
+#' @importFrom httpcache GET POST
 #' @importFrom RJSONIO fromJSON
 geco_api <- function(path, ..., method = c('GET', 'POST'), project = NULL, project_version_id = NULL, run_id=NULL, type=NULL, parameter=NULL, filters=NULL, url_query_parameters=NULL) {
   url <- geco_api_url(path, project = project, project_version_id = project_version_id, run_id=run_id, type=type, parameter=parameter, filters=filters, url_query_parameters=url_query_parameters)
 
   ua <- httr::user_agent("https://github.com/generable/rgeco")
+  .clean_cache()
 
   method <- match.arg(method, several.ok = FALSE)
   if (method == 'GET')
-    resp <- try(httr::GET(url, ..., get_auth(), ua))
+    resp <- try(httpcache::GET(url, ..., get_auth(), ua))
   else if (method == 'POST')
-    resp <- try(httr::POST(url, ..., ua))
+    resp <- try(httpcache::POST(url, ..., ua))
   #if (httr::http_type(resp) != "application/json") {
   #  stop("API did not return json", call. = FALSE)
   #}
   if (inherits(resp, 'try-error')) {
     stop(glue::glue("Error connecting to API: {url} {print(resp)}"))
+    httpcache::dropOnly(url)
   }
 
   parsed <- try(RJSONIO::fromJSON(httr::content(resp, "text", encoding = 'UTF-8'), simplify = FALSE), silent = T)
