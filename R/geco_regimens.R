@@ -11,7 +11,7 @@
     purrr::map('treatments')
 
   td <- purrr::map_dfr(treatments, ~ as_dataframe.geco_api_data(content = .x, flatten_names = 'drug'), .id = 'regimen_id') %>%
-    tidyr::unnest_wider(.data$drug, names_sep = '_') %>%
+    tidyr::unnest_wider(.data$drug, names_sep = '_', names_repair = 'universal') %>%
     dplyr::rename_at(.vars = dplyr::vars(-dplyr::starts_with('drug'),
                                          -dplyr::starts_with('regimen')),
                      .funs = .add_prefix,

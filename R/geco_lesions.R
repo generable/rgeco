@@ -95,7 +95,7 @@ fetch_lesions <- function(project = NULL, project_version_id = NULL, annotate = 
   lesions <- geco_api(LESIONS, project_version_id = pv_id, url_query_parameters = filters)
   d <- as_dataframe.geco_api_data(lesions, flatten_names = 'params')
   if (nrow(d) > 0 && 'params' %in% names(d) && isTRUE(annotate)) {
-    d <- d %>% tidyr::unnest_wider(.data$params)
+    d <- d %>% tidyr::unnest_wider(.data$params, names_repair = 'universal')
   }
   suppressWarnings({
     d <- d %>%
