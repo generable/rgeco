@@ -17,14 +17,21 @@
 #'
 #' @param project Project name. If NULL, defaults to value of environment variable GECO_API_PROJECT
 #' @param project_version_id Project version. If NULL, defaults to the most recent version of the project if provided, or the value of environment variable GECO_API_PROJECT_VERSION
+#' @param description Vector of lab names to return. `NULL` returns all measurements. Default
+#'        is `NULL`.
+#' @param baseline_flag if `TRUE`, return only baseline values
 #' @param annotate if `TRUE`, annotate lab data with dose data. Default is `TRUE`.
+#' @param ... Optional filters applied to subjects data, provided as name-value pairs where names are fields and values contain a subset of valid values
+#'      Example: trial_name = c('trial-A', 'trial-N'), performance_status = c(0,1)
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!
 #' @return data.frame of lab data for the project specified
 #' @export
-fetch_labs <- function(project = NULL, project_version_id = NULL, annotate = T) {
+fetch_labs <- function(project = NULL, project_version_id = NULL, description = NULL, baseline_flag = NULL, annotate = T, ...) {
+  where <- rlang::list2(...)
+  where <- .check_format(where, alert = T)
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
-  d <- .fetch_labs_data(project_version_id = pv_id, annotate = annotate)
+  d <- .fetch_labs_data(project_version_id = pv_id, annotate = annotate, description=description, baseline_flag=baseline_flag, where=where)
   if (nrow(d) == 0 && !is.null(project)) {
     futile.logger::flog.info(glue::glue('No labs information available for this version of project {project} data.'))
   } else if (nrow(d) == 0) {
@@ -34,10 +41,19 @@ fetch_labs <- function(project = NULL, project_version_id = NULL, annotate = T) 
 }
 
 #' @importFrom magrittr %>%
-.fetch_labs_data <- function(project = NULL, project_version_id = NULL, annotate = T) {
+.fetch_labs_data <- function(project = NULL, project_version_id = NULL, annotate = T,
+                             description = NULL, baseline_flag = NULL, where = list()) {
   pv_id <- .process_project_inputs(project = project, project_version_id = project_version_id)
-  labs <- geco_api(LABS, project_version_id = pv_id)
+  if (!is.null(description)) {
+    where <- .update_filter(where, description = description)
+  }
+  if (!is.null(baseline_flag)) {
+    where <- .update_filter(where, baseline_flag=baseline_flag)
+  }
+  filters <- .prepare_filter(where, endpoint = 'LABS')
+  labs <- geco_api(LABS, project_version_id = pv_id, url_query_parameters = filters)
   d <- as_dataframe.geco_api_data(labs, flatten_names = 'params')
+  d <- .apply_filters(d, where)
   suppressWarnings({
     d <- d %>%
       dplyr::rename_at(.vars = dplyr::vars(dplyr::one_of(c('created_at', 'params', 'id', 'description'))),
