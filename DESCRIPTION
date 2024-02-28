@@ -35,6 +35,7 @@ Imports:
     reticulate,
     boot,
     cli,
+    data.table,
     httpcache,
     keyring
 Suggests: 
@@ -45,5 +46,5 @@ Suggests:
     scales,
     tidyverse,
     utils
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 VignetteBuilder: knitr
