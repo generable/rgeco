@@ -14,6 +14,7 @@ PROJECTVERSIONS <- 'data/project/{project}/projectversions'
 PROJECTS <- 'data/projects'
 LESIONS <- 'data/projectversion/{project_version_id}/lesions'
 LESIONTV <- 'data/projectversion/{project_version_id}/lesiontvs'
+AES <- 'data/projectversion/{project_version_id}/ae'
 
 # ---- inference api endpoints ----
 IDATA <- 'inferences/projectversion/{project_version_id}/dataset/attributes'

@@ -111,10 +111,14 @@
     c()
   } else if (endpoint == 'TRIALARMS') {
     c('trial_id', 'trial_arm_id')
+  } else if (endpoint == 'LABS') {
+    c('trial_id', 'trial_arm_id', 'subject_id', 'description', 'baseline_flag')
   } else if (endpoint == 'SUBJECTS') {
     c('trial_id', 'trial_arm_id', 'age_min', 'age_max')
   } else if (endpoint == 'EVENTS') {
     c('trial_id', 'trial_arm_id', 'subject_id', 'event_type')
+  } else if (endpoint == 'AES') {
+    c('trial_id', 'trial_arm_id', 'subject_id', 'event_type', 'serious_event_flag')
   } else if (endpoint == 'TIMEVARYING') {
     c('trial_id', 'trial_arm_id', 'subject_id', 'measurement_name')
   } else if (endpoint == 'DOSE') {
