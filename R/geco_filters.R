@@ -118,7 +118,7 @@
   } else if (endpoint == 'TIMEVARYING') {
     c('trial_id', 'trial_arm_id', 'subject_id', 'measurement_name')
   } else if (endpoint == 'DOSE') {
-    c('trial_id', 'trial_arm_id', 'subject_id')
+    c('trial_id', 'trial_arm_id', 'subject_id', 'day_min', 'day_max')
   } else if (endpoint == 'LESIONS') {
     c('trial_id', 'trial_arm_id', 'subject_id')
   } else if (endpoint == 'LESIONTV') {
