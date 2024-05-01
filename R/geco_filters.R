@@ -136,5 +136,6 @@
   updates <- rlang::list2(...)
   updates <- .check_format(updates)
   filter %>%
-    purrr::list_merge(!!!updates)
+    purrr::list_merge(!!!updates) %>%
+    purrr::map_depth(2, unique)
 }
