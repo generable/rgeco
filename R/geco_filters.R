@@ -112,21 +112,21 @@
   } else if (endpoint == 'TRIALARMS') {
     c('trial_id', 'trial_arm_id')
   } else if (endpoint == 'LABS') {
-    c('trial_id', 'trial_arm_id', 'subject_id', 'description', 'baseline_flag')
+    c('trial_id', 'trial_arm_id', 'subject_id', 'description', 'baseline_flag', 'n_subjects')
   } else if (endpoint == 'SUBJECTS') {
-    c('trial_id', 'trial_arm_id', 'age_min', 'age_max')
+    c('trial_id', 'trial_arm_id', 'age_min', 'age_max', 'n_subjects')
   } else if (endpoint == 'EVENTS') {
-    c('trial_id', 'trial_arm_id', 'subject_id', 'event_type')
+    c('trial_id', 'trial_arm_id', 'subject_id', 'event_type', 'n_subjects')
   } else if (endpoint == 'AES') {
-    c('trial_id', 'trial_arm_id', 'subject_id', 'event_type', 'serious_event_flag')
+    c('trial_id', 'trial_arm_id', 'subject_id', 'event_type', 'serious_event_flag', 'n_subjects')
   } else if (endpoint == 'TIMEVARYING') {
-    c('trial_id', 'trial_arm_id', 'subject_id', 'measurement_name')
+    c('trial_id', 'trial_arm_id', 'subject_id', 'measurement_name', 'n_subjects')
   } else if (endpoint == 'DOSE') {
-    c('trial_id', 'trial_arm_id', 'subject_id', 'day_min', 'day_max')
+    c('trial_id', 'trial_arm_id', 'subject_id', 'day_min', 'day_max', 'n_subjects')
   } else if (endpoint == 'LESIONS') {
-    c('trial_id', 'trial_arm_id', 'subject_id')
+    c('trial_id', 'trial_arm_id', 'subject_id', 'n_subjects')
   } else if (endpoint == 'LESIONTV') {
-    c('trial_id', 'trial_arm_id', 'subject_id', 'lesion_id', 'measurement_name')
+    c('trial_id', 'trial_arm_id', 'subject_id', 'lesion_id', 'measurement_name', 'n_subjects')
   } else {
     c()
   }
