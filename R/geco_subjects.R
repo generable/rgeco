@@ -108,7 +108,7 @@ fetch_subjects <- function(project = NULL, project_version_id = NULL, event_type
   }
   if ('baseline_weight_min' %in% names(s)) {
     s <- s %>%
-      dplyr::mutate(baseline_weight = .data$baseline_weight_min + .data$baseline_weight_max / 2)
+      dplyr::mutate(baseline_weight = (.data$baseline_weight_min + .data$baseline_weight_max) / 2)
   }
   if ('indication' %in% names(s)) {
     s <- s %>%
