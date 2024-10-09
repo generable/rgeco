@@ -46,16 +46,21 @@ fetch_doses <- function(project = NULL, project_version_id = NULL, ...) {
                        .funs = ~ stringr::str_c('dose_', .x))
   })
   if (nrow(d) > 0) {
-    d <- d %>%
-      dplyr::mutate(start_hours = .format_hours(.data$trial_day, .data$start_time),
-                    end_hours = .format_hours(.data$trial_day, .data$end_time)) %>%
-      dplyr::group_by(.data$subject_id) %>%
-      dplyr::mutate(cycle_num = dplyr::dense_rank(.data$start_hours)) %>%
-      dplyr::ungroup() %>%
-      dplyr::mutate(administered = factor(stringr::str_c(.data$amount, .data$unit)),
-                    administered = forcats::fct_reorder(.data$administered, .data$amount),
-                    cycle = factor(stringr::str_c('Cycle ', .data$cycle_num)),
-                    cycle = forcats::fct_reorder(.data$cycle, .data$cycle_num))
+    if ('start_time' %in% names(d)) {
+      d <- d %>%
+        dplyr::mutate(start_hours = .format_hours(.data$trial_day, .data$start_time)) %>%
+        dplyr::group_by(.data$subject_id) %>%
+        dplyr::mutate(cycle_num = dplyr::dense_rank(.data$start_hours)) %>%
+        dplyr::ungroup() %>%
+        dplyr::mutate(administered = factor(stringr::str_c(.data$amount, .data$unit)),
+                      administered = forcats::fct_reorder(.data$administered, .data$amount),
+                      cycle = factor(stringr::str_c('Cycle ', .data$cycle_num)),
+                      cycle = forcats::fct_reorder(.data$cycle, .data$cycle_num))
+    }
+    if ('end_time' %in% names(d)) {
+      d <- d %>%
+        dplyr::mutate(end_hours = .format_hours(.data$trial_day, .data$end_time))
+    }
   }
   .apply_filters(d, where)
 }

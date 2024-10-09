@@ -18,6 +18,8 @@ fetch_pkpd <- function(project = NULL, project_version_id = NULL, pd_measure = N
   pkpd <- prep_pkpd_data(biomarkers_data = b, dose_data = d, pd_measure = pd_measure, pk_measure = pk_measure)
 }
 
+.datatable.aware = TRUE
+
 #' Merge and annotate pkpd biomarkers data with dosing data
 #' returns a data.frame suitable for plotting and analysis.
 #' @param biomarkers_data data.frame containing biomarkers data
@@ -25,6 +27,7 @@ fetch_pkpd <- function(project = NULL, project_version_id = NULL, pd_measure = N
 #' @param pk_measure measurement_name of PK measurement (defaults to 'conc', NULL indicates no PK marker)
 #' @param pd_measure measurement_name of PD measurement (defaults to NULL - no PD marker)
 #' @return data.frame containing merged biomarker & dose data for the PK & PD parameter selected, with columns annotating cycles, time since last SDA, and measurement type.
+#' @importFrom data.table setkeyv data.table
 #' @export
 prep_pkpd_data <- function(biomarkers_data, dose_data, pd_measure = NULL, pk_measure = NULL) {
   if (nrow(dose_data) == 0) {
@@ -40,37 +43,43 @@ prep_pkpd_data <- function(biomarkers_data, dose_data, pd_measure = NULL, pk_mea
   if (!'start_hours' %in% names(dose_data)) {
     stop('dose_data does not have start_hours data. Cannot prepare pkpd data without a formatted start time.')
   }
-  dose_data_renamed <- dose_data %>%
+  dosesDT <- dose_data %>%
     dplyr::rename_at(.vars = dplyr::vars(-.data$subject_id, -.data$drug), .funs = ~ stringr::str_c('dose_', .x)) %>%
-    dplyr::mutate(hours = .data$dose_start_hours)
-  if ('collection_timepoint' %in% names(biomarkers_data)) {
-    merged_data <- biomarkers_data %>%
-      dplyr::mutate(.dir = dplyr::if_else(.data$collection_timepoint == 'Pre-infusion', 'forward', 'reverse')) %>%
-      rolling_join(dose_data_renamed,
-                   by = 'subject_id',
-                   on = 'hours',
-                   direction_field = '.dir',
-                   how = 'left',
-                   suffix = c('', '.dose')) %>%
-      dplyr::select(-.data$hours.dose, -.data$.dir)
-  } else {
-    merged_data <- rolling_join(biomarkers_data,
-                                dose_data_renamed,
-                                by = 'subject_id',
-                                on = 'hours',
-                                direction = 'reverse',
-                                how = 'left',
-                                suffix = c('', '.dose')) %>%
-      dplyr::select(-.data$hours.dose)
-  }
+    dplyr::mutate(hours = .data$dose_start_hours) %>%
+    data.table::data.table()
+  biomarkersDT <- data.table::data.table(biomarkers_data)
+  data.table::setkeyv(biomarkersDT, c('subject_id', 'hours'))
+  data.table::setkeyv(dosesDT, c('subject_id', 'hours'))
+  # for each PK measurement, identify the dose immediately preceding it
+  prior_dose <- dosesDT[biomarkersDT, roll = T]
+  # also identify the next dose
+  next_dose <- dosesDT[biomarkersDT, roll = -Inf]
+
+  ## construct final data frame:
+  # for measurements with a preceding dose, use this as the "closest dose"
+  with_prior_dose <- prior_dose |>
+    dplyr::filter(!is.na(.data$dose_dose_id))
+  # otherwise, use next dose
+  no_prior_dose <- next_dose |>
+    dplyr::anti_join(with_prior_dose, by = 'measurement_id')
+  merged_data <- dplyr::bind_rows(with_prior_dose,
+                           no_prior_dose) |>
+    dplyr::arrange(subject_id, hours) |>
+    dplyr::mutate(hours_since_SDA = hours - dose_start_hours)
+
+
+  # merged_data <- rolling_join(biomarkers_data,
+  #                             dose_data_renamed,
+  #                             by = 'subject_id',
+  #                             on = 'hours',
+  #                             direction = 'reverse',
+  #                             how = 'left',
+  #                             suffix = c('', '.dose')) %>%
+  #   dplyr::select(-.data$hours.dose)
   if (nrow(merged_data) != nrow(biomarkers_data)) {
     futile.logger::flog.warn(glue::glue("Number of records in biomarkers data changed after join, from {nrow(biomarkers_data)} to {nrow(merged_data)}."))
   }
-  pkpd_data <- annotate_pkpd_data(merged_data, pd_measure = pd_measure, pk_measure = pk_measure)
-  if (nrow(pkpd_data) != nrow(biomarkers_data)) {
-    futile.logger::flog.warn(glue::glue("Number of records in biomarkers data changed after annotation, from {nrow(biomarkers_data)} to {nrow(pkpd_data)}."))
-  }
-  pkpd_data
+  merged_data
 }
 
 #' @importFrom rlang !!

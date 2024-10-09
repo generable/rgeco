@@ -2,8 +2,16 @@
 % Please edit documentation in R/rgeco-package.R
 \docType{package}
 \name{rgeco}
+\alias{-package}
 \alias{rgeco}
+\alias{xarray}
 \title{rgeco: R package for accessing the Generable API}
+\format{
+An object of class \code{python.builtin.module} (inherits from \code{python.builtin.object}) of length 0.
+}
+\usage{
+xarray
+}
 \description{
 The Generable API is a HTTP REST API that provides access
 to data and inferences. The rgeco package provides convenient
@@ -75,3 +83,4 @@ Key methods for working with inferences are:
 }
 }
 
+\keyword{datasets}
