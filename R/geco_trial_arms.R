@@ -29,7 +29,7 @@
     }
     if ('params' %in% names(ta) && all(purrr::map_int(ta$params, nrow) == 1)) {
       ta <- ta %>%
-        tidyr::unnest_wider(.data$params)
+        tidyr::unnest_wider(.data$params, names_repair = 'universal')
     }
   }
   suppressWarnings({

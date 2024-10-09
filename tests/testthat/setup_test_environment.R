@@ -5,6 +5,7 @@ test_login <- function() {
   }
   futile.logger::flog.info('Logging in as test user ...')
   Sys.setenv(GECO_API_URL=Sys.getenv('GECO_API_TEST_URL'))
+  configure()
   a <- login(Sys.getenv('GECO_API_TEST_USER'), password = Sys.getenv('GECO_API_TEST_PASSWORD'))
 }
 
