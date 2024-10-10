@@ -255,9 +255,9 @@ geco_api <- function(path, ..., method = c('GET', 'POST'), project = NULL, proje
 
   method <- match.arg(method, several.ok = FALSE)
   if (method == 'GET')
-    resp <- try(httpcache::GET(url, ..., get_auth(), ua))
+    resp <- try(httpcache::GET(url, ..., get_auth(), ua, timeout(30)))
   else if (method == 'POST')
-    resp <- try(httpcache::POST(url, ..., ua))
+    resp <- try(httpcache::POST(url, ..., ua, timeout(30)))
   #if (httr::http_type(resp) != "application/json") {
   #  stop("API did not return json", call. = FALSE)
   #}
